@@ -1,0 +1,39 @@
+export class UsuariosDTO {
+  id: number;
+  creacion: string;
+  modificacion: string;
+  idtipousuario: number;
+  nombres: string;
+  username: string;
+  password: string;
+  logintype: string;
+  apellidopaterno: string;
+  apellidomaterno: string;
+  rfc: string;
+  curp: string;
+  domicilio: string;
+  colonia: string;
+  cp: number;
+  municipio: string;
+  localidad: string;
+  entidad: string;
+  email: string;
+  nacionalidad: string;
+  sexo: string;
+  tiposangre: string;
+  donador: string;
+  lugartrabajo: string;
+  restricciones: string;
+  observacionmedica: string;
+  conocido_nombres: string;
+  conocido_apellidopaterno: string;
+  conocido_apellidomaterno: string;
+  conocido_domicilio: string;
+  conodico_cp: number;
+  conodico_colonia: string;
+  conodico_municipio: string;
+  conodico_localidad: string;
+  conodico_telefono: string;
+  idestatus: number;
+
+}
