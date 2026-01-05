@@ -1,3 +1,5 @@
+import { ApiProperty } from '@nestjs/swagger';
+
 export class UsuariosDTO {
   id: number;
   creacion: string;
@@ -35,5 +37,26 @@ export class UsuariosDTO {
   conodico_localidad: string;
   conodico_telefono: string;
   idestatus: number;
+}
 
+export class getUsuarioByIdDTO {
+  existe: boolean;
+  usuario?: UsuariosDataDTO;
+}
+
+export class UsuariosDataDTO {
+  nombres: string;
+  apellidopaterno: string;
+  apellidomaterno: string;
+  rfc: string;
+  curp: string;
+  email: string;
+  sexo: string;
+  telefono: string;
+  estatus: string;
+}
+
+export class getUsuarioByIdReq {
+  @ApiProperty({ description: 'ID del usuario a buscar', example: 1 })
+  id: number;
 }
