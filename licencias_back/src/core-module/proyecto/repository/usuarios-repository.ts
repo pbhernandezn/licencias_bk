@@ -27,7 +27,7 @@ export class UsuariosRepository {
     try {
       const result = await this.usuariosRepository
         .createQueryBuilder('usuarios')
-        .leftJoinAndSelect(
+        .leftJoin(
           'cat_estatus',
           'estatus',
           'estatus.tabla = :tabla AND usuarios.idestatus = estatus.id',
@@ -42,10 +42,10 @@ export class UsuariosRepository {
           'usuarios.email',
           'usuarios.sexo',
           'usuarios.conodico_telefono',
-          'estatus.estatus',
+          'estatus.estatus AS estatus_estatus',
         ])
         .where('usuarios.id = :id', { id: request.id })
-        .getOne();
+        .getRawOne();
 
       const usuarioDTO: getUsuarioByIdDTO = {
         existe: !!result,
@@ -63,6 +63,8 @@ export class UsuariosRepository {
             }
           : undefined,
       };
+
+      console.log(result);
 
       //return new Wrapper(queryParams, 1, [usuarioDTO], true, 'Usuario encontrado', null);
       return usuarioDTO;
