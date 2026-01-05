@@ -13,9 +13,38 @@ import { UsuariosTService } from './proyecto/services/from-tables/usuarios-servi
 import { UsuariosRepository } from './proyecto/repository/usuarios-repository';
 import { UsuariosEntity } from './proyecto/models/entities/usuarios-entity';
 import { CatEstatusEntity } from './proyecto/models/entities/catEstatus-entity';
+import { CatCPEntity } from './proyecto/models/entities/catCP-entity';
+import { CatDocumentosEntity } from './proyecto/models/entities/catDocumentos-entity';
+import { CatLicenciasEntity } from './proyecto/models/entities/catLicencias-entity';
+import { CatLugaresEntity } from './proyecto/models/entities/catLugares-entity';
+import { CatPruebasEntity } from './proyecto/models/entities/catPruebas-entity';
+import { CatVigenciaEntity } from './proyecto/models/entities/catVigencia-entity';
+import { CatCPRepository } from './proyecto/repository/catCP-repository';
+import { CatDocumentosRepository } from './proyecto/repository/catDocumentos-repository';
+import { CatEstatusRepository } from './proyecto/repository/catEstatus-repository';
+import { CatLicenciasRepository } from './proyecto/repository/catLicencias-repository';
+import { CatLugaresRepository } from './proyecto/repository/catLugares-repository';
+import { CatPruebasRepository } from './proyecto/repository/catPruebas-repository';
+import { CatVigenciaRepository } from './proyecto/repository/catVigencia-repository';
+import { CatCPService } from './proyecto/services/from-tables/catcp-service';
+import { CatDocumentosService } from './proyecto/services/from-tables/catdocumentos-service';
+import { CatEstatusService } from './proyecto/services/from-tables/catestatus-service';
+import { CatLicenciasService } from './proyecto/services/from-tables/catlicencias-service';
+import { CatLugaresService } from './proyecto/services/from-tables/catlugares-service';
+import { CatPruebasService } from './proyecto/services/from-tables/catpruebas-service';
+import { CatVigenciaService } from './proyecto/services/from-tables/catvigencia-service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([CatUsuarioEntity, UsuariosEntity, CatEstatusEntity])],
+  imports: [TypeOrmModule.forFeature([CatUsuarioEntity, 
+    UsuariosEntity, 
+    CatEstatusEntity, 
+    CatUsuarioEntity,
+    CatCPEntity,
+    CatDocumentosEntity,
+    CatLicenciasEntity,
+    CatLugaresEntity,
+    CatPruebasEntity,
+    CatVigenciaEntity])],
   controllers: [CatalogoController, UsuariosController],
   providers: [
     CatUsuarioRepository,
@@ -27,6 +56,20 @@ import { CatEstatusEntity } from './proyecto/models/entities/catEstatus-entity';
     UsuariosService,
     UsuariosTService,
     UsuariosEntity,
+    CatCPRepository,
+    CatDocumentosRepository,
+    CatEstatusRepository,
+    CatLicenciasRepository,
+    CatLugaresRepository,
+    CatPruebasRepository,
+    CatVigenciaRepository,
+    CatCPService,
+    CatDocumentosService,
+    CatEstatusService,
+    CatLicenciasService,
+    CatLugaresService,
+    CatPruebasService,
+    CatVigenciaService,
   ],
   exports: [
     CatalogoExpose,
