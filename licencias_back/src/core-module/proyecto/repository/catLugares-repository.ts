@@ -19,6 +19,12 @@ export class CatLugaresRepository {
         private readonly catEstatusRepository: Repository<CatEstatusEntity>,
   ) {}
 
+  /**
+   * Obtiene la lista de todos los lugares del catálogo.
+   * @param queryParams - Parámetros de consulta para filtrado y paginación
+   * @returns Array con los datos de todos los lugares disponibles
+   * @throws ManejadorErrores si ocurre un error en la base de datos
+   */
   public async getCatLugares(
         queryParams: QueryParams
       ): Promise<Array<CatLugaresDataDTO>> {
@@ -63,6 +69,12 @@ export class CatLugaresRepository {
             }
       }
     
+      /**
+       * Obtiene los datos de un lugar específico por su ID.
+       * @param request - Objeto con el ID del lugar a buscar
+       * @returns Objeto con los datos del lugar si existe, de lo contrario un objeto con existe: false
+       * @throws ManejadorErrores si ocurre un error en la base de datos
+       */
       public async getCatLugarById(
           request: getCatLugarByIdReq
         ): Promise<getCatLugaresByIdDTO> {
@@ -111,7 +123,12 @@ export class CatLugaresRepository {
           }
         }
 
-  
+  /**
+   * Verifica si existe un lugar con el ID especificado.
+   * @param idRow - ID del lugar a verificar
+   * @returns Número de registros encontrados (0 si no existe, 1 si existe)
+   * @throws ManejadorErrores si ocurre un error en la base de datos
+   */
   public async isExistsCatLugares(idRow: number): Promise<number> {
     try {
       const query = this.repository
@@ -129,6 +146,11 @@ export class CatLugaresRepository {
     }
   }
 
+  /**
+   * Guarda un nuevo lugar en la base de datos.
+   * @param payload - Objeto con los datos del lugar a guardar
+   * @throws ManejadorErrores si ocurre un error en la base de datos
+   */
   public async saveCatLugares(payload: Partial<CatLugaresDTO>): Promise<void> {
     try {
       const unit = CatLugaresMapping.dTOToEntity(payload);
@@ -141,6 +163,12 @@ export class CatLugaresRepository {
     }
   }
 
+  /**
+   * Actualiza los datos de un lugar existente.
+   * @param id - ID del lugar a actualizar
+   * @param payload - Objeto con los nuevos datos a actualizar
+   * @throws ManejadorErrores si ocurre un error en la base de datos
+   */
   public async updateCatLugares(id: number, payload: Partial<CatLugaresDTO>): Promise<void> {
     try {
       const unit = CatLugaresMapping.dTOToEntity(payload);
@@ -153,6 +181,11 @@ export class CatLugaresRepository {
     }
   }
 
+  /**
+   * Elimina un lugar de la base de datos.
+   * @param id - ID del lugar a eliminar
+   * @throws ManejadorErrores si ocurre un error en la base de datos
+   */
   public async deleteCatLugares(id: number): Promise<void> {
     try {
       await this.repository.delete(id);

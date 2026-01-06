@@ -19,6 +19,12 @@ export class CatUsuarioRepository {
         private readonly catEstatusRepository: Repository<CatEstatusEntity>,
   ) {}
 
+  /**
+   * Obtiene la lista de todos los usuarios del catálogo.
+   * @param queryParams - Parámetros de consulta para filtrado y paginación
+   * @returns Array con los datos de todos los usuarios disponibles
+   * @throws ManejadorErrores si ocurre un error en la base de datos
+   */
   public async getCatUsuarios(
     queryParams: QueryParams
   ): Promise<Array<CatUsuariosDataDTO>> {
@@ -59,6 +65,12 @@ export class CatUsuarioRepository {
         }
   }
 
+  /**
+   * Obtiene los datos de un usuario específico por su ID.
+   * @param request - Objeto con el ID del usuario a buscar
+   * @returns Objeto con los datos del usuario si existe, de lo contrario un objeto con existe: false
+   * @throws ManejadorErrores si ocurre un error en la base de datos
+   */
   public async getCatUsuarioById(
       request: getCatUsuarioByIdReq
     ): Promise<getCatUsuarioByIdDTO> {
@@ -103,7 +115,12 @@ export class CatUsuarioRepository {
       }
     }
 
-  
+  /**
+   * Verifica si existe un usuario con el ID especificado.
+   * @param idRow - ID del usuario a verificar
+   * @returns Número de registros encontrados (0 si no existe, 1 si existe)
+   * @throws ManejadorErrores si ocurre un error en la base de datos
+   */
   public async isExistsCatUsuario(idRow: number): Promise<number> {
     try {
       const query = this.CatUsuarioRepository
@@ -121,6 +138,11 @@ export class CatUsuarioRepository {
     }
   }
 
+  /**
+   * Guarda un nuevo usuario en el catalogo de la base de datos.
+   * @param payload - Objeto con los datos del usuario a guardar
+   * @throws ManejadorErrores si ocurre un error en la base de datos
+   */
   public async saveCatUsuario(payload: Partial<CatUsuarioDTO>): Promise<void> {
     try {
       const unit = CatUsuarioMapping.dTOToEntity(payload);
@@ -133,6 +155,12 @@ export class CatUsuarioRepository {
     }
   }
 
+  /**
+   * Actualiza los datos de un usuario existente.
+   * @param id - ID del usuario a actualizar
+   * @param payload - Objeto con los nuevos datos a actualizar
+   * @throws ManejadorErrores si ocurre un error en la base de datos
+   */
   public async updateCatUsuario(id: number, payload: Partial<CatUsuarioDTO>): Promise<void> {
     try {
       const unit = CatUsuarioMapping.dTOToEntity(payload);
@@ -145,6 +173,11 @@ export class CatUsuarioRepository {
     }
   }
 
+  /**
+   * Elimina un usuario de la base de datos.
+   * @param id - ID del usuario a eliminar
+   * @throws ManejadorErrores si ocurre un error en la base de datos
+   */
   public async deleteCatUsuario(id: number): Promise<void> {
     try {
       await this.CatUsuarioRepository.delete(id);

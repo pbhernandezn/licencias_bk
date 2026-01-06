@@ -19,6 +19,12 @@ export class CatLicenciasRepository {
             private readonly catEstatusRepository: Repository<CatEstatusEntity>,
   ) {}
 
+    /**
+     * Obtiene los datos de una licencia específica por su ID.
+     * @param request - Objeto con el ID de la licencia a buscar
+     * @returns Objeto con los datos de la licencia si existe, de lo contrario un objeto con existe: false
+     * @throws ManejadorErrores si ocurre un error en la base de datos
+     */
     public async getCatLicenciasById(
             request: getCatLicenciaByIdReq
           ): Promise<getCatLicenciaByIdDTO> {
@@ -67,6 +73,12 @@ export class CatLicenciasRepository {
         }
       }
     
+      /**
+       * Obtiene todas las licencias asociadas a un código de licencia específico.
+       * @param request - Objeto con el código de licencia a buscar
+       * @returns Objeto con lista de licencias que coinciden con el código
+       * @throws ManejadorErrores si ocurre un error en la base de datos
+       */
       public async getCatLicenciasByLicencia(
           request: getLicenciasByLicenciaReq
         ): Promise<getLicenciasByLicenciaDTO> {
@@ -118,7 +130,12 @@ export class CatLicenciasRepository {
               }
         }
 
-  
+  /**
+   * Verifica si existe una licencia con el ID especificado.
+   * @param idRow - ID de la licencia a verificar
+   * @returns Número de registros encontrados (0 si no existe, 1 si existe)
+   * @throws ManejadorErrores si ocurre un error en la base de datos
+   */
   public async isExistsCatLicencias(idRow: number): Promise<number> {
     try {
       const query = this.repository
@@ -136,6 +153,11 @@ export class CatLicenciasRepository {
     }
   }
 
+  /**
+   * Guarda una nueva licencia en la base de datos.
+   * @param payload - Objeto con los datos de la licencia a guardar
+   * @throws ManejadorErrores si ocurre un error en la base de datos
+   */
   public async saveCatLicencias(payload: Partial<CatLicenciasDTO>): Promise<void> {
     try {
       const unit = CatLicenciasMapping.dTOToEntity(payload);
@@ -148,6 +170,12 @@ export class CatLicenciasRepository {
     }
   }
 
+  /**
+   * Actualiza los datos de una licencia existente.
+   * @param id - ID de la licencia a actualizar
+   * @param payload - Objeto con los nuevos datos a actualizar
+   * @throws ManejadorErrores si ocurre un error en la base de datos
+   */
   public async updateCatLicencias(id: number, payload: Partial<CatLicenciasDTO>): Promise<void> {
     try {
       const unit = CatLicenciasMapping.dTOToEntity(payload);
@@ -160,6 +188,11 @@ export class CatLicenciasRepository {
     }
   }
 
+  /**
+   * Elimina una licencia de la base de datos.
+   * @param id - ID de la licencia a eliminar
+   * @throws ManejadorErrores si ocurre un error en la base de datos
+   */
   public async deleteCatLicencias(id: number): Promise<void> {
     try {
       await this.repository.delete(id);

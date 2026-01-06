@@ -16,6 +16,12 @@ export class CatEstatusRepository {
     private readonly repository: Repository<CatEstatusEntity>,
   ) {}
 
+    /**
+     * Obtiene los datos de un estatus específico por su ID.
+     * @param request - Objeto con el ID del estatus a buscar
+     * @returns Objeto con los datos del estatus si existe, de lo contrario un objeto con existe: false
+     * @throws ManejadorErrores si ocurre un error en la base de datos
+     */
     public async getCatEstatusById(
         request: getCatEstatusByIdReq
       ): Promise<getCatEstatusByIdDTO> {
@@ -52,6 +58,12 @@ export class CatEstatusRepository {
     }
   }
 
+  /**
+   * Obtiene todos los estatus asociados a una tabla específica.
+   * @param request - Objeto con el nombre de la tabla a buscar
+   * @returns Objeto con lista de estatus que corresponden a la tabla
+   * @throws ManejadorErrores si ocurre un error en la base de datos
+   */
   public async getCatEstatusByTabla(
       request: getCatEstatusByTablaReq
     ): Promise<getCatEstatusByTablaDTO> {
@@ -90,7 +102,12 @@ export class CatEstatusRepository {
           }
     }
 
-  
+  /**
+   * Verifica si existe un estatus con el ID especificado.
+   * @param idRow - ID del estatus a verificar
+   * @returns Número de registros encontrados (0 si no existe, 1 si existe)
+   * @throws ManejadorErrores si ocurre un error en la base de datos
+   */
   public async isExistsCatEstatus(idRow: number): Promise<number> {
     try {
       const query = this.repository
@@ -108,6 +125,11 @@ export class CatEstatusRepository {
     }
   }
 
+  /**
+   * Guarda un nuevo estatus en la base de datos.
+   * @param payload - Objeto con los datos del estatus a guardar
+   * @throws ManejadorErrores si ocurre un error en la base de datos
+   */
   public async saveCatEstatus(payload: Partial<CatEstatusDTO>): Promise<void> {
     try {
       const unit = CatEstatusMapping.dTOToEntity(payload);
@@ -120,6 +142,12 @@ export class CatEstatusRepository {
     }
   }
 
+  /**
+   * Actualiza los datos de un estatus existente.
+   * @param id - ID del estatus a actualizar
+   * @param payload - Objeto con los nuevos datos a actualizar
+   * @throws ManejadorErrores si ocurre un error en la base de datos
+   */
   public async updateCatEstatus(id: number, payload: Partial<CatEstatusDTO>): Promise<void> {
     try {
       const unit = CatEstatusMapping.dTOToEntity(payload);
@@ -132,6 +160,11 @@ export class CatEstatusRepository {
     }
   }
 
+  /**
+   * Elimina un estatus de la base de datos.
+   * @param id - ID del estatus a eliminar
+   * @throws ManejadorErrores si ocurre un error en la base de datos
+   */
   public async deleteCatEstatus(id: number): Promise<void> {
     try {
       await this.repository.delete(id);

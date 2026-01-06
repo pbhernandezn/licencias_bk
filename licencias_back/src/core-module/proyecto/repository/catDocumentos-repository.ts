@@ -19,6 +19,12 @@ export class CatDocumentosRepository {
     private readonly catEstatusRepository: Repository<CatEstatusEntity>,
   ) {}
 
+  /**
+   * Obtiene la lista de todos los documentos del catálogo.
+   * @param queryParams - Parámetros de consulta para filtrado y paginación
+   * @returns Array con los datos de todos los documentos disponibles
+   * @throws ManejadorErrores si ocurre un error en la base de datos
+   */
   public async getCatDocumentos(
       queryParams: QueryParams
     ): Promise<Array<CatDocumentosDataDTO>> {
@@ -59,6 +65,12 @@ export class CatDocumentosRepository {
           }
     }
   
+    /**
+     * Obtiene los datos de un documento específico por su ID.
+     * @param request - Objeto con el ID del documento a buscar
+     * @returns Objeto con los datos del documento si existe, de lo contrario un objeto con existe: false
+     * @throws ManejadorErrores si ocurre un error en la base de datos
+     */
     public async getCatDocumentosById(
         request: getCatDocumentoByIdReq
       ): Promise<getCatDocumentoByIdDTO> {
@@ -103,7 +115,12 @@ export class CatDocumentosRepository {
         }
       }
 
-  
+  /**
+   * Verifica si existe un documento con el ID especificado.
+   * @param idRow - ID del documento a verificar
+   * @returns Número de registros encontrados (0 si no existe, 1 si existe)
+   * @throws ManejadorErrores si ocurre un error en la base de datos
+   */
   public async isExistsCatDocumentos(idRow: number): Promise<number> {
     try {
       const query = this.repository
@@ -121,6 +138,11 @@ export class CatDocumentosRepository {
     }
   }
 
+  /**
+   * Guarda un nuevo documento en la base de datos.
+   * @param payload - Objeto con los datos del documento a guardar
+   * @throws ManejadorErrores si ocurre un error en la base de datos
+   */
   public async saveCatDocumentos(payload: Partial<CatDocumentosDTO>): Promise<void> {
     try {
       const unit = CatDocumentosMapping.dTOToEntity(payload);
@@ -133,6 +155,12 @@ export class CatDocumentosRepository {
     }
   }
 
+  /**
+   * Actualiza los datos de un documento existente.
+   * @param id - ID del documento a actualizar
+   * @param payload - Objeto con los nuevos datos a actualizar
+   * @throws ManejadorErrores si ocurre un error en la base de datos
+   */
   public async updateCatDocumentos(id: number, payload: Partial<CatDocumentosDTO>): Promise<void> {
     try {
       const unit = CatDocumentosMapping.dTOToEntity(payload);
@@ -145,6 +173,11 @@ export class CatDocumentosRepository {
     }
   }
 
+  /**
+   * Elimina un documento de la base de datos.
+   * @param id - ID del documento a eliminar
+   * @throws ManejadorErrores si ocurre un error en la base de datos
+   */
   public async deleteCatDocumentos(id: number): Promise<void> {
     try {
       await this.repository.delete(id);

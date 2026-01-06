@@ -35,6 +35,10 @@ export class CatalogoService {
     private readonly CatVigenciaService: CatVigenciaService,
   ) {}
 
+  /**
+   * Obtiene la lista de todos los usuarios del catálogo.
+   * @returns Array con los datos de todos los usuarios disponibles
+   */
   public async getCatUsuarios(): Promise<Array<CatUsuariosDataDTO>> {
     let catUsuario: Array<CatUsuariosDataDTO>;
     const queryParams = new QueryParams();
@@ -50,6 +54,11 @@ export class CatalogoService {
     return catUsuario;
   }
 
+  /**
+   * Obtiene los datos de un usuario específico por su ID.
+   * @param request - Objeto con el ID del usuario a buscar
+   * @returns Objeto con los datos del usuario si existe, de lo contrario un objeto con existe: false
+   */
   public async getCatUsuarioById(request: getCatUsuarioByIdReq): Promise<getCatUsuarioByIdDTO>{
       let catUsuario: getCatUsuarioByIdDTO;
       {
@@ -67,7 +76,11 @@ export class CatalogoService {
       return catUsuario;
     }
 
-  
+  /**   
+   * Obtiene la lista de todas las localidades por código postal.
+   * @param request - Objeto con el código postal a buscar
+   * @returns Array con los datos de todas las localidades disponibles para el código postal
+   */
   public async getLocalidadByCP(request: getLocalidadByCPReq): Promise<getLocalidadesByCPDTO> {
     const respuesta = await this.catCPService.getLocalidadByCP(request);
     if (!respuesta.catCPs || respuesta.catCPs.length === 0) {
@@ -80,6 +93,11 @@ export class CatalogoService {
     return respuesta;
   }
   
+  /**
+   * Obtiene los datos de un código postal específico por su ID.
+   * @param request - Objeto con el ID del código postal a buscar
+   * @returns Objeto con los datos del código postal si existe, de lo contrario un objeto con existe: false
+   */
   public async getCatCPById(request: getCatCPByIdReq): Promise<getCatCPByIdDTO> {
     const respuesta = await this.catCPService.getCatCPById(request);
     if (!respuesta) {
@@ -91,6 +109,10 @@ export class CatalogoService {
     return respuesta;
   }
 
+  /**   
+   * Obtiene la lista de todos los documentos del catálogo.
+   * @returns Array con los datos de todos los documentos disponibles
+   */
   public async getCatDocumentos(): Promise<Array<CatDocumentosDataDTO>> {
     let catDocumentos: Array<CatDocumentosDataDTO>;
     const queryParams = new QueryParams();
@@ -106,6 +128,11 @@ export class CatalogoService {
     return catDocumentos;
   }
 
+  /**
+   * Obtiene los datos de un documento específico por su ID.
+   * @param request - Objeto con el ID del documento a buscar
+   * @returns Objeto con los datos del documento si existe, de lo contrario un objeto con existe: false
+   */
   public async getCatDocumentosById(request: getCatDocumentoByIdReq): Promise<getCatDocumentoByIdDTO>{
       let catDocumentos: getCatDocumentoByIdDTO;
       {
@@ -123,6 +150,11 @@ export class CatalogoService {
       return catDocumentos;
     }
 
+  /**   
+   * Obtiene la lista de todos los estatus del catálogo.
+   * @param request - Objeto con el nombre de la tabla a buscar
+   * @returns Array con los datos de todos los estatus disponibles
+   */  
   public async getCatEstatusByTabla(request: getCatEstatusByTablaReq): Promise<getCatEstatusByTablaDTO> {
     const respuesta = await this.CatEstatusService.getCatEstatusByTabla(request);
     if (!respuesta.catEstatus || respuesta.catEstatus.length === 0) {
@@ -135,6 +167,11 @@ export class CatalogoService {
     return respuesta;
   }
   
+  /**   
+   * Obtiene los datos de un estatus específico por su ID.
+   * @param request - Objeto con el ID del estatus a buscar
+   * @returns Objeto con los datos del estatus si existe, de lo contrario un objeto con existe: false
+   */
   public async getCatEstatusById(request: getCatEstatusByIdReq): Promise<getCatEstatusByIdDTO> {
     const respuesta = await this.CatEstatusService.getCatEstatusById(request);
     if (!respuesta) {
@@ -146,6 +183,11 @@ export class CatalogoService {
     return respuesta;
   }
 
+  /**   
+   * Obtiene la lista de todas las licencias del catálogo.
+   * @param request - Objeto con el código de licencia a buscar
+   * @returns Array con los datos de todas las licencias disponibles para el código
+   */
   public async getCatLicenciasByLicencia(request: getLicenciasByLicenciaReq): Promise<getLicenciasByLicenciaDTO> {
     const respuesta = await this.CatLicenciasService.getCatLicenciasByLicencia(request);
     if (!respuesta.catLicencias || respuesta.catLicencias.length === 0) {
@@ -158,6 +200,11 @@ export class CatalogoService {
     return respuesta;
   }
   
+  /**   
+   * Obtiene los datos de una licencia específica por su ID.
+   * @param request - Objeto con el ID de la licencia a buscar
+   * @returns Objeto con los datos de la licencia si existe, de lo contrario un objeto con existe: false
+   */
   public async getCatLicenciaById(request: getCatLicenciaByIdReq): Promise<getCatLicenciaByIdDTO> {
     const respuesta = await this.CatLicenciasService.getCatLicenciaById(request);
     if (!respuesta) {
@@ -169,6 +216,10 @@ export class CatalogoService {
     return respuesta;
   }
 
+  /**   
+   * Obtiene la lista de todos los lugares del catálogo.
+   * @returns Array con los datos de todos los lugares disponibles
+   */
   public async getCatLugares(): Promise<Array<CatLugaresDataDTO>> {
     let catLugares: Array<CatLugaresDataDTO>;
     const queryParams = new QueryParams();
@@ -184,6 +235,11 @@ export class CatalogoService {
     return catLugares;
   }
 
+  /**   
+   * Obtiene los datos de un lugar específico por su ID.
+   * @param request - Objeto con el ID del lugar a buscar
+   * @returns Objeto con los datos del lugar si existe, de lo contrario un objeto con existe: false
+   */
   public async getCatLugaresById(request: getCatLugarByIdReq): Promise<getCatLugaresByIdDTO>{
       let catLugares: getCatLugaresByIdDTO;
       {
@@ -201,6 +257,10 @@ export class CatalogoService {
       return catLugares;
     }
 
+  /**   
+   * Obtiene la lista de todas las pruebas del catálogo.
+   * @returns Array con los datos de todas las pruebas disponibles
+   */  
   public async getCatPruebas(): Promise<Array<CatPruebasDataDTO>> {
     let catPruebas: Array<CatPruebasDataDTO>;
     const queryParams = new QueryParams();
@@ -216,6 +276,11 @@ export class CatalogoService {
     return catPruebas;
   }
 
+  /**   
+   * Obtiene los datos de una prueba específica por su ID.
+   * @param request - Objeto con el ID de la prueba a buscar
+   * @returns Objeto con los datos de la prueba si existe, de lo contrario un objeto con existe: false
+   */
   public async getCatPruebaById(request: getCatPruebaByIdReq): Promise<getCatPruebasByIdDTO>{
       let catPruebas: getCatPruebasByIdDTO;
       {
@@ -233,6 +298,10 @@ export class CatalogoService {
       return catPruebas;
     }
 
+  /**   
+   * Obtiene la lista de todas las vigencias del catálogo.
+   * @returns Array con los datos de todas las vigencias disponibles
+   */
   public async getCatVigencias(): Promise<Array<CatVigenciaDataDTO>> {
     let catVigencias: Array<CatVigenciaDataDTO>;
     const queryParams = new QueryParams();
@@ -248,6 +317,11 @@ export class CatalogoService {
     return catVigencias;
   }
 
+  /**   
+   * Obtiene los datos de una vigencia específica por su ID.
+   * @param request - Objeto con el ID de la vigencia a buscar
+   * @returns Objeto con los datos de la vigencia si existe, de lo contrario un objeto con existe: false
+   */
   public async getCatVigenciaById(request: getCatVigenciaByIdReq): Promise<getCatVigenciaByIdDTO>{
       let catVigencias: getCatVigenciaByIdDTO;
       {

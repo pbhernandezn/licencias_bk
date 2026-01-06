@@ -19,6 +19,12 @@ export class CatVigenciaRepository {
     private readonly catEstatusRepository: Repository<CatEstatusEntity>,
   ) {}
 
+  /**
+   * Obtiene la lista de todas las vigencias del catálogo.
+   * @param queryParams - Parámetros de consulta para filtrado y paginación
+   * @returns Array con los datos de todas las vigencias disponibles
+   * @throws ManejadorErrores si ocurre un error en la base de datos
+   */
   public async getCatVigencias(
     queryParams: QueryParams
   ): Promise<Array<CatVigenciaDataDTO>> {
@@ -61,6 +67,12 @@ export class CatVigenciaRepository {
         }
   }
 
+  /**
+   * Obtiene los datos de una vigencia específica por su ID.
+   * @param request - Objeto con el ID de la vigencia a buscar
+   * @returns Objeto con los datos de la vigencia si existe, de lo contrario un objeto con existe: false
+   * @throws ManejadorErrores si ocurre un error en la base de datos
+   */
   public async getCatVigenciaById(
       request: getCatVigenciaByIdReq
     ): Promise<getCatVigenciaByIdDTO> {
@@ -107,7 +119,12 @@ export class CatVigenciaRepository {
       }
     }
 
-  
+  /**
+   * Verifica si existe una vigencia con el ID especificado.
+   * @param idRow - ID de la vigencia a verificar
+   * @returns Número de registros encontrados (0 si no existe, 1 si existe)
+   * @throws ManejadorErrores si ocurre un error en la base de datos
+   */
   public async isExistsCatVigencia(idRow: number): Promise<number> {
     try {
       const query = this.repository
@@ -125,6 +142,11 @@ export class CatVigenciaRepository {
     }
   }
 
+  /**
+   * Guarda una nueva vigencia en la base de datos.
+   * @param payload - Objeto con los datos de la vigencia a guardar
+   * @throws ManejadorErrores si ocurre un error en la base de datos
+   */
   public async saveCatVigencia(payload: Partial<CatVigenciaDTO>): Promise<void> {
     try {
       const unit = CatVigenciaMapping.dTOToEntity(payload);
@@ -137,6 +159,12 @@ export class CatVigenciaRepository {
     }
   }
 
+  /**
+   * Actualiza los datos de una vigencia existente.
+   * @param id - ID de la vigencia a actualizar
+   * @param payload - Objeto con los nuevos datos a actualizar
+   * @throws ManejadorErrores si ocurre un error en la base de datos
+   */
   public async updateCatVigencia(id: number, payload: Partial<CatVigenciaDTO>): Promise<void> {
     try {
       const unit = CatVigenciaMapping.dTOToEntity(payload);
@@ -149,6 +177,11 @@ export class CatVigenciaRepository {
     }
   }
 
+  /**
+   * Elimina una vigencia de la base de datos.
+   * @param id - ID de la vigencia a eliminar
+   * @throws ManejadorErrores si ocurre un error en la base de datos
+   */
   public async deleteCatVigencia(id: number): Promise<void> {
     try {
       await this.repository.delete(id);

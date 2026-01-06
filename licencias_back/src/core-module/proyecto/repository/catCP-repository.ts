@@ -16,6 +16,12 @@ export class CatCPRepository {
     private readonly repository: Repository<CatCPEntity>,
   ) {}
 
+  /**
+   * Obtiene los datos de un código postal por su ID.
+   * @param request - Objeto con el ID del código postal a buscar
+   * @returns Objeto con los datos del código postal si existe, de lo contrario un objeto con existe: false
+   * @throws ManejadorErrores si ocurre un error en la base de datos
+   */
   public async getCatCPById(
         request: getCatCPByIdReq
       ): Promise<getCatCPByIdDTO> {
@@ -52,6 +58,12 @@ export class CatCPRepository {
     }
   }
 
+  /**
+   * Obtiene todas las localidades asociadas a un código postal específico.
+   * @param request - Objeto con el código postal a buscar
+   * @returns Objeto con lista de localidades que coinciden con el código postal
+   * @throws ManejadorErrores si ocurre un error en la base de datos
+   */
   public async getLocalidadesByCP(
       request: getLocalidadByCPReq
     ): Promise<getLocalidadesByCPDTO> {
@@ -90,7 +102,12 @@ export class CatCPRepository {
           }
     }
 
-  
+  /**
+   * Verifica si existe un código postal con el ID especificado.
+   * @param idRow - ID del código postal a verificar
+   * @returns Número de registros encontrados (0 si no existe, 1 si existe)
+   * @throws ManejadorErrores si ocurre un error en la base de datos
+   */
   public async isExistsCatCP(idRow: number): Promise<number> {
     try {
       const query = this.repository
@@ -108,6 +125,11 @@ export class CatCPRepository {
     }
   }
 
+  /**
+   * Guarda un nuevo código postal en la base de datos.
+   * @param payload - Objeto con los datos del código postal a guardar
+   * @throws ManejadorErrores si ocurre un error en la base de datos
+   */
   public async saveCatCP(payload: Partial<CatCPDTO>): Promise<void> {
     try {
       const unit = CatCPMapping.dTOToEntity(payload);
@@ -120,6 +142,12 @@ export class CatCPRepository {
     }
   }
 
+  /**
+   * Actualiza los datos de un código postal existente.
+   * @param id - ID del código postal a actualizar
+   * @param payload - Objeto con los nuevos datos a actualizar
+   * @throws ManejadorErrores si ocurre un error en la base de datos
+   */
   public async updateCatCP(id: number, payload: Partial<CatCPDTO>): Promise<void> {
     try {
       const unit = CatCPMapping.dTOToEntity(payload);
@@ -132,6 +160,11 @@ export class CatCPRepository {
     }
   }
 
+  /**
+   * Elimina un código postal de la base de datos.
+   * @param id - ID del código postal a eliminar
+   * @throws ManejadorErrores si ocurre un error en la base de datos
+   */
   public async deleteCatCP(id: number): Promise<void> {
     try {
       await this.repository.delete(id);

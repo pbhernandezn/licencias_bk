@@ -19,6 +19,12 @@ export class CatPruebasRepository {
             private readonly catEstatusRepository: Repository<CatEstatusEntity>,
   ) {}
 
+  /**
+   * Obtiene la lista de todas las pruebas del catálogo.
+   * @param queryParams - Parámetros de consulta para filtrado y paginación
+   * @returns Array con los datos de todas las pruebas disponibles
+   * @throws ManejadorErrores si ocurre un error en la base de datos
+   */
   public async getCatPruebas(
     queryParams: QueryParams
   ): Promise<Array<CatPruebasDataDTO>> {
@@ -61,6 +67,12 @@ export class CatPruebasRepository {
         }
   }
 
+  /**
+   * Obtiene los datos de una prueba específica por su ID.
+   * @param request - Objeto con el ID de la prueba a buscar
+   * @returns Objeto con los datos de la prueba si existe, de lo contrario un objeto con existe: false
+   * @throws ManejadorErrores si ocurre un error en la base de datos
+   */
   public async getCatPruebaById(
       request: getCatPruebaByIdReq
     ): Promise<getCatPruebasByIdDTO> {
@@ -107,7 +119,12 @@ export class CatPruebasRepository {
       }
     }
 
-  
+  /**
+   * Verifica si existe una prueba con el ID especificado.
+   * @param idRow - ID de la prueba a verificar
+   * @returns Número de registros encontrados (0 si no existe, 1 si existe)
+   * @throws ManejadorErrores si ocurre un error en la base de datos
+   */
   public async isExistsCatPruebas(idRow: number): Promise<number> {
     try {
       const query = this.repository
@@ -125,6 +142,11 @@ export class CatPruebasRepository {
     }
   }
 
+  /**
+   * Guarda una nueva prueba en la base de datos.
+   * @param payload - Objeto con los datos de la prueba a guardar
+   * @throws ManejadorErrores si ocurre un error en la base de datos
+   */
   public async saveCatPruebas(payload: Partial<CatPruebasDTO>): Promise<void> {
     try {
       const unit = CatPruebasMapping.dTOToEntity(payload);
@@ -137,6 +159,12 @@ export class CatPruebasRepository {
     }
   }
 
+  /**
+   * Actualiza los datos de una prueba existente.
+   * @param id - ID de la prueba a actualizar
+   * @param payload - Objeto con los nuevos datos a actualizar
+   * @throws ManejadorErrores si ocurre un error en la base de datos
+   */
   public async updateCatPruebas(id: number, payload: Partial<CatPruebasDTO>): Promise<void> {
     try {
       const unit = CatPruebasMapping.dTOToEntity(payload);
@@ -149,6 +177,11 @@ export class CatPruebasRepository {
     }
   }
 
+  /**
+   * Elimina una prueba de la base de datos.
+   * @param id - ID de la prueba a eliminar
+   * @throws ManejadorErrores si ocurre un error en la base de datos
+   */
   public async deleteCatPruebas(id: number): Promise<void> {
     try {
       await this.repository.delete(id);

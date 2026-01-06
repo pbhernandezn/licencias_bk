@@ -6,7 +6,7 @@ import {
   INTERNAL_MESSAGES,
 } from '@principal/commons-module/proyecto/utils/messages-enum';
 import { UsuariosService } from '../../services/from-front/usuarios-service';
-import { getUsuarioByIdDTO, getUsuarioByIdReq } from '../../models/from-tables/usuarios-dto';
+import { createUsuarioDTO, createUsuarioReq, getUsuarioByIdDTO, getUsuarioByIdReq } from '../../models/from-tables/usuarios-dto';
 
 @Injectable()
 export class UsuariosExpose {
@@ -18,6 +18,16 @@ export class UsuariosExpose {
     resultado.code = RESPONSE_CODES.SUCCESFULL;
     resultado.internalCode = INTERNAL_CODES.SUCCESFULL;
     resultado.message = INTERNAL_MESSAGES.SUCCESFULL;
+    resultado.data = respuesta;
+    return resultado;
+  }
+
+  async createUsuario(request: createUsuarioReq): Promise<BaseResponse<createUsuarioDTO>> {
+    const respuesta = await this.usuariosService.createUsuario(request);
+    const resultado = new BaseResponse<createUsuarioDTO>();
+    resultado.code = respuesta.creado ? RESPONSE_CODES.SUCCESFULL : RESPONSE_CODES.ERROR_CUSTOM;
+    resultado.internalCode = respuesta.creado ? INTERNAL_CODES.SUCCESFULL : INTERNAL_CODES.ERROR_CODE;
+    resultado.message = respuesta.creado ? INTERNAL_MESSAGES.SUCCESFULL : INTERNAL_MESSAGES.NOT_VALID_ERROR_CODE;
     resultado.data = respuesta;
     return resultado;
   }
