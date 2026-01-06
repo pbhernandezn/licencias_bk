@@ -6,7 +6,7 @@ import { QueryParams } from '@principal/commons-module/proyecto/utils/query-para
 import { Wrapper } from '@principal/commons-module/proyecto/utils/wrapper';
 import { QueryFinder } from '@principal/commons-module/proyecto/utils/query-finder';
 import { CatCPEntity } from '../models/entities/catCP-entity';
-import { CatCPDTO } from '../models/from-tables/catCP-dto';
+import { CatCPDTO, getCatCPByIdDTO, getCatCPByIdReq, getLocalidadByCPReq, getLocalidadesByCPDTO } from '../models/from-tables/catCP-dto';
 import { CatCPMapping } from '../utils/from-tables/catCP-mapping';
 
 @Injectable()
@@ -16,44 +16,98 @@ export class CatCPRepository {
     private readonly repository: Repository<CatCPEntity>,
   ) {}
 
-    public async getCatCPById(idRow: number): Promise<CatCPDTO> {
+  /**
+   * Obtiene los datos de un código postal por su ID.
+   * @param request - Objeto con el ID del código postal a buscar
+   * @returns Objeto con los datos del código postal si existe, de lo contrario un objeto con existe: false
+   * @throws ManejadorErrores si ocurre un error en la base de datos
+   */
+  public async getCatCPById(
+        request: getCatCPByIdReq
+      ): Promise<getCatCPByIdDTO> {
     try {
-      const queryBuilder = this.repository.createQueryBuilder();
-      CatCPMapping.aliasConfigDetail(queryBuilder);
-      queryBuilder.where('id = :idRow', { idRow });
-      const respuesta = await queryBuilder.getRawMany();
-      if (!respuesta || respuesta.length === 0) return null;
-      const resultado = CatCPMapping.entityToDTO(respuesta[0]);
-      return resultado;
-    } catch (error) {
-      throw ManejadorErrores.getFallaBaseDatos(
-        error.message,
-        'TYPE-B-b860456f-71d3-44cf-b1e9-bad555e62_CP',
-      );
-    }
-  }
+      const result = await this.repository
+        .createQueryBuilder('cat_cp')
+        .select([
+          'cat_cp.id',
+          'cat_cp.cp',
+          'cat_cp.municipio',
+          'cat_cp.localidad',
+        ])
+        .where('cat_cp.id = :id', { id: request.id })
+        .getRawOne();
 
-  public async getCatCPByCP(cp: string): Promise<Wrapper<Array<CatCPDTO>>> {
-    try {
+      const catCPDTO: getCatCPByIdDTO = {
+        existe: !!result,
+        catCP: result
+          ? {
+              id: result['cat_cp_id'],
+              cp: result['cat_cp_cp'],
+              municipio: result['cat_cp_municipio'],
+              localidad: result['cat_cp_localidad'],
+            }
+          : undefined,
+      };
       
-      const queryBuilder = await this.repository.createQueryBuilder()
-      .select('*').where('cp = :cp', { cp }).getRawMany();
-      console.log(queryBuilder);
-      //CatCPMapping.aliasConfigDetail(queryBuilder);
-      /*queryBuilder.where('cp = :cp', { cp });
-      const respuesta = await queryBuilder.getRawMany();
-      const resultado = CatCPMapping.arrayEntityToDTO(respuesta);
-      const itemsCount = respuesta?.length ?? 0;*/
-      return new Wrapper(null, 0, null, true, 'Consulta exitosa', {});
+      return catCPDTO;
     } catch (error) {
       throw ManejadorErrores.getFallaBaseDatos(
         error.message,
-        'TYPE-B-b860456f-71d3-44cf-b1e9-bad555e6_CP2',
+        'TYPE-A-c6eed039-90ad-40a7-9316-381f5c5_ccp1',
       );
     }
   }
 
+  /**
+   * Obtiene todas las localidades asociadas a un código postal específico.
+   * @param request - Objeto con el código postal a buscar
+   * @returns Objeto con lista de localidades que coinciden con el código postal
+   * @throws ManejadorErrores si ocurre un error en la base de datos
+   */
+  public async getLocalidadesByCP(
+      request: getLocalidadByCPReq
+    ): Promise<getLocalidadesByCPDTO> {
+      try {
+        const result: any[] = await this.repository
+          .createQueryBuilder('cat_cp')
+          .select([
+            'cat_cp.id',
+            'cat_cp.cp',
+            'cat_cp.municipio',
+            'cat_cp.localidad',
+          ])
+          .where('cat_cp.cp = :cp', { cp: request.cp })
+          .getRawMany();
   
+        if (!result || result.length === 0) return null;
+  
+        const localidades: Array<CatCPDTO> = result.map((r) => ({
+          id: r['cat_cp_id'],
+          cp: r['cat_cp_cp'],
+          municipio: r['cat_cp_municipio'],
+          localidad: r['cat_cp_localidad'],
+        }));
+
+        const catCPsDTO: getLocalidadesByCPDTO = {
+          existe: result && result.length > 0,
+          catCPs: localidades,
+        };
+
+        return catCPsDTO;
+          } catch (error) {
+            throw ManejadorErrores.getFallaBaseDatos(
+              error.message,
+              'TYPE-A-c6eed039-90ad-40a7-9316-381f5c5_ccp2',
+            );
+          }
+    }
+
+  /**
+   * Verifica si existe un código postal con el ID especificado.
+   * @param idRow - ID del código postal a verificar
+   * @returns Número de registros encontrados (0 si no existe, 1 si existe)
+   * @throws ManejadorErrores si ocurre un error en la base de datos
+   */
   public async isExistsCatCP(idRow: number): Promise<number> {
     try {
       const query = this.repository
@@ -71,6 +125,11 @@ export class CatCPRepository {
     }
   }
 
+  /**
+   * Guarda un nuevo código postal en la base de datos.
+   * @param payload - Objeto con los datos del código postal a guardar
+   * @throws ManejadorErrores si ocurre un error en la base de datos
+   */
   public async saveCatCP(payload: Partial<CatCPDTO>): Promise<void> {
     try {
       const unit = CatCPMapping.dTOToEntity(payload);
@@ -83,6 +142,12 @@ export class CatCPRepository {
     }
   }
 
+  /**
+   * Actualiza los datos de un código postal existente.
+   * @param id - ID del código postal a actualizar
+   * @param payload - Objeto con los nuevos datos a actualizar
+   * @throws ManejadorErrores si ocurre un error en la base de datos
+   */
   public async updateCatCP(id: number, payload: Partial<CatCPDTO>): Promise<void> {
     try {
       const unit = CatCPMapping.dTOToEntity(payload);
@@ -95,6 +160,11 @@ export class CatCPRepository {
     }
   }
 
+  /**
+   * Elimina un código postal de la base de datos.
+   * @param id - ID del código postal a eliminar
+   * @throws ManejadorErrores si ocurre un error en la base de datos
+   */
   public async deleteCatCP(id: number): Promise<void> {
     try {
       await this.repository.delete(id);
