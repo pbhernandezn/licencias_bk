@@ -63,6 +63,8 @@ export class getUsuarioByIdReq {
 }
 
 export class createUsuarioReq {
+  @ApiProperty({ description: 'Tipo de usuario', example: 3 })
+  tipoUsuario: number;
   @ApiProperty({ description: 'Nombres del usuario', example: 'Juan' })
   nombres: string; 
   @ApiProperty({ description: 'Apellido paterno del usuario', example: 'Pérez' })
