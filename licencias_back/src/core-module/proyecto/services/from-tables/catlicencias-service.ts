@@ -2,20 +2,24 @@ import { Injectable } from '@nestjs/common';
 import { ManejadorErrores } from '@principal/commons-module/proyecto/utils/manejador-errores';
 import { Wrapper } from '@principal/commons-module/proyecto/utils/wrapper';
 import { CatLicenciasRepository } from '../../repository/catLicencias-repository';
-import { CatLicenciasDTO } from '../../models/from-tables/catLicencias-dto';
+import { CatLicenciasDTO, getCatLicenciaByIdDTO, getCatLicenciaByIdReq, getLicenciasByLicenciaDTO, getLicenciasByLicenciaReq } from '../../models/from-tables/catLicencias-dto';
 
 
 @Injectable()
 export class CatLicenciasService {
   constructor(private readonly catLicenciasRepository: CatLicenciasRepository) {}
 
-  public async getCatLicenciasById(idRow: number): Promise<CatLicenciasDTO> {
-    return await this.catLicenciasRepository.getCatLicenciasById(idRow);
-  }
-
-  public async getCatLicenciasByLicencia(licencia: string): Promise<Wrapper<Array<CatLicenciasDTO>>> {
-    return await this.catLicenciasRepository.getCatLicenciasByLicencia(licencia);
-  }
+  public async getCatLicenciaById(
+      request: getCatLicenciaByIdReq
+    ): Promise<getCatLicenciaByIdDTO> {
+      return await this.catLicenciasRepository.getCatLicenciasById(request);
+    }
+  
+     public async getCatLicenciasByLicencia(
+      request: getLicenciasByLicenciaReq
+    ): Promise<getLicenciasByLicenciaDTO> {
+      return await this.catLicenciasRepository.getCatLicenciasByLicencia(request);
+    }
 
   public async createCatLicencias(payload: CatLicenciasDTO): Promise<void> {
     // Reglas aqui

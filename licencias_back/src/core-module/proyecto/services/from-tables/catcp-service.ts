@@ -2,19 +2,23 @@ import { Injectable } from '@nestjs/common';
 import { ManejadorErrores } from '@principal/commons-module/proyecto/utils/manejador-errores';
 import { Wrapper } from '@principal/commons-module/proyecto/utils/wrapper';
 import { CatCPRepository } from '../../repository/catCP-repository';
-import { CatCPDTO } from '../../models/from-tables/catCP-dto';
+import { CatCPDTO, getCatCPByIdDTO, getCatCPByIdReq, getLocalidadByCPReq, getLocalidadesByCPDTO } from '../../models/from-tables/catCP-dto';
 
 
 @Injectable()
 export class CatCPService {
   constructor(private readonly catCPRepository: CatCPRepository) {}
 
-  public async getCatCPById(idRow: number): Promise<CatCPDTO> {
-    return await this.catCPRepository.getCatCPById(idRow);
+  public async getCatCPById(
+    request: getCatCPByIdReq
+  ): Promise<getCatCPByIdDTO> {
+    return await this.catCPRepository.getCatCPById(request);
   }
 
-  public async getCatCPByCP(cp: string): Promise<Wrapper<Array<CatCPDTO>>> {
-    return await this.catCPRepository.getCatCPByCP(cp);
+   public async getLocalidadByCP(
+    request: getLocalidadByCPReq
+  ): Promise<getLocalidadesByCPDTO> {
+    return await this.catCPRepository.getLocalidadesByCP(request);
   }
 
   public async createCatCP(payload: CatCPDTO): Promise<void> {

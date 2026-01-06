@@ -6,7 +6,7 @@ import { QueryParams } from '@principal/commons-module/proyecto/utils/query-para
 import { Wrapper } from '@principal/commons-module/proyecto/utils/wrapper';
 import { QueryFinder } from '@principal/commons-module/proyecto/utils/query-finder';
 import { CatEstatusEntity } from '../models/entities/catEstatus-entity';
-import { CatEstatusDTO } from '../models/from-tables/catEstatus-dto';
+import { CatEstatusDTO, getCatEstatusByIdDTO, getCatEstatusByIdReq, getCatEstatusByTablaDTO, getCatEstatusByTablaReq } from '../models/from-tables/catEstatus-dto';
 import { CatEstatusMapping } from '../utils/from-tables/catEstatus-mapping';
 
 @Injectable()
@@ -16,39 +16,79 @@ export class CatEstatusRepository {
     private readonly repository: Repository<CatEstatusEntity>,
   ) {}
 
-    public async getCatEstatusById(idRow: number): Promise<CatEstatusDTO> {
+    public async getCatEstatusById(
+        request: getCatEstatusByIdReq
+      ): Promise<getCatEstatusByIdDTO> {
     try {
-      const queryBuilder = this.repository.createQueryBuilder();
-      CatEstatusMapping.aliasConfigDetail(queryBuilder);
-      queryBuilder.where('id = :idRow', { idRow });
-      const respuesta = await queryBuilder.getRawMany();
-      if (!respuesta || respuesta.length === 0) return null;
-      const resultado = CatEstatusMapping.entityToDTO(respuesta[0]);
-      return resultado;
+      const result = await this.repository
+        .createQueryBuilder('cat_estatus')
+        .select([
+          'cat_estatus.id',
+          'cat_estatus.estatus',
+          'cat_estatus.tabla',
+          'cat_estatus.activo',
+        ])
+        .where('cat_estatus.id = :id', { id: request.id })
+        .getRawOne();
+
+      const catEstatusDTO: getCatEstatusByIdDTO = {
+        existe: !!result,
+        catEstatus: result
+          ? {
+              id: result['cat_estatus_id'],
+              estatus: result['cat_estatus_estatus'],
+              tabla: result['cat_estatus_tabla'],
+              activo: result['cat_estatus_activo'],
+            }
+          : undefined,
+      };
+      
+      return catEstatusDTO;
     } catch (error) {
       throw ManejadorErrores.getFallaBaseDatos(
-        error.message,
-        'TYPE-B-b860456f-71d3-44cf-b1e9-bad555e62d7c',
+          error.message,
+          'TYPE-A-c6eed039-90ad-40a7-9316-381f5c5_ces1', 
       );
     }
   }
 
-  public async getCatEstatusByTabla(tabla: string): Promise<Wrapper<Array<CatEstatusDTO>>> {
-    try {
-      const queryBuilder = this.repository.createQueryBuilder();
-      CatEstatusMapping.aliasConfigDetail(queryBuilder);
-      queryBuilder.where('tabla = :tabla', { tabla });
-      const respuesta = await queryBuilder.getRawMany();
-      const resultado = CatEstatusMapping.arrayEntityToDTO(respuesta);
-      const itemsCount = respuesta?.length ?? 0;
-      return new Wrapper(null, itemsCount, resultado, true, 'Consulta exitosa', null);
-    } catch (error) {
-      throw ManejadorErrores.getFallaBaseDatos(
-        error.message,
-        'TYPE-B-b860456f-71d3-44cf-b1e9-bad555e62d7c',
-      );
+  public async getCatEstatusByTabla(
+      request: getCatEstatusByTablaReq
+    ): Promise<getCatEstatusByTablaDTO> {
+      try {
+        const result: any[] = await this.repository
+          .createQueryBuilder('cat_estatus')
+          .select([
+            'cat_estatus.id',
+            'cat_estatus.estatus',
+            'cat_estatus.tabla',
+            'cat_estatus.activo',
+          ])
+          .where('cat_estatus.tabla = :tabla', { tabla: request.tabla })
+          .getRawMany();
+  
+        if (!result || result.length === 0) return null;
+  
+        const catEstatus: Array<CatEstatusDTO> = result.map((r) => ({
+          id: r['cat_cp_id'],
+          estatus: r['cat_estatus_estatus'],
+          tabla: r['cat_estatus_tabla'],
+          activo: r['cat_estatus_activo'],
+        }));
+
+        const catEstatusDTO: getCatEstatusByTablaDTO = {
+          existe: result && result.length > 0,
+          catEstatus: catEstatus,
+        };
+
+        return catEstatusDTO;
+          } catch (error) {
+            throw ManejadorErrores.getFallaBaseDatos(
+              error.message,
+              'TYPE-A-c6eed039-90ad-40a7-9316-381f5c5_ces2',
+            );
+          }
     }
-  }
 
   
   public async isExistsCatEstatus(idRow: number): Promise<number> {

@@ -6,7 +6,7 @@ import { QueryParams } from '@principal/commons-module/proyecto/utils/query-para
 import { Wrapper } from '@principal/commons-module/proyecto/utils/wrapper';
 import { QueryFinder } from '@principal/commons-module/proyecto/utils/query-finder';
 import { CatCPEntity } from '../models/entities/catCP-entity';
-import { CatCPDTO } from '../models/from-tables/catCP-dto';
+import { CatCPDTO, getCatCPByIdDTO, getCatCPByIdReq, getLocalidadByCPReq, getLocalidadesByCPDTO } from '../models/from-tables/catCP-dto';
 import { CatCPMapping } from '../utils/from-tables/catCP-mapping';
 
 @Injectable()
@@ -16,42 +16,79 @@ export class CatCPRepository {
     private readonly repository: Repository<CatCPEntity>,
   ) {}
 
-    public async getCatCPById(idRow: number): Promise<CatCPDTO> {
+  public async getCatCPById(
+        request: getCatCPByIdReq
+      ): Promise<getCatCPByIdDTO> {
     try {
-      const queryBuilder = this.repository.createQueryBuilder();
-      CatCPMapping.aliasConfigDetail(queryBuilder);
-      queryBuilder.where('id = :idRow', { idRow });
-      const respuesta = await queryBuilder.getRawMany();
-      if (!respuesta || respuesta.length === 0) return null;
-      const resultado = CatCPMapping.entityToDTO(respuesta[0]);
-      return resultado;
+      const result = await this.repository
+        .createQueryBuilder('cat_cp')
+        .select([
+          'cat_cp.id',
+          'cat_cp.cp',
+          'cat_cp.municipio',
+          'cat_cp.localidad',
+        ])
+        .where('cat_cp.id = :id', { id: request.id })
+        .getRawOne();
+
+      const catCPDTO: getCatCPByIdDTO = {
+        existe: !!result,
+        catCP: result
+          ? {
+              id: result['cat_cp_id'],
+              cp: result['cat_cp_cp'],
+              municipio: result['cat_cp_municipio'],
+              localidad: result['cat_cp_localidad'],
+            }
+          : undefined,
+      };
+      
+      return catCPDTO;
     } catch (error) {
       throw ManejadorErrores.getFallaBaseDatos(
         error.message,
-        'TYPE-B-b860456f-71d3-44cf-b1e9-bad555e62_CP',
+        'TYPE-A-c6eed039-90ad-40a7-9316-381f5c5_ccp1',
       );
     }
   }
 
-  public async getCatCPByCP(cp: string): Promise<Wrapper<Array<CatCPDTO>>> {
-    try {
-      
-      const queryBuilder = await this.repository.createQueryBuilder()
-      .select('*').where('cp = :cp', { cp }).getRawMany();
-      console.log(queryBuilder);
-      //CatCPMapping.aliasConfigDetail(queryBuilder);
-      /*queryBuilder.where('cp = :cp', { cp });
-      const respuesta = await queryBuilder.getRawMany();
-      const resultado = CatCPMapping.arrayEntityToDTO(respuesta);
-      const itemsCount = respuesta?.length ?? 0;*/
-      return new Wrapper(null, 0, null, true, 'Consulta exitosa', {});
-    } catch (error) {
-      throw ManejadorErrores.getFallaBaseDatos(
-        error.message,
-        'TYPE-B-b860456f-71d3-44cf-b1e9-bad555e6_CP2',
-      );
+  public async getLocalidadesByCP(
+      request: getLocalidadByCPReq
+    ): Promise<getLocalidadesByCPDTO> {
+      try {
+        const result: any[] = await this.repository
+          .createQueryBuilder('cat_cp')
+          .select([
+            'cat_cp.id',
+            'cat_cp.cp',
+            'cat_cp.municipio',
+            'cat_cp.localidad',
+          ])
+          .where('cat_cp.cp = :cp', { cp: request.cp })
+          .getRawMany();
+  
+        if (!result || result.length === 0) return null;
+  
+        const localidades: Array<CatCPDTO> = result.map((r) => ({
+          id: r['cat_cp_id'],
+          cp: r['cat_cp_cp'],
+          municipio: r['cat_cp_municipio'],
+          localidad: r['cat_cp_localidad'],
+        }));
+
+        const catCPsDTO: getLocalidadesByCPDTO = {
+          existe: result && result.length > 0,
+          catCPs: localidades,
+        };
+
+        return catCPsDTO;
+          } catch (error) {
+            throw ManejadorErrores.getFallaBaseDatos(
+              error.message,
+              'TYPE-A-c6eed039-90ad-40a7-9316-381f5c5_ccp2',
+            );
+          }
     }
-  }
 
   
   public async isExistsCatCP(idRow: number): Promise<number> {

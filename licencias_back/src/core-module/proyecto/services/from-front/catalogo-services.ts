@@ -9,14 +9,14 @@ import { CatLicenciasService } from '../from-tables/catlicencias-service';
 import { CatLugaresService } from '../from-tables/catlugares-service';
 import { CatPruebasService } from '../from-tables/catpruebas-service';
 import { CatVigenciaService } from '../from-tables/catvigencia-service';
-import { CatUsuarioDTO, CatUsuariosDataDTO, getCatUsuarioByIdReq } from '../../models/from-tables/catusuario-dto';
-import { CatCPDTO } from '../../models/from-tables/catCP-dto';
-import { CatDocumentosDTO } from '../../models/from-tables/catDocumentos-dto';
-import { CatEstatusDTO } from '../../models/from-tables/catEstatus-dto';
-import { CatLicenciasDTO } from '../../models/from-tables/catLicencias-dto';
-import { CatLugaresDTO } from '../../models/from-tables/catLugares-dto';
-import { CatPruebasDTO } from '../../models/from-tables/catPruebas-dto';
-import { CatVigenciaDTO } from '../../models/from-tables/catVigencia-dto';
+import { CatUsuarioDTO, CatUsuariosDataDTO, getCatUsuarioByIdDTO, getCatUsuarioByIdReq } from '../../models/from-tables/catusuario-dto';
+import { CatCPDTO, getCatCPByIdDTO, getCatCPByIdReq, getLocalidadByCPReq, getLocalidadesByCPDTO } from '../../models/from-tables/catCP-dto';
+import { CatDocumentosDataDTO, CatDocumentosDTO, getCatDocumentoByIdDTO, getCatDocumentoByIdReq } from '../../models/from-tables/catDocumentos-dto';
+import { CatEstatusDTO, getCatEstatusByIdDTO, getCatEstatusByIdReq, getCatEstatusByTablaDTO, getCatEstatusByTablaReq } from '../../models/from-tables/catEstatus-dto';
+import { CatLicenciasDTO, getCatLicenciaByIdDTO, getCatLicenciaByIdReq, getLicenciasByLicenciaDTO, getLicenciasByLicenciaReq } from '../../models/from-tables/catLicencias-dto';
+import { CatLugaresDataDTO, CatLugaresDTO, getCatLugarByIdReq, getCatLugaresByIdDTO } from '../../models/from-tables/catLugares-dto';
+import { CatPruebasDataDTO, CatPruebasDTO, getCatPruebaByIdReq, getCatPruebasByIdDTO } from '../../models/from-tables/catPruebas-dto';
+import { CatVigenciaDataDTO, CatVigenciaDTO, getCatVigenciaByIdDTO, getCatVigenciaByIdReq } from '../../models/from-tables/catVigencia-dto';
 import { getUsuarioByIdDTO } from '../../models/from-tables/usuarios-dto';
 
 
@@ -35,7 +35,7 @@ export class CatalogoService {
     private readonly CatVigenciaService: CatVigenciaService,
   ) {}
 
-  public async catUsuario(): Promise<Array<CatUsuariosDataDTO>> {
+  public async getCatUsuarios(): Promise<Array<CatUsuariosDataDTO>> {
     let catUsuario: Array<CatUsuariosDataDTO>;
     const queryParams = new QueryParams();
     const respuesta = await this.catUsuarioService.getCatUsuarios(queryParams);
@@ -50,15 +50,15 @@ export class CatalogoService {
     return catUsuario;
   }
 
-  public async getCatUsuarioById(request: getCatUsuarioByIdReq) {
-      let catUsuario: getUsuarioByIdDTO;
+  public async getCatUsuarioById(request: getCatUsuarioByIdReq): Promise<getCatUsuarioByIdDTO>{
+      let catUsuario: getCatUsuarioByIdDTO;
       {
         try {
           const respuesta = await this.catUsuarioService.getCatUsuariosById(request);
           catUsuario = respuesta;
         } catch (error) {
           throw ManejadorErrores.getDatosVitalesNoCargados(
-            'tipo de roles no encontrados',
+            'No se encontro el dato en el catalogo de usuarios',
             'ccd1b7d9-afb6-5f06-b81e-9250a00ef904',
           );
         }
@@ -68,185 +68,201 @@ export class CatalogoService {
     }
 
   
-
-  public async catCPByCP(cp: string): Promise<Array<CatCPDTO>>{
-    let catCP: Array<CatCPDTO>;
-    const respuesta = await this.catCPService.getCatCPByCP(cp);
-    if (!respuesta.result || respuesta.result.length === 0) {
+  public async getLocalidadByCP(request: getLocalidadByCPReq): Promise<getLocalidadesByCPDTO> {
+    const respuesta = await this.catCPService.getLocalidadByCP(request);
+    if (!respuesta.catCPs || respuesta.catCPs.length === 0) {
       throw ManejadorErrores.getDatosVitalesNoCargados(
-        'No se encontraron datos en el catalogo de usuarios',
+        'No se encontraron datos en el catalogo de cp',
         'ccd1b7d9-afb6-5f06-b81e-9250a00ef904',
       );
     }
-    catCP = respuesta.result as Array<CatCPDTO>;
-    return catCP;
+
+    return respuesta;
   }
   
-  public async catCPById(idRow: number): Promise<CatCPDTO> {
-    const respuesta = await this.catCPService.getCatCPById(idRow);
+  public async getCatCPById(request: getCatCPByIdReq): Promise<getCatCPByIdDTO> {
+    const respuesta = await this.catCPService.getCatCPById(request);
     if (!respuesta) {
       throw ManejadorErrores.getBusquedaVacia(
-        'Sin resultados',
+        'No se encontro el dato en el catalogo de cp',
         'TYPE-A-6a09d086-e7c1-4d36-8367-66bc832a23f6',
       );
     }
     return respuesta;
   }
 
-  public async catDocumentos(): Promise<Array<CatDocumentosDTO>> {
-    let catDocumentos: Array<CatDocumentosDTO>;
+  public async getCatDocumentos(): Promise<Array<CatDocumentosDataDTO>> {
+    let catDocumentos: Array<CatDocumentosDataDTO>;
     const queryParams = new QueryParams();
     const respuesta = await this.catDocumentosService.getCatDocumentos(queryParams);
-    if (!respuesta.result || respuesta.result.length === 0) {
+    if (!respuesta || respuesta.length === 0) {
       throw ManejadorErrores.getDatosVitalesNoCargados(
         'No se encontraron datos en el catalogo de documentos',
         'ccd1b7d9-afb6-5f06-b81e-9250a00ef904',
       );
     }
-    catDocumentos = respuesta.result as Array<CatDocumentosDTO>;
+    catDocumentos = respuesta as Array<CatDocumentosDataDTO>;
 
     return catDocumentos;
   }
 
-  public async catDocumentoById(idRow: number): Promise<CatDocumentosDTO> {
-
-    const respuesta = await this.catDocumentosService.getCatDocumentosById(idRow);
-    if (!respuesta) {
-      throw ManejadorErrores.getBusquedaVacia(
-        'Sin resultados',
-        'TYPE-A-6a09d086-e7c1-4d36-8367-66bc832a23f6',
-      );
+  public async getCatDocumentosById(request: getCatDocumentoByIdReq): Promise<getCatDocumentoByIdDTO>{
+      let catDocumentos: getCatDocumentoByIdDTO;
+      {
+        try {
+          const respuesta = await this.catDocumentosService.getCatDocumentosById(request);
+          catDocumentos = respuesta;
+        } catch (error) {
+          throw ManejadorErrores.getDatosVitalesNoCargados(
+            'No se encontro el dato en el catalogo de documentos',
+            'ccd1b7d9-afb6-5f06-b81e-9250a00ef904',
+          );
+        }
+      }
+  
+      return catDocumentos;
     }
-    return respuesta;
-  }
 
-  public async catEstatusByTabla(tabla: string): Promise<Array<CatEstatusDTO>>{
-    let catEstatus: Array<CatEstatusDTO>;
-    const respuesta = await this.CatEstatusService.getCatEstatusByTabla(tabla);
-    if (!respuesta.result || respuesta.result.length === 0) {
+  public async getCatEstatusByTabla(request: getCatEstatusByTablaReq): Promise<getCatEstatusByTablaDTO> {
+    const respuesta = await this.CatEstatusService.getCatEstatusByTabla(request);
+    if (!respuesta.catEstatus || respuesta.catEstatus.length === 0) {
       throw ManejadorErrores.getDatosVitalesNoCargados(
         'No se encontraron datos en el catalogo de estatus',
         'ccd1b7d9-afb6-5f06-b81e-9250a00ef904',
       );
     }
-    catEstatus = respuesta.result as Array<CatEstatusDTO>;
-    return catEstatus;
+
+    return respuesta;
   }
   
-  public async catEstatusById(idRow: number): Promise<CatEstatusDTO> {
-    const respuesta = await this.CatEstatusService.getCatEstatusById(idRow);
+  public async getCatEstatusById(request: getCatEstatusByIdReq): Promise<getCatEstatusByIdDTO> {
+    const respuesta = await this.CatEstatusService.getCatEstatusById(request);
     if (!respuesta) {
       throw ManejadorErrores.getBusquedaVacia(
-        'Sin resultados',
+        'No se encontro el dato en el catalogo de estatus',
         'TYPE-A-6a09d086-e7c1-4d36-8367-66bc832a23f6',
       );
     }
     return respuesta;
   }
 
-  public async catLicenciasByLicencias(localidad: string): Promise<Array<CatLicenciasDTO>>{
-    let catLicencias: Array<CatLicenciasDTO>;
-    const respuesta = await this.CatLicenciasService.getCatLicenciasByLicencia(localidad);
-    if (!respuesta.result || respuesta.result.length === 0) {
+  public async getCatLicenciasByLicencia(request: getLicenciasByLicenciaReq): Promise<getLicenciasByLicenciaDTO> {
+    const respuesta = await this.CatLicenciasService.getCatLicenciasByLicencia(request);
+    if (!respuesta.catLicencias || respuesta.catLicencias.length === 0) {
       throw ManejadorErrores.getDatosVitalesNoCargados(
         'No se encontraron datos en el catalogo de licencias',
         'ccd1b7d9-afb6-5f06-b81e-9250a00ef904',
       );
     }
-    catLicencias = respuesta.result as Array<CatLicenciasDTO>;
-    return catLicencias;
+
+    return respuesta;
   }
   
-  public async catLicenciaById(idRow: number): Promise<CatLicenciasDTO> {
-    const respuesta = await this.CatLicenciasService.getCatLicenciasById(idRow);
+  public async getCatLicenciaById(request: getCatLicenciaByIdReq): Promise<getCatLicenciaByIdDTO> {
+    const respuesta = await this.CatLicenciasService.getCatLicenciaById(request);
     if (!respuesta) {
       throw ManejadorErrores.getBusquedaVacia(
-        'Sin resultados',
+        'No se encontro el dato en el catalogo de licencias',
         'TYPE-A-6a09d086-e7c1-4d36-8367-66bc832a23f6',
       );
     }
     return respuesta;
   }
 
-  public async catLugares(): Promise<Array<CatLugaresDTO>> {
-    let catLugares: Array<CatLugaresDTO>;
+  public async getCatLugares(): Promise<Array<CatLugaresDataDTO>> {
+    let catLugares: Array<CatLugaresDataDTO>;
     const queryParams = new QueryParams();
     const respuesta = await this.CatLugaresService.getCatLugares(queryParams);
-    if (!respuesta.result || respuesta.result.length === 0) {
+    if (!respuesta || respuesta.length === 0) {
       throw ManejadorErrores.getDatosVitalesNoCargados(
         'No se encontraron datos en el catalogo de lugares',
         'ccd1b7d9-afb6-5f06-b81e-9250a00ef904',
       );
     }
-    catLugares = respuesta.result as Array<CatLugaresDTO>;
+    catLugares = respuesta as Array<CatLugaresDataDTO>;
 
     return catLugares;
   }
 
-  public async catLugarById(idRow: number): Promise<CatLugaresDTO> {
+  public async getCatLugaresById(request: getCatLugarByIdReq): Promise<getCatLugaresByIdDTO>{
+      let catLugares: getCatLugaresByIdDTO;
+      {
+        try {
+          const respuesta = await this.CatLugaresService.getCatLugaresById(request);
+          catLugares = respuesta;
+        } catch (error) {
+          throw ManejadorErrores.getDatosVitalesNoCargados(
+            'No se encontro el dato en el catalogo de lugares',
+            'ccd1b7d9-afb6-5f06-b81e-9250a00ef904',
+          );
+        }
+      }
 
-    const respuesta = await this.CatLugaresService.getCatLugaresById(idRow);
-    if (!respuesta) {
-      throw ManejadorErrores.getBusquedaVacia(
-        'Sin resultados',
-        'TYPE-A-6a09d086-e7c1-4d36-8367-66bc832a23f6',
-      );
+      return catLugares;
     }
-    return respuesta;
-  }
 
-  public async catPruebas(): Promise<Array<CatPruebasDTO>> {
-    let catPruebas: Array<CatPruebasDTO>;
+  public async getCatPruebas(): Promise<Array<CatPruebasDataDTO>> {
+    let catPruebas: Array<CatPruebasDataDTO>;
     const queryParams = new QueryParams();
     const respuesta = await this.CatPruebasService.getCatPruebas(queryParams);
-
-    if (!respuesta.result || respuesta.result.length === 0) {
+    if (!respuesta || respuesta.length === 0) {
       throw ManejadorErrores.getDatosVitalesNoCargados(
         'No se encontraron datos en el catalogo de pruebas',
         'ccd1b7d9-afb6-5f06-b81e-9250a00ef904',
       );
     }
-    catPruebas = respuesta.result as Array<CatPruebasDTO>;
+    catPruebas = respuesta as Array<CatPruebasDataDTO>;
 
     return catPruebas;
   }
 
-  public async catPruebaById(idRow: number): Promise<CatPruebasDTO> {
-
-    const respuesta = await this.CatPruebasService.getCatPruebasById(idRow);
-    if (!respuesta) {
-      throw ManejadorErrores.getBusquedaVacia(
-        'Sin resultados',
-        'TYPE-A-6a09d086-e7c1-4d36-8367-66bc832a23f6',
-      );
+  public async getCatPruebaById(request: getCatPruebaByIdReq): Promise<getCatPruebasByIdDTO>{
+      let catPruebas: getCatPruebasByIdDTO;
+      {
+        try {
+          const respuesta = await this.CatPruebasService.getCatPruebaById(request);
+          catPruebas = respuesta;
+        } catch (error) {
+          throw ManejadorErrores.getDatosVitalesNoCargados(
+            'No se encontro el dato en el catalogo de pruebas',
+            'ccd1b7d9-afb6-5f06-b81e-9250a00ef904',
+          );
+        }
+      }
+  
+      return catPruebas;
     }
-    return respuesta;
-  }
 
-  public async catVigencias(): Promise<Array<CatVigenciaDTO>> {
-    let catVigencias: Array<CatVigenciaDTO>;
+  public async getCatVigencias(): Promise<Array<CatVigenciaDataDTO>> {
+    let catVigencias: Array<CatVigenciaDataDTO>;
     const queryParams = new QueryParams();
-    const respuesta = await this.CatVigenciaService.getCatVigencia(queryParams);
-    if (!respuesta.result || respuesta.result.length === 0) {
+    const respuesta = await this.CatVigenciaService.getCatVigencias(queryParams);
+    if (!respuesta || respuesta.length === 0) {
       throw ManejadorErrores.getDatosVitalesNoCargados(
         'No se encontraron datos en el catalogo de vigencias',
         'ccd1b7d9-afb6-5f06-b81e-9250a00ef904',
       );
     }
-    catVigencias = respuesta.result as Array<CatVigenciaDTO>;
+    catVigencias = respuesta as Array<CatVigenciaDataDTO>;
 
     return catVigencias;
   }
 
-  public async catVigenciaById(idRow: number): Promise<CatVigenciaDTO> {
-
-    const respuesta = await this.CatVigenciaService.getCatVigenciaById(idRow);
-    if (!respuesta) {
-      throw ManejadorErrores.getBusquedaVacia(
-        'Sin resultados',
-        'TYPE-A-6a09d086-e7c1-4d36-8367-66bc832a23f6',
-      );
+  public async getCatVigenciaById(request: getCatVigenciaByIdReq): Promise<getCatVigenciaByIdDTO>{
+      let catVigencias: getCatVigenciaByIdDTO;
+      {
+        try {
+          const respuesta = await this.CatVigenciaService.getCatVigenciaById(request);
+          catVigencias = respuesta;
+        } catch (error) {
+          throw ManejadorErrores.getDatosVitalesNoCargados(
+            'No se encontro el dato en el catalogo de vigencias',
+            'ccd1b7d9-afb6-5f06-b81e-9250a00ef904',
+          );
+        }
+      }
+  
+      return catVigencias;
     }
-    return respuesta;
-  }
+
 }

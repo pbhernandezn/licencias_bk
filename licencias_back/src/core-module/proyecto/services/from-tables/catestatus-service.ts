@@ -2,20 +2,24 @@ import { Injectable } from '@nestjs/common';
 import { ManejadorErrores } from '@principal/commons-module/proyecto/utils/manejador-errores';
 import { Wrapper } from '@principal/commons-module/proyecto/utils/wrapper';
 import { CatEstatusRepository } from '../../repository/catEstatus-repository';
-import { CatEstatusDTO } from '../../models/from-tables/catEstatus-dto';
+import { CatEstatusDTO, getCatEstatusByIdDTO, getCatEstatusByIdReq, getCatEstatusByTablaDTO, getCatEstatusByTablaReq } from '../../models/from-tables/catEstatus-dto';
 
 
 @Injectable()
 export class CatEstatusService {
   constructor(private readonly catEstatusRepository: CatEstatusRepository) {}
 
-  public async getCatEstatusById(idRow: number): Promise<CatEstatusDTO> {
-    return await this.catEstatusRepository.getCatEstatusById(idRow);
-  }
-
-  public async getCatEstatusByTabla(tabla: string): Promise<Wrapper<Array<CatEstatusDTO>>> {
-    return await this.catEstatusRepository.getCatEstatusByTabla(tabla);
-  }
+  public async getCatEstatusById(
+      request: getCatEstatusByIdReq
+    ): Promise<getCatEstatusByIdDTO> {
+      return await this.catEstatusRepository.getCatEstatusById(request);
+    }
+  
+     public async getCatEstatusByTabla(
+      request: getCatEstatusByTablaReq
+    ): Promise<getCatEstatusByTablaDTO> {
+      return await this.catEstatusRepository.getCatEstatusByTabla(request);
+    }
 
   public async createCatEstatus(payload: CatEstatusDTO): Promise<void> {
     // Reglas aqui

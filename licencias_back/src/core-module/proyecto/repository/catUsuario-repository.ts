@@ -28,7 +28,8 @@ export class CatUsuarioRepository {
         .leftJoin(
           'cat_estatus',
           'estatus',
-          'cat_usuarios.idestatus = estatus.id',
+          'estatus.tabla = :tabla AND cat_usuarios.idestatus = estatus.id',
+          { tabla: 'cat_usuarios' },
         )
         .select([
           'cat_usuarios.id',
@@ -53,7 +54,7 @@ export class CatUsuarioRepository {
         } catch (error) {
           throw ManejadorErrores.getFallaBaseDatos(
             error.message,
-            'TYPE-A-c6eed039-90ad-40a7-9316-381f5c55_cug1',
+            'TYPE-A-c6eed039-90ad-40a7-9316-381f5c5_cus1',
           );
         }
   }
@@ -67,7 +68,8 @@ export class CatUsuarioRepository {
           .leftJoin(
             'cat_estatus',
             'estatus',
-            'cat_usuarios.idestatus = estatus.id',
+            'estatus.tabla = :tabla AND cat_usuarios.idestatus = estatus.id',
+             { tabla: 'cat_usuarios' },
           )
           .select([
             'cat_usuarios.id',
@@ -92,14 +94,11 @@ export class CatUsuarioRepository {
             : undefined,
         };
   
-        console.log(result);
-  
-        //return new Wrapper(queryParams, 1, [usuarioDTO], true, 'Usuario encontrado', null);
         return catUsuarioDTO;
       } catch (error) {
         throw ManejadorErrores.getFallaBaseDatos(
           error.message,
-          'TYPE-A-c6eed039-90ad-40a7-9316-381f5c55cafc',
+          'TYPE-A-c6eed039-90ad-40a7-9316-381f5c5_cus2',
         );
       }
     }

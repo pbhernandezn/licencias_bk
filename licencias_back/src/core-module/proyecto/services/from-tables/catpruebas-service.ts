@@ -3,7 +3,7 @@ import { ManejadorErrores } from '@principal/commons-module/proyecto/utils/manej
 import { QueryParams } from '@principal/commons-module/proyecto/utils/query-params';
 import { Wrapper } from '@principal/commons-module/proyecto/utils/wrapper';
 import { CatPruebasRepository } from '../../repository/catPruebas-repository';
-import { CatPruebasDTO } from '../../models/from-tables/catPruebas-dto';
+import { CatPruebasDataDTO, CatPruebasDTO, getCatPruebaByIdReq, getCatPruebasByIdDTO } from '../../models/from-tables/catPruebas-dto';
 
 
 @Injectable()
@@ -12,12 +12,12 @@ export class CatPruebasService {
 
   public async getCatPruebas(
     queryParams: QueryParams,
-  ): Promise<Wrapper<Array<CatPruebasDTO>>> {
+  ): Promise<Array<CatPruebasDataDTO>> {
     return await this.catPruebasRepository.getCatPruebas(queryParams);
   }
 
-  public async getCatPruebasById(idRow: number): Promise<CatPruebasDTO> {
-    return await this.catPruebasRepository.getCatPruebasById(idRow);
+  public async getCatPruebaById(request: getCatPruebaByIdReq): Promise<getCatPruebasByIdDTO> {
+    return await this.catPruebasRepository.getCatPruebaById(request);
   }
 
   public async createCatPruebas(payload: CatPruebasDTO): Promise<void> {

@@ -6,51 +6,102 @@ import { QueryParams } from '@principal/commons-module/proyecto/utils/query-para
 import { Wrapper } from '@principal/commons-module/proyecto/utils/wrapper';
 import { QueryFinder } from '@principal/commons-module/proyecto/utils/query-finder';
 import { CatDocumentosEntity } from '../models/entities/catDocumentos-entity';
-import { CatDocumentosDTO } from '../models/from-tables/catDocumentos-dto';
+import { CatDocumentosDataDTO, CatDocumentosDTO, getCatDocumentoByIdDTO, getCatDocumentoByIdReq } from '../models/from-tables/catDocumentos-dto';
 import { CatDocumentosMapping } from '../utils/from-tables/catDocumentos-mapping';
+import { CatEstatusEntity } from '../models/entities/catEstatus-entity';
 
 @Injectable()
 export class CatDocumentosRepository {
   constructor(
     @InjectRepository(CatDocumentosEntity)
     private readonly repository: Repository<CatDocumentosEntity>,
+    @InjectRepository(CatEstatusEntity)
+    private readonly catEstatusRepository: Repository<CatEstatusEntity>,
   ) {}
 
   public async getCatDocumentos(
-    queryParams: QueryParams,
-  ): Promise<Wrapper<Array<CatDocumentosDTO>>> {
-    try {
-      const builder = new QueryFinder<CatDocumentosEntity>(null);
-
-      builder.config(this.repository, queryParams, CatDocumentosMapping.aliasConfig());
-
-      const respuesta = await builder.execute();
-
-      return respuesta;
-    } catch (error) {
-      throw ManejadorErrores.getFallaBaseDatos(
-        error.message,
-        'TYPE-A-c6eed039-90ad-40a7-9316-381f5c55cafc',
-      );
+      queryParams: QueryParams
+    ): Promise<Array<CatDocumentosDataDTO>> {
+      try {
+        const result: any[] = await this.repository
+          .createQueryBuilder('cat_documentos')
+          .leftJoin(
+            'cat_estatus',
+            'estatus',
+            'estatus.tabla = :tabla AND cat_documentos.idestatus = estatus.id',
+            { tabla: 'cat_documentos' },
+          )
+          .select([
+            'cat_documentos.id',
+            'cat_documentos.documento',
+            'cat_documentos.descripcion',
+            'cat_documentos.idestatus',
+            'estatus.estatus AS estatus_estatus',
+          ])
+          .getRawMany();
+  
+        if (!result || result.length === 0) return [];
+  
+        const documentos: Array<CatDocumentosDataDTO> = result.map((r) => ({
+          id: r['cat_documentos_id'],
+          documento: r['cat_documentos_documento'],
+          descripcion: r['cat_documentos_descripcion'],
+          idestatus: r['cat_documentos_idestatus'],
+          estatus: r['estatus_estatus'],
+        }));
+  
+        return documentos;
+          } catch (error) {
+            throw ManejadorErrores.getFallaBaseDatos(
+              error.message,
+              'TYPE-A-c6eed039-90ad-40a7-9316-381f5c5_cdo1',
+            );
+          }
     }
-  }
-
-  public async getCatDocumentosById(idRow: number): Promise<CatDocumentosDTO> {
-    try {
-      const queryBuilder = this.repository.createQueryBuilder();
-      CatDocumentosMapping.aliasConfigDetail(queryBuilder);
-      queryBuilder.where('id = :idRow', { idRow });
-      const respuesta = await queryBuilder.getRawMany();
-      if (!respuesta || respuesta.length === 0) return null;
-      const resultado = CatDocumentosMapping.entityToDTO(respuesta[0]);
-      return resultado;
-    } catch (error) {
-      throw ManejadorErrores.getFallaBaseDatos(
-        error.message,
-        'TYPE-B-b860456f-71d3-44cf-b1e9-bad555e62d7c',
-      );
-    }
-  }
+  
+    public async getCatDocumentosById(
+        request: getCatDocumentoByIdReq
+      ): Promise<getCatDocumentoByIdDTO> {
+        try {
+          const result = await this.repository
+            .createQueryBuilder('cat_documentos')
+            .leftJoin(
+              'cat_estatus',
+              'estatus',
+              'estatus.tabla = :tabla AND cat_documentos.idestatus = estatus.id',
+               { tabla: 'cat_documentos' },
+            )
+            .select([
+              'cat_documentos.id',
+              'cat_documentos.documento',
+              'cat_documentos.descripcion',
+              'cat_documentos.idestatus',
+              'estatus.estatus AS estatus_estatus',
+            ])
+            .where('cat_documentos.id = :id', { id: request.id })
+            .getRawOne();
+    
+          const catDocumentosDTO: getCatDocumentoByIdDTO = {
+            existe: !!result,
+            catDocumentos: result
+              ? {
+                  id: result['cat_documentos_id'],
+                  documento: result['cat_documentos_documento'],
+                  descripcion: result['cat_documentos_descripcion'],
+                  idestatus: result['cat_documentos_idestatus'],
+                  estatus: result['estatus_estatus'],
+                }
+              : undefined,
+          };
+    
+          return catDocumentosDTO;
+        } catch (error) {
+          throw ManejadorErrores.getFallaBaseDatos(
+            error.message,
+            'TYPE-A-c6eed039-90ad-40a7-9316-381f5c5_cdo2',
+          );
+        }
+      }
 
   
   public async isExistsCatDocumentos(idRow: number): Promise<number> {

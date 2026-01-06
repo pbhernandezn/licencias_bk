@@ -3,22 +3,22 @@ import { ManejadorErrores } from '@principal/commons-module/proyecto/utils/manej
 import { QueryParams } from '@principal/commons-module/proyecto/utils/query-params';
 import { Wrapper } from '@principal/commons-module/proyecto/utils/wrapper';
 import { CatVigenciaRepository } from '../../repository/catVigencia-repository';
-import { CatVigenciaDTO } from '../../models/from-tables/catVigencia-dto';
+import { CatVigenciaDataDTO, CatVigenciaDTO, getCatVigenciaByIdDTO, getCatVigenciaByIdReq } from '../../models/from-tables/catVigencia-dto';
 
 
 @Injectable()
 export class CatVigenciaService {
   constructor(private readonly catVigenciaRepository: CatVigenciaRepository) {}
 
-  public async getCatVigencia(
-    queryParams: QueryParams,
-  ): Promise<Wrapper<Array<CatVigenciaDTO>>> {
-    return await this.catVigenciaRepository.getCatVigencia(queryParams);
-  }
+  public async getCatVigencias(
+      queryParams: QueryParams,
+    ): Promise<Array<CatVigenciaDataDTO>> {
+      return await this.catVigenciaRepository.getCatVigencias(queryParams);
+    }
 
-  public async getCatVigenciaById(idRow: number): Promise<CatVigenciaDTO> {
-    return await this.catVigenciaRepository.getCatVigenciaById(idRow);
-  }
+    public async getCatVigenciaById(request: getCatVigenciaByIdReq): Promise<getCatVigenciaByIdDTO> {
+      return await this.catVigenciaRepository.getCatVigenciaById(request);
+    }
 
   public async createCatVigencia(payload: CatVigenciaDTO): Promise<void> {
     // Reglas aqui

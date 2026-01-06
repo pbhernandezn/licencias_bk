@@ -6,50 +6,106 @@ import { QueryParams } from '@principal/commons-module/proyecto/utils/query-para
 import { Wrapper } from '@principal/commons-module/proyecto/utils/wrapper';
 import { QueryFinder } from '@principal/commons-module/proyecto/utils/query-finder';
 import { CatPruebasEntity } from '../models/entities/catPruebas-entity';
-import { CatPruebasDTO } from '../models/from-tables/catPruebas-dto';
+import { CatPruebasDataDTO, CatPruebasDTO, getCatPruebaByIdReq, getCatPruebasByIdDTO } from '../models/from-tables/catPruebas-dto';
 import { CatPruebasMapping } from '../utils/from-tables/catPruebas-mapping';
+import { CatEstatusEntity } from '../models/entities/catEstatus-entity';
 
 @Injectable()
 export class CatPruebasRepository {
   constructor(
     @InjectRepository(CatPruebasEntity)
     private readonly repository: Repository<CatPruebasEntity>,
+    @InjectRepository(CatEstatusEntity)
+            private readonly catEstatusRepository: Repository<CatEstatusEntity>,
   ) {}
 
   public async getCatPruebas(
-    queryParams: QueryParams,
-  ): Promise<Wrapper<Array<CatPruebasDTO>>> {
+    queryParams: QueryParams
+  ): Promise<Array<CatPruebasDataDTO>> {
     try {
-      const builder = new QueryFinder<CatPruebasEntity>(null);
-      builder.config(this.repository, queryParams, CatPruebasMapping.aliasConfig());
+      const result: any[] = await this.repository
+        .createQueryBuilder('cat_pruebas')
+        .leftJoin(
+          'cat_estatus',
+          'estatus',
+          'estatus.tabla = :tabla AND cat_pruebas.idestatus = estatus.id',
+          { tabla: 'cat_pruebas' },
+        )
+        .select([
+          'cat_pruebas.id',
+          'cat_pruebas.prueba',
+          'cat_pruebas.descripcion',
+          'cat_pruebas.presencial',
+          'cat_pruebas.idestatus',
+          'estatus.estatus AS estatus_estatus',
+        ])
+        .getRawMany();
 
-      const respuesta = await builder.execute();
+      if (!result || result.length === 0) return [];
 
-      return respuesta;
-    } catch (error) {
-      throw ManejadorErrores.getFallaBaseDatos(
-        error.message,
-        'TYPE-A-c6eed039-90ad-40a7-9316-381f5c55cafc',
-      );
-    }
+      const pruebasData: Array<CatPruebasDataDTO> = result.map((r) => ({
+        id: r['cat_pruebas_id'],
+        prueba: r['cat_pruebas_prueba'],
+        descripcion: r['cat_pruebas_descripcion'],
+        presencial: r['cat_pruebas_presencial'],
+        idestatus: r['cat_pruebas_idestatus'],
+        estatus: r['estatus_estatus'],
+      }));
+
+      return pruebasData;
+        } catch (error) {
+          throw ManejadorErrores.getFallaBaseDatos(
+            error.message,
+            'TYPE-A-c6eed039-90ad-40a7-9316-381f5c5_cpr1',
+          );
+        }
   }
 
-  public async getCatPruebasById(idRow: number): Promise<CatPruebasDTO> {
-    try {
-      const queryBuilder = this.repository.createQueryBuilder();
-      CatPruebasMapping.aliasConfigDetail(queryBuilder);
-      queryBuilder.where('id = :idRow', { idRow });
-      const respuesta = await queryBuilder.getRawMany();
-      if (!respuesta || respuesta.length === 0) return null;
-      const resultado = CatPruebasMapping.entityToDTO(respuesta[0]);
-      return resultado;
-    } catch (error) {
-      throw ManejadorErrores.getFallaBaseDatos(
-        error.message,
-        'TYPE-B-b860456f-71d3-44cf-b1e9-bad555e62d7c',
-      );
+  public async getCatPruebaById(
+      request: getCatPruebaByIdReq
+    ): Promise<getCatPruebasByIdDTO> {
+      try {
+        const result = await this.repository
+          .createQueryBuilder('cat_pruebas')
+          .leftJoin(
+            'cat_estatus',
+            'estatus',
+            'estatus.tabla = :tabla AND cat_pruebas.idestatus = estatus.id',
+              { tabla: 'cat_pruebas' },
+          )
+          .select([
+            'cat_pruebas.id',
+            'cat_pruebas.prueba',
+            'cat_pruebas.descripcion',
+            'cat_pruebas.presencial',
+            'cat_pruebas.idestatus',
+            'estatus.estatus AS estatus_estatus',
+            ])
+          .where('cat_pruebas.id = :id', { id: request.id })
+          .getRawOne();
+  
+        const catPruebasDTO: getCatPruebasByIdDTO = {
+          existe: !!result,
+          catPruebas: result
+            ? {
+                id: result['cat_pruebas_id'],
+                prueba: result['cat_pruebas_prueba'],
+                descripcion: result['cat_pruebas_descripcion'],
+                presencial: result['cat_pruebas_presencial'],
+                idestatus: result['cat_pruebas_idestatus'],
+                estatus: result['estatus_estatus'],
+              }
+            : undefined,
+        };
+  
+        return catPruebasDTO;
+      } catch (error) {
+        throw ManejadorErrores.getFallaBaseDatos(
+          error.message,
+          'TYPE-A-c6eed039-90ad-40a7-9316-381f5c5_cpr2',
+        );
+      }
     }
-  }
 
   
   public async isExistsCatPruebas(idRow: number): Promise<number> {

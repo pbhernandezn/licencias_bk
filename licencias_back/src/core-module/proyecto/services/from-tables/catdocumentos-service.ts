@@ -3,7 +3,7 @@ import { ManejadorErrores } from '@principal/commons-module/proyecto/utils/manej
 import { QueryParams } from '@principal/commons-module/proyecto/utils/query-params';
 import { Wrapper } from '@principal/commons-module/proyecto/utils/wrapper';
 import { CatDocumentosRepository } from '../../repository/catDocumentos-repository';
-import { CatDocumentosDTO } from '../../models/from-tables/catDocumentos-dto';
+import { CatDocumentosDataDTO, CatDocumentosDTO, getCatDocumentoByIdDTO, getCatDocumentoByIdReq } from '../../models/from-tables/catDocumentos-dto';
 
 
 @Injectable()
@@ -11,14 +11,14 @@ export class CatDocumentosService {
   constructor(private readonly catDocumentosRepository: CatDocumentosRepository) {}
 
   public async getCatDocumentos(
-    queryParams: QueryParams,
-  ): Promise<Wrapper<Array<CatDocumentosDTO>>> {
-    return await this.catDocumentosRepository.getCatDocumentos(queryParams);
-  }
+      queryParams: QueryParams,
+    ): Promise<Array<CatDocumentosDataDTO>> {
+      return await this.catDocumentosRepository.getCatDocumentos(queryParams);
+    }
 
-  public async getCatDocumentosById(idRow: number): Promise<CatDocumentosDTO> {
-    return await this.catDocumentosRepository.getCatDocumentosById(idRow);
-  }
+    public async getCatDocumentosById(request: getCatDocumentoByIdReq): Promise<getCatDocumentoByIdDTO> {
+      return await this.catDocumentosRepository.getCatDocumentosById(request);
+    }
 
   public async createCatDocumentos(payload: CatDocumentosDTO): Promise<void> {
     // Reglas aqui

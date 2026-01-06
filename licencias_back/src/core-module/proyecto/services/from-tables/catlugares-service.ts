@@ -3,7 +3,7 @@ import { ManejadorErrores } from '@principal/commons-module/proyecto/utils/manej
 import { QueryParams } from '@principal/commons-module/proyecto/utils/query-params';
 import { Wrapper } from '@principal/commons-module/proyecto/utils/wrapper';
 import { CatLugaresRepository } from '../../repository/catLugares-repository';
-import { CatLugaresDTO } from '../../models/from-tables/catLugares-dto';
+import { CatLugaresDataDTO, CatLugaresDTO, getCatLugarByIdReq, getCatLugaresByIdDTO } from '../../models/from-tables/catLugares-dto';
 
 
 @Injectable()
@@ -11,14 +11,14 @@ export class CatLugaresService {
   constructor(private readonly catLugaresRepository: CatLugaresRepository) {}
 
   public async getCatLugares(
-    queryParams: QueryParams,
-  ): Promise<Wrapper<Array<CatLugaresDTO>>> {
-    return await this.catLugaresRepository.getCatLugares(queryParams);
-  }
+        queryParams: QueryParams,
+      ): Promise<Array<CatLugaresDataDTO>> {
+        return await this.catLugaresRepository.getCatLugares(queryParams);
+      }
 
-  public async getCatLugaresById(idRow: number): Promise<CatLugaresDTO> {
-    return await this.catLugaresRepository.getCatLugaresById(idRow);
-  }
+      public async getCatLugaresById(request: getCatLugarByIdReq): Promise<getCatLugaresByIdDTO> {
+        return await this.catLugaresRepository.getCatLugarById(request);
+      }
 
   public async createCatLugares(payload: CatLugaresDTO): Promise<void> {
     // Reglas aqui
