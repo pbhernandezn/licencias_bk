@@ -2,26 +2,49 @@ import { Injectable } from '@nestjs/common';
 import { ManejadorErrores } from '@principal/commons-module/proyecto/utils/manejador-errores';
 import { Wrapper } from '@principal/commons-module/proyecto/utils/wrapper';
 import { CatCPRepository } from '../../repository/catCP-repository';
-import { CatCPDTO } from '../../models/from-tables/catCP-dto';
+import { CatCPDTO, getCatCPByIdDTO, getCatCPByIdReq, getLocalidadByCPReq, getLocalidadesByCPDTO } from '../../models/from-tables/catCP-dto';
 
 
 @Injectable()
 export class CatCPService {
   constructor(private readonly catCPRepository: CatCPRepository) {}
 
-  public async getCatCPById(idRow: number): Promise<CatCPDTO> {
-    return await this.catCPRepository.getCatCPById(idRow);
+  /**
+   * Obtiene los datos de una CP específica por su ID.
+   * @param request - Objeto con el ID de la CP a buscar
+   * @returns Objeto con los datos de la CP si existe, de lo contrario un objeto con existe: false
+   */
+  public async getCatCPById(
+    request: getCatCPByIdReq
+  ): Promise<getCatCPByIdDTO> {
+    return await this.catCPRepository.getCatCPById(request);
   }
 
-  public async getCatCPByCP(cp: string): Promise<Wrapper<Array<CatCPDTO>>> {
-    return await this.catCPRepository.getCatCPByCP(cp);
+  /**
+   * Obtiene las localidades asociadas a un código postal específico.
+   * @param request - Objeto con el código postal para buscar las localidades
+   * @returns Objeto con las localidades asociadas al código postal
+   */
+   public async getLocalidadByCP(
+    request: getLocalidadByCPReq
+  ): Promise<getLocalidadesByCPDTO> {
+    return await this.catCPRepository.getLocalidadesByCP(request);
   }
 
+  /**
+   * Crea una nueva CP en la base de datos.
+   * @param payload - Objeto con los datos de la CP a crear
+   */
   public async createCatCP(payload: CatCPDTO): Promise<void> {
     // Reglas aqui
     await this.catCPRepository.saveCatCP(payload);
   }
   
+  /**
+   * Actualiza los datos de una CP existente.
+   * @param id - ID de la CP a actualizar
+   * @param payload - Objeto con los nuevos datos a actualizar
+   */
   public async updateCatCP(id: number, payload: Partial<CatCPDTO>): Promise<void> {
     // Reglas aqui
     {
@@ -36,6 +59,10 @@ export class CatCPService {
     await this.catCPRepository.updateCatCP(id, payload);
   }
 
+  /**   
+   * Elimina una CP de la base de datos.
+   * @param id - ID de la CP a eliminar
+   */
   public async deleteCatCP(id: number): Promise<void> {
     {
       const respuesta = await this.catCPRepository.isExistsCatCP(id);
