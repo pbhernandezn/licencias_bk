@@ -70,20 +70,20 @@ export class UsuariosService {
                     respuesta.errores.fechanacimiento = 'La fecha de nacimiento no es válida.';
                 }
 
-                if(
+                if (
                     !request.nombres ||
                     !request.apellidopaterno ||
                     !request.curp ||
                     !request.email ||
                     !request.password ||
                     !request.fechanacimiento
-                ){
+                ) {
                     respuesta.creado = false;
                     respuesta.errores.necesarios = 'Nombre, Apellidos Paterno y Materno, CURP, Email, Contraseña y Fecha de Nacimiento son obligatorios.';
                 }
 
-                if (!respuesta.errores) {
-            console.log('Creating user with data:', request);
+                if (respuesta.errores.apellidomaterno == "" && respuesta.errores.nombres == "" && respuesta.errores.apellidopaterno == "" &&
+                    respuesta.errores.curp == "" && respuesta.errores.fechanacimiento == "" && respuesta.errores.necesarios == "") {
                     respuesta = await this.usuariosTService.createUsuario(request);
                 }
             } catch (error) {
