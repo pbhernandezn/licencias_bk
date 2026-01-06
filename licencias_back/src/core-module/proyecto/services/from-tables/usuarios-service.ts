@@ -21,7 +21,6 @@ export class UsuariosTService {
   public async createUsuario(
     request: createUsuarioReq
   ): Promise<createUsuarioDTO> {
-            console.log('Creating user with data:', request);
     return await this.usuariosRepository.createUsuario(request);
   }
 

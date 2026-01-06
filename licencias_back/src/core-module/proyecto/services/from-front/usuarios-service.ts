@@ -46,19 +46,19 @@ export class UsuariosService {
             try {
                 if (!isValidName(request.nombres)) {
                     respuesta.creado = false;
-                    respuesta.errores.nombres = 'El nombre contiene caracteres no válidos.';
+                    respuesta.errores.nombres = 'El nombre contiene caracteres no vï¿½lidos.';
                 }
                 if (!isValidName(request.apellidopaterno)) {
                     respuesta.creado = false;
-                    respuesta.errores.apellidopaterno = 'El apellido paterno contiene caracteres no válidos.';
+                    respuesta.errores.apellidopaterno = 'El apellido paterno contiene caracteres no vï¿½lidos.';
                 }
                 if (request.apellidomaterno && !isValidName(request.apellidomaterno)) {
                     respuesta.creado = false;
-                    respuesta.errores.apellidomaterno = 'El apellido materno contiene caracteres no válidos.';
+                    respuesta.errores.apellidomaterno = 'El apellido materno contiene caracteres no vï¿½lidos.';
                 }
                 if (isValidCURP(request.curp)) {
                     respuesta.creado = false;
-                    respuesta.errores.curp = 'La CURP no es válida.';
+                    respuesta.errores.curp = 'La CURP no es vï¿½lida.';
                 } else {
                     if (!isDateMatchingCURP(request.fechanacimiento, request.curp)) {
                         respuesta.creado = false;
@@ -67,23 +67,23 @@ export class UsuariosService {
                 }
                 if (!isValidDate(request.fechanacimiento)) {
                     respuesta.creado = false;
-                    respuesta.errores.fechanacimiento = 'La fecha de nacimiento no es válida.';
+                    respuesta.errores.fechanacimiento = 'La fecha de nacimiento no es vï¿½lida.';
                 }
 
-                if(
+                if (
                     !request.nombres ||
                     !request.apellidopaterno ||
                     !request.curp ||
                     !request.email ||
                     !request.password ||
                     !request.fechanacimiento
-                ){
+                ) {
                     respuesta.creado = false;
-                    respuesta.errores.necesarios = 'Nombre, Apellidos Paterno y Materno, CURP, Email, Contraseña y Fecha de Nacimiento son obligatorios.';
+                    respuesta.errores.necesarios = 'Nombre, Apellidos Paterno y Materno, CURP, Email, Contraseï¿½a y Fecha de Nacimiento son obligatorios.';
                 }
 
-                if (!respuesta.errores) {
-            console.log('Creating user with data:', request);
+                if (respuesta.errores.apellidomaterno == "" && respuesta.errores.nombres == "" && respuesta.errores.apellidopaterno == "" &&
+                    respuesta.errores.curp == "" && respuesta.errores.fechanacimiento == "" && respuesta.errores.necesarios == "") {
                     respuesta = await this.usuariosTService.createUsuario(request);
                 }
             } catch (error) {
