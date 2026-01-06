@@ -11,6 +11,7 @@ import { CatUsuarioMapping } from '../utils/from-tables/catUsuario-mapping';
 import { createUsuarioDTO, createUsuarioReq, getUsuarioByIdDTO, getUsuarioByIdReq } from '../models/from-tables/usuarios-dto';
 import { UsuariosEntity } from '../models/entities/usuarios-entity';
 import { CatEstatusEntity } from '../models/entities/catEstatus-entity';
+import e from 'express';
 
 @Injectable()
 export class UsuariosRepository {
@@ -79,21 +80,59 @@ export class UsuariosRepository {
     ): Promise<createUsuarioDTO> {
         try {
 
-            var res: createUsuarioDTO;
-            console.log('Creating user with data:', request);
-            const newUsuario = this.usuariosRepository.create({
-                nombres: request.nombres,
-                apellidopaterno: request.apellidopaterno,
-                apellidomaterno: request.apellidomaterno,
-                curp: request.curp,
-                email: request.email,
-                password: request.password,
-                // Not implemented
-                //fecha: request.fechanacimiento,
-            });
+            const tipoUsuarioExists = await this.usuariosRepository
+                .createQueryBuilder('cat_tipoUsuario')
+                .select('1')
+                .where('cat_tipoUsuario.id = :tipoUsuario', { tipoUsuario: request.tipoUsuario })
+                .getRawOne();
 
-            var nvoUsr = await this.usuariosRepository.save(newUsuario);
-            res.creado = nvoUsr ? true : false;
+            const emailOrCurpExists = await this.usuariosRepository
+                .createQueryBuilder('usuarios')
+                .select('1')
+                .where('usuarios.email = :email', { email: request.email })
+                .orWhere('usuarios.curp = :curp', { curp: request.curp })
+                .getRawOne();
+
+            var res: createUsuarioDTO = {
+                creado: true,
+                errores: {
+                    nombres: null,
+                    apellidopaterno: null,
+                    apellidomaterno: null,
+                    curp: null,
+                    email: null,
+                    password: null,
+                    fechanacimiento: null,
+                    necesarios: null
+                },
+            };
+
+            if (!tipoUsuarioExists) {
+                res.creado = false;
+                res.errores.necesarios = 'El tipo de usuario no es válido.';
+            } else if (emailOrCurpExists) {
+                res.creado = false;
+                res.errores.necesarios = 'El usuario ya ha sido dado de alta.';
+            } else {
+
+                const newUsuario = this.usuariosRepository.create({
+                    idtipousuario: request.tipoUsuario,
+                    nombres: request.nombres,
+                    apellidopaterno: request.apellidopaterno,
+                    apellidomaterno: request.apellidomaterno,
+                    curp: request.curp,
+                    email: request.email,
+                    password: request.password,
+                    username: request.email,
+                    logintype: 'all',
+                    idestatus: 1,
+                    // Not implemented
+                    //fecha: request.fechanacimiento,
+                });
+
+                var nvoUsr = await this.usuariosRepository.save(newUsuario);
+                res.creado = nvoUsr ? true : false;
+            }
 
             return res;
         } catch (error) {
