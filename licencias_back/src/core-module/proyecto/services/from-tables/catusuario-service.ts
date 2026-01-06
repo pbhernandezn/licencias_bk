@@ -3,7 +3,7 @@ import { ManejadorErrores } from '@principal/commons-module/proyecto/utils/manej
 import { QueryParams } from '@principal/commons-module/proyecto/utils/query-params';
 import { Wrapper } from '@principal/commons-module/proyecto/utils/wrapper';
 import { CatUsuarioRepository } from '../../repository/catUsuario-repository';
-import { CatUsuarioDTO } from '../../models/from-tables/catUsuario-dto';
+import { CatUsuarioDTO, CatUsuariosDataDTO, getCatUsuarioByIdDTO, getCatUsuarioByIdReq } from '../../models/from-tables/catUsuario-dto';
 
 
 @Injectable()
@@ -12,8 +12,12 @@ export class CatUsuarioService {
 
   public async getCatUsuarios(
     queryParams: QueryParams,
-  ): Promise<Wrapper<Array<CatUsuarioDTO>>> {
+  ): Promise<Array<CatUsuariosDataDTO>> {
     return await this.catUsuarioRepository.getCatUsuarios(queryParams);
+  }
+
+  public async getCatUsuariosById(request: getCatUsuarioByIdReq): Promise<getCatUsuarioByIdDTO> {
+    return await this.catUsuarioRepository.getCatUsuarioById(request);
   }
 
   public async createCatUsuario(payload: CatUsuarioDTO): Promise<void> {

@@ -64,36 +64,36 @@ export class getUsuarioByIdReq {
 export class createUsuarioReq {
   @ApiProperty({ description: 'Nombres del usuario', example: 'Juan' })
   nombres: string; 
-  @ApiProperty({ description: 'Apellido paterno del usuario', example: 'P茅rez' })
+  @ApiProperty({ description: 'Apellido paterno del usuario', example: 'P閞ez' })
   apellidopaterno: string;
-  @ApiProperty({ description: 'Apellido materno del usuario', example: 'G贸mez' })
+  @ApiProperty({ description: 'Apellido materno del usuario', example: 'G髆ez' })
   apellidomaterno: string;
   @ApiProperty({ description: 'CURP del usuario', example: 'PEGA800101HDFRMS09' })
   curp: string;
   @ApiProperty({ description: 'Email del usuario', example: 'juan.perez@example.com' })
   email: string;
-  @ApiProperty({ description: 'Contrase帽a encriptada del usuario', example: 'password123' })
+  @ApiProperty({ description: 'Contrase馻 encriptada del usuario', example: 'password123' })
   password: string;
   @ApiProperty({ description: 'Fecha de nacimiento del usuario', example: '1980-01-01' })
   fechanacimiento: string;
 }
 
 export class usuarioDataResponse {
-  @ApiProperty({ description: 'Descripci贸n del error de Nombre', example: 'No puede contener n煤meros ni s铆mbolos' })
+  @ApiProperty({ description: 'Descripci髇 del error de Nombre', example: 'No puede contener n鷐eros ni s韒bolos' })
   nombres: string; 
-  @ApiProperty({ description: 'Descripci贸n del error de Apellido paterno del usuario', example: 'No puede ir vac铆o' })
+  @ApiProperty({ description: 'Descripci髇 del error de Apellido paterno del usuario', example: 'No puede ir vac韔' })
   apellidopaterno: string;
-  @ApiProperty({ description: 'Descripci贸n del error de Apellido materno del usuario', example: 'No puede ser menor de 3 letras' })
+  @ApiProperty({ description: 'Descripci髇 del error de Apellido materno del usuario', example: 'No puede ser menor de 3 letras' })
   apellidomaterno: string;
-  @ApiProperty({ description: 'Descripci贸n del error de CURP del usuario', example: 'No coincide con el formato' })
+  @ApiProperty({ description: 'Descripci髇 del error de CURP del usuario', example: 'No coincide con el formato' })
   curp: string;
-  @ApiProperty({ description: 'Descripci贸n del error de Email del usuario', example: 'No coincide con el formato' })
+  @ApiProperty({ description: 'Descripci髇 del error de Email del usuario', example: 'No coincide con el formato' })
   email: string;
-  @ApiProperty({ description: 'Descripci贸n del error de Contrase帽a encriptada del usuario', example: 'Contrase帽a no cumple con los par谩metros de seguridad' })
+  @ApiProperty({ description: 'Descripci髇 del error de Contrase馻 encriptada del usuario', example: 'Contrase馻 no cumple con los par醡etros de seguridad' })
   password: string;
-  @ApiProperty({ description: 'Descripci贸n del error de Fecha de nacimiento del usuario', example: 'La fecha de nacimiento no coincide con la CURP.' })
+  @ApiProperty({ description: 'Descripci髇 del error de Fecha de nacimiento del usuario', example: 'La fecha de nacimiento no coincide con la CURP.' })
   fechanacimiento: string;
-  @ApiProperty({ description: 'Informaci贸n sobre campos requeridos', example: 'Nombre, Apellidos Paterno y Materno, CURP, Email, Contrase帽a y Fecha de Nacimiento son obligatorios.' })
+  @ApiProperty({ description: 'Informaci髇 sobre campos requeridos', example: 'Nombre, Apellidos Paterno y Materno, CURP, Email, Contrase馻 y Fecha de Nacimiento son obligatorios.' })
   necesarios: string;
 }
 
