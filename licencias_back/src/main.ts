@@ -67,6 +67,6 @@ async function bootstrap() {
   const shutdownService = app.get(ShutdownExpose);
   shutdownService.setApp(app);
 
-  await app.listen(process.env.UNIT_PORT ?? 3000);
+  await app.listen(process.env.UNIT_PORT ?? 3001);
 }
 bootstrap();
