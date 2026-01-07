@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ManejadorErrores } from '@principal/commons-module/proyecto/utils/manejador-errores';
@@ -103,7 +103,9 @@ export class CatLicenciasRepository {
               .where('cat_licencias.licencia = :licencia', { licencia: request.licencia })
               .getRawMany();
       
-            if (!result || result.length === 0) return null;
+            if (!result) {
+              throw new NotFoundException('No se encontraron licencias mediante la licencia proporcionada.');
+            }
       
             const catLicencias: Array<CatLicenciasDataDTO> = result.map((r) => ({
               id: r['cat_licencias_id'],

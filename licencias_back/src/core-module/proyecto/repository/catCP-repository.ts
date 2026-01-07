@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ManejadorErrores } from '@principal/commons-module/proyecto/utils/manejador-errores';
@@ -79,7 +79,9 @@ export class CatCPRepository {
           .where('cat_cp.cp = :cp', { cp: request.cp })
           .getRawMany();
   
-        if (!result || result.length === 0) return null;
+        if (!result) {
+          throw new NotFoundException('No se encontraron localidades para el código postal proporcionado.');
+        }
   
         const localidades: Array<CatCPDTO> = result.map((r) => ({
           id: r['cat_cp_id'],
