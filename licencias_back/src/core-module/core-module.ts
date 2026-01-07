@@ -33,6 +33,7 @@ import { CatLicenciasService } from './proyecto/services/from-tables/catlicencia
 import { CatLugaresService } from './proyecto/services/from-tables/catlugares-service';
 import { CatPruebasService } from './proyecto/services/from-tables/catpruebas-service';
 import { CatVigenciaService } from './proyecto/services/from-tables/catvigencia-service';
+import { FaceController } from '@principal/main-module/proyecto/triggers/face-controller';
 
 @Module({
   imports: [TypeOrmModule.forFeature([CatUsuarioEntity, 
@@ -45,7 +46,7 @@ import { CatVigenciaService } from './proyecto/services/from-tables/catvigencia-
     CatLugaresEntity,
     CatPruebasEntity,
     CatVigenciaEntity])],
-  controllers: [CatalogoController, UsuariosController],
+  controllers: [CatalogoController, UsuariosController, FaceController],
   providers: [
     CatUsuarioRepository,
     CatUsuarioService,

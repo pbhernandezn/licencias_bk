@@ -207,6 +207,10 @@ export class UsuariosRepository {
                 if (request.conocidoLocalidad !== undefined) updateData.conodico_localidad = request.conocidoLocalidad;
                 if (request.conocidoTelefono !== undefined) updateData.conodico_telefono = request.conocidoTelefono;
                 if (request.idEstatus !== undefined) updateData.idestatus = request.idEstatus;
+                if (request.tipoUsuario !== undefined) updateData.idtipousuario = request.tipoUsuario;
+
+                console.log(request);
+                console.log(updateData);
 
                 await this.usuariosRepository.update(
                     { id: request.idUsuario },

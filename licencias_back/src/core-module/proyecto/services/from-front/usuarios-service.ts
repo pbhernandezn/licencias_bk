@@ -29,6 +29,8 @@ export class UsuariosService {
         return usuarioDat;
     }
 
+    
+
     public async createUsuario(request: createUsuarioReq) {
         var respuesta: createUsuarioDTO = {
             creado: true,
@@ -95,7 +97,7 @@ export class UsuariosService {
     public async updateUsuario(request: updateUsuarioReq) {
         var respuesta: updateUsuarioDTO = {
             actualizado: true,
-            errores: null,
+            errores: {},
         };
         {
             try {
@@ -112,7 +114,7 @@ export class UsuariosService {
                     respuesta.errores.apellidomaterno = 'El apellido materno contiene caracteres no válidos.';
                 }
                 if (request.curp) {
-                    if (!isValidCURP(request.curp)) {
+                    if (isValidCURP(request.curp)) {
                         respuesta.actualizado = false;
                         respuesta.errores.curp = 'La CURP no es válida.';
                     } else if (!isDateMatchingCURP(request.fechanacimiento, request.curp)) {
