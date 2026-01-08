@@ -8,10 +8,12 @@ import { QueryFinder } from '@principal/commons-module/proyecto/utils/query-find
 import { CatUsuarioEntity } from '../models/entities/catUsuario-entity';
 import { CatUsuarioDTO } from '../models/from-tables/catUsuario-dto';
 import { CatUsuarioMapping } from '../utils/from-tables/catUsuario-mapping';
-import { createUsuarioDTO, createUsuarioReq, getUsuarioByIdDTO, getUsuarioByIdReq } from '../models/from-tables/usuarios-dto';
+import { createUsuarioDTO, createUsuarioReq, getUsuarioByIdDTO, getUsuarioByIdReq, updateUsuarioDTO, updateUsuarioReq } from '../models/from-tables/usuarios-dto';
 import { UsuariosEntity } from '../models/entities/usuarios-entity';
 import { CatEstatusEntity } from '../models/entities/catEstatus-entity';
 import e from 'express';
+import { CatCPRepository } from './catCP-repository';
+import { CatCPEntity } from '../models/entities/catCP-entity';
 
 @Injectable()
 export class UsuariosRepository {
@@ -20,6 +22,10 @@ export class UsuariosRepository {
         private readonly usuariosRepository: Repository<UsuariosEntity>,
         @InjectRepository(CatEstatusEntity)
         private readonly catEstatusRepository: Repository<CatEstatusEntity>,
+        @InjectRepository(CatCPEntity)
+        private readonly catCPRepository: Repository<CatCPEntity>,
+        @InjectRepository(CatUsuarioEntity)
+        private readonly catUsuarioRepository: Repository<CatUsuarioEntity>,
     ) { }
 
     public async getUsuarioById(
@@ -80,7 +86,7 @@ export class UsuariosRepository {
     ): Promise<createUsuarioDTO> {
         try {
 
-            const tipoUsuarioExists = await this.usuariosRepository
+            const tipoUsuarioExists = await this.catUsuarioRepository
                 .createQueryBuilder('cat_tipoUsuario')
                 .select('1')
                 .where('cat_tipoUsuario.id = :tipoUsuario', { tipoUsuario: request.tipoUsuario })
@@ -143,4 +149,93 @@ export class UsuariosRepository {
         }
     }
 
+
+    public async updateUsuario(
+        request: updateUsuarioReq
+    ): Promise<updateUsuarioDTO> {
+        try {
+            const usuarioExists = await this.usuariosRepository
+                .createQueryBuilder('usuarios')
+                .select('1')
+                .where('usuarios.id = :idUsuario', { idUsuario: request.idUsuario })
+                .getRawOne();
+
+            const res: updateUsuarioDTO = {
+                actualizado: true,
+                errores: {},
+            };
+
+            const cpid = await this.validateCpExists(request.cp)
+            const cpcoid = await this.validateCpExists(request.conocidoCp)
+            if(request.cp && cpid === 0){
+                res.errores.cp = 'El código postal no existe.';
+                res.actualizado = false;
+            }else if(request.conocidoCp && cpcoid === 0){
+                res.errores.cp = 'El código postal del conocido no existe.';
+                res.actualizado = false;
+            }else if (!usuarioExists) {
+                res.actualizado = false;
+                res.errores.necesarios = 'El usuario no existe.';
+            } else {
+                const updateData: Partial<UsuariosEntity> = {};
+                if (request.nombres !== undefined) updateData.nombres = request.nombres;
+                if (request.apellidopaterno !== undefined) updateData.apellidopaterno = request.apellidopaterno;
+                if (request.apellidomaterno !== undefined) updateData.apellidomaterno = request.apellidomaterno;
+                if (request.curp !== undefined) updateData.curp = request.curp;
+                if (request.password !== undefined) updateData.password = request.password;
+                if (request.rfc !== undefined) updateData.rfc = request.rfc;
+                if (request.domicilio !== undefined) updateData.domicilio = request.domicilio;
+                if (request.colonia !== undefined) updateData.colonia = request.colonia;
+                if (request.cp !== undefined) updateData.cp = cpid;
+                if (request.municipio !== undefined) updateData.municipio = request.municipio;
+                if (request.localidad !== undefined) updateData.localidad = request.localidad;
+                if (request.entidad !== undefined) updateData.entidad = request.entidad;
+                if (request.nacionalidad !== undefined) updateData.nacionalidad = request.nacionalidad;
+                if (request.sexo !== undefined) updateData.sexo = request.sexo;
+                if (request.tipoSangre !== undefined) updateData.tiposangre = request.tipoSangre;
+                if (request.donador !== undefined) updateData.donador = request.donador;
+                if (request.lugarTrabajo !== undefined) updateData.lugartrabajo = request.lugarTrabajo;
+                if (request.restricciones !== undefined) updateData.restricciones = request.restricciones;
+                if (request.observaciones !== undefined) updateData.observacionmedica = request.observaciones;
+                if (request.conocidoNombre !== undefined) updateData.conocido_nombres = request.conocidoNombre;
+                if (request.conocidoApellidoPaterno !== undefined) updateData.conocido_apellidopaterno = request.conocidoApellidoPaterno;
+                if (request.conocidoApellidoMaterno !== undefined) updateData.conocido_apellidomaterno = request.conocidoApellidoMaterno;
+                if (request.conocidoDomicilio !== undefined) updateData.conocido_domicilio = request.conocidoDomicilio;
+                if (request.conocidoCp !== undefined) updateData.conodico_cp = cpcoid;
+                if (request.conocidoColonia !== undefined) updateData.conodico_colonia = request.conocidoColonia;
+                if (request.conocidoMunicipio !== undefined) updateData.conodico_municipio = request.conocidoMunicipio;
+                if (request.conocidoLocalidad !== undefined) updateData.conodico_localidad = request.conocidoLocalidad;
+                if (request.conocidoTelefono !== undefined) updateData.conodico_telefono = request.conocidoTelefono;
+                if (request.idEstatus !== undefined) updateData.idestatus = request.idEstatus;
+                if (request.tipoUsuario !== undefined) updateData.idtipousuario = request.tipoUsuario;
+
+                console.log(request);
+                console.log(updateData);
+
+                await this.usuariosRepository.update(
+                    { id: request.idUsuario },
+                    updateData,
+                );
+
+                res.actualizado = true;
+            }
+
+            return res;
+        } catch (error) {
+            throw ManejadorErrores.getFallaBaseDatos(
+                error.message,
+                'TYPE-A-c6eed039-90ad-40a7-9316-381f5c55cafc',
+            );
+        }
+    }
+
+    private async validateCpExists(cp: string): Promise<number> {
+        const cpRecord = await this.catCPRepository
+            .createQueryBuilder('cat_cp')
+            .select('cat_cp.id')
+            .where('cat_cp.cp = :cp', { cp })
+            .getRawOne();
+
+        return cpRecord ? cpRecord.id : 0;
+    }
 }

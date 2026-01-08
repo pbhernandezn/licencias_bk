@@ -33,13 +33,13 @@ import { CatLicenciasService } from './proyecto/services/from-tables/catlicencia
 import { CatLugaresService } from './proyecto/services/from-tables/catlugares-service';
 import { CatPruebasService } from './proyecto/services/from-tables/catpruebas-service';
 import { CatVigenciaService } from './proyecto/services/from-tables/catvigencia-service';
+import { FaceController } from '@principal/main-module/proyecto/triggers/face-controller';
 import { SolicitudesEntity } from './proyecto/models/entities/solicitudes-entity';
 import { SolicitudesController } from '@principal/main-module/proyecto/triggers/solicitudes-controller';
 import { SolicitudesTService } from './proyecto/services/from-tables/solicitudes-service';
 import { SolicitudesExpose } from './proyecto/expose/from-front/solicitudes-expose';
 import { SolicitudesRepository } from './proyecto/repository/solicitudes-repository';
 import { SolicitudesService } from './proyecto/services/from-front/solicitudes-service';
-
 @Module({
   imports: [TypeOrmModule.forFeature([CatUsuarioEntity, 
     UsuariosEntity, 

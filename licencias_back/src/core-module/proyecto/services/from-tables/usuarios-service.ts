@@ -5,7 +5,7 @@ import { Wrapper } from '@principal/commons-module/proyecto/utils/wrapper';
 import { CatUsuarioRepository } from '../../repository/catUsuario-repository';
 import { CatUsuarioDTO } from '../../models/from-tables/catUsuario-dto';
 import { UsuariosRepository } from '../../repository/usuarios-repository';
-import { createUsuarioDTO, createUsuarioReq, getUsuarioByIdDTO, getUsuarioByIdReq } from '../../models/from-tables/usuarios-dto';
+import { createUsuarioDTO, createUsuarioReq, getUsuarioByIdDTO, getUsuarioByIdReq, updateUsuarioDTO, updateUsuarioReq } from '../../models/from-tables/usuarios-dto';
 
 
 @Injectable()
@@ -22,6 +22,12 @@ export class UsuariosTService {
     request: createUsuarioReq
   ): Promise<createUsuarioDTO> {
     return await this.usuariosRepository.createUsuario(request);
+  }
+
+  public async updateUsuario(
+    request: updateUsuarioReq
+  ): Promise<updateUsuarioDTO> {
+    return await this.usuariosRepository.updateUsuario(request);
   }
 
 }
