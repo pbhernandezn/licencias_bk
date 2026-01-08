@@ -33,6 +33,12 @@ import { CatLicenciasService } from './proyecto/services/from-tables/catlicencia
 import { CatLugaresService } from './proyecto/services/from-tables/catlugares-service';
 import { CatPruebasService } from './proyecto/services/from-tables/catpruebas-service';
 import { CatVigenciaService } from './proyecto/services/from-tables/catvigencia-service';
+import { SolicitudesEntity } from './proyecto/models/entities/solicitudes-entity';
+import { SolicitudesController } from '@principal/main-module/proyecto/triggers/solicitudes-controller';
+import { SolicitudesTService } from './proyecto/services/from-tables/solicitudes-service';
+import { SolicitudesExpose } from './proyecto/expose/from-front/solicitudes-expose';
+import { SolicitudesRepository } from './proyecto/repository/solicitudes-repository';
+import { SolicitudesService } from './proyecto/services/from-front/solicitudes-service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([CatUsuarioEntity, 
@@ -44,8 +50,9 @@ import { CatVigenciaService } from './proyecto/services/from-tables/catvigencia-
     CatLicenciasEntity,
     CatLugaresEntity,
     CatPruebasEntity,
-    CatVigenciaEntity])],
-  controllers: [CatalogoController, UsuariosController],
+    CatVigenciaEntity,
+    SolicitudesEntity])],
+  controllers: [CatalogoController, UsuariosController, SolicitudesController],
   providers: [
     CatUsuarioRepository,
     CatUsuarioService,
@@ -70,6 +77,10 @@ import { CatVigenciaService } from './proyecto/services/from-tables/catvigencia-
     CatLugaresService,
     CatPruebasService,
     CatVigenciaService,
+    SolicitudesRepository,
+    SolicitudesTService,
+    SolicitudesExpose,
+    SolicitudesService,
   ],
   exports: [
     CatalogoExpose,
@@ -81,6 +92,8 @@ import { CatVigenciaService } from './proyecto/services/from-tables/catvigencia-
     UsuariosTService,
     UsuariosRepository,
     UsuariosEntity,
+    SolicitudesTService,
+    SolicitudesExpose
   ],
 })
 export class CoreModule {}
