@@ -6,7 +6,7 @@ import {
   INTERNAL_MESSAGES,
 } from '@principal/commons-module/proyecto/utils/messages-enum';
 import { UsuariosService } from '../../services/from-front/usuarios-service';
-import { createUsuarioDTO, createUsuarioReq, getUsuarioByIdDTO, getUsuarioByIdReq } from '../../models/from-tables/usuarios-dto';
+import { createUsuarioDTO, createUsuarioReq, getUsuarioByIdDTO, getUsuarioByIdReq, updateUsuarioDTO, updateUsuarioReq } from '../../models/from-tables/usuarios-dto';
 
 @Injectable()
 export class UsuariosExpose {
@@ -28,6 +28,16 @@ export class UsuariosExpose {
     resultado.code = respuesta.creado ? RESPONSE_CODES.SUCCESFULL : RESPONSE_CODES.ERROR_CUSTOM;
     resultado.internalCode = respuesta.creado ? INTERNAL_CODES.SUCCESFULL : INTERNAL_CODES.ERROR_CODE;
     resultado.message = respuesta.creado ? INTERNAL_MESSAGES.SUCCESFULL : INTERNAL_MESSAGES.NOT_VALID_ERROR_CODE;
+    resultado.data = respuesta;
+    return resultado;
+  }
+
+  async updateUsuario(request: updateUsuarioReq): Promise<BaseResponse<updateUsuarioDTO>> {
+    const respuesta = await this.usuariosService.updateUsuario(request);
+    const resultado = new BaseResponse<updateUsuarioDTO>();
+    resultado.code = respuesta.actualizado ? RESPONSE_CODES.SUCCESFULL : RESPONSE_CODES.ERROR_CUSTOM;
+    resultado.internalCode = respuesta.actualizado ? INTERNAL_CODES.SUCCESFULL : INTERNAL_CODES.ERROR_CODE;
+    resultado.message = respuesta.actualizado ? INTERNAL_MESSAGES.SUCCESFULL : INTERNAL_MESSAGES.NOT_VALID_ERROR_CODE;
     resultado.data = respuesta;
     return resultado;
   }

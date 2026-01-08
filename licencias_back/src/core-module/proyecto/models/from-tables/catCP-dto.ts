@@ -23,6 +23,6 @@ export class getCatCPByIdReq {
 }
 
 export class getLocalidadByCPReq {
-  @ApiProperty({ description: 'Localidad a buscar por CP', example: '01000' })
+  @ApiProperty({ description: 'Localidad a buscar por CP', example: '34000' })
   cp: string;
 }

@@ -8,9 +8,9 @@ export class HealthCheckConfig {
     if (process.env.HEALTH_CHECK_URL === undefined) {
       console.warn(
         'ADVERTENCIA: no se ha definido la variable de entorno HEALTH_CHECK_URL',
-        'se usará por defecto el valor: http://localhost:3000',
+        'se usará por defecto el valor: http://localhost:3001',
       );
-      return 'http://localhost:3000';
+      return 'http://localhost:3001';
     }
     return process.env.HEALTH_CHECK_URL;
   }

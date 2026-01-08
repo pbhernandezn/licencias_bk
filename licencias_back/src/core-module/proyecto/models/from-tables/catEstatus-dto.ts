@@ -23,6 +23,6 @@ export class getCatEstatusByIdReq {
 }
 
 export class getCatEstatusByTablaReq {
-  @ApiProperty({ description: 'Estatus por tabla', example: 'cat_estatus' })
+  @ApiProperty({ description: 'Estatus por tabla', example: 'cat_prueba' })
   tabla: string;
 }
