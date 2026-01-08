@@ -7,7 +7,7 @@ import { SolicitudesEntity } from '../models/entities/solicitudes-entity';
 import { UsuariosEntity } from '../models/entities/usuarios-entity';
 import { CatLicenciasEntity } from '../models/entities/catLicencias-entity';
 import { CatEstatusEntity } from '../models/entities/catEstatus-entity';
-import { getSolicitudByIdDTO, getSolicitudByIdEstatusReq, getSolicitudByIdReq, getSolicitudByIdTipoLicenciaReq, getSolicitudByIdUsuarioReq, getSolicitudesDTO, SolicitudesDataDTO, SolicitudesDTO } from '../models/from-tables/solicitudes-dto';
+import { CreateSolicitudRequest, getSolicitudByIdDTO, getSolicitudByIdEstatusReq, getSolicitudByIdReq, getSolicitudByIdTipoLicenciaReq, getSolicitudByIdUsuarioReq, getSolicitudesDTO, SolicitudesDataDTO, SolicitudesDTO } from '../models/from-tables/solicitudes-dto';
 import { SolicitudesMapping } from '../utils/from-tables/solicitudes-mapping';
 
 @Injectable()
@@ -424,10 +424,15 @@ export class SolicitudesRepository {
           );
         }
   }
-  
-  public async saveSolicitud(payload: Partial<SolicitudesDTO>): Promise<void> {
+
+  public async saveSolicitud(request: CreateSolicitudRequest): Promise<void> {
     try {
-      const unit = SolicitudesMapping.dTOToEntity(payload);
+      const unit = this.SolicitudesRepository.create({
+        idusuario: request.idusuario,
+        idtipolicencia: request.idtipolicencia,
+        idestatus: 20,
+      });
+
       await this.SolicitudesRepository.save(unit);
     } catch (error) {
       throw ManejadorErrores.getFallaBaseDatos(
@@ -437,6 +442,7 @@ export class SolicitudesRepository {
     }
   }
 
+  /*
   public async updateSolicitud(id: number, payload: Partial<SolicitudesDTO>): Promise<void> {
     try {
       const unit = SolicitudesMapping.dTOToEntity(payload);
@@ -448,6 +454,7 @@ export class SolicitudesRepository {
       );
     }
   }
+    */
 
   
 }

@@ -2,7 +2,7 @@ import { Body, Controller, Get, Post } from "@nestjs/common";
 import { ApiBody, ApiResponse } from "@nestjs/swagger";
 import { BaseResponse } from "@principal/commons-module/proyecto/models/base-response";
 import { SolicitudesExpose } from "@principal/core-module/proyecto/expose/from-front/solicitudes-expose";
-import { getSolicitudByIdDTO, getSolicitudByIdEstatusReq, getSolicitudByIdReq, getSolicitudByIdTipoLicenciaReq, getSolicitudByIdUsuarioReq, getSolicitudesDTO, SolicitudesDTO } from "@principal/core-module/proyecto/models/from-tables/solicitudes-dto";
+import { CreateSolicitudRequest, getSolicitudByIdDTO, getSolicitudByIdEstatusReq, getSolicitudByIdReq, getSolicitudByIdTipoLicenciaReq, getSolicitudByIdUsuarioReq, getSolicitudesDTO, SolicitudesDTO } from "@principal/core-module/proyecto/models/from-tables/solicitudes-dto";
 
 
 @Controller('/api/solicitudes')
@@ -50,9 +50,9 @@ export class SolicitudesController {
     }
 
     @Post('/createSolicitud')
-      @ApiBody({ type: SolicitudesDTO })
+      @ApiBody({ type: CreateSolicitudRequest })
       @ApiResponse({ status: 200, description: 'Solicitud creada.', type: BaseResponse })
-      async createSolicitud(@Body() request: SolicitudesDTO): Promise<BaseResponse<void>> {
+      async createSolicitud(@Body() request: CreateSolicitudRequest): Promise<BaseResponse<void>> {
         const respuesta = await this.solicitudesExpose.createSolicitud(request);
         return respuesta;
       }

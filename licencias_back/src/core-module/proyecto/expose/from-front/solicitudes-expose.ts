@@ -3,7 +3,7 @@ import { SolicitudesService } from "../../services/from-front/solicitudes-servic
 import { getLocalidadesByCPDTO } from "../../models/from-tables/catCP-dto";
 import { BaseResponse } from "@principal/commons-module/proyecto/models/base-response";
 import { INTERNAL_CODES, INTERNAL_MESSAGES, RESPONSE_CODES } from "@principal/commons-module/proyecto/utils/messages-enum";
-import { getSolicitudByIdDTO, getSolicitudByIdEstatusReq, getSolicitudByIdReq, getSolicitudByIdTipoLicenciaReq, getSolicitudByIdUsuarioReq, getSolicitudesDTO, SolicitudesDTO } from "../../models/from-tables/solicitudes-dto";
+import { CreateSolicitudRequest, getSolicitudByIdDTO, getSolicitudByIdEstatusReq, getSolicitudByIdReq, getSolicitudByIdTipoLicenciaReq, getSolicitudByIdUsuarioReq, getSolicitudesDTO, SolicitudesDTO } from "../../models/from-tables/solicitudes-dto";
 
 @Injectable()
 export class SolicitudesExpose {
@@ -62,7 +62,7 @@ export class SolicitudesExpose {
       return resultado;
     }
 
-    public async createSolicitud(payload: SolicitudesDTO): Promise<BaseResponse<void>> {
+    public async createSolicitud(payload: CreateSolicitudRequest): Promise<BaseResponse<void>> {
       const respuesta = await this.solicitudesService.createSolicitud(payload);
       const resultado = new BaseResponse<void>();
       resultado.code = RESPONSE_CODES.SUCCESFULL;

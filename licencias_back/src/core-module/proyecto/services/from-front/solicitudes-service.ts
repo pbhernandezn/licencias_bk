@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { SolicitudesTService } from "../from-tables/solicitudes-service";
 import { ManejadorErrores } from "@principal/commons-module/proyecto/utils/manejador-errores";
-import { getSolicitudByIdDTO, getSolicitudByIdEstatusReq, getSolicitudByIdReq, getSolicitudByIdTipoLicenciaReq, getSolicitudByIdUsuarioReq, getSolicitudesDTO, SolicitudesDTO } from "../../models/from-tables/solicitudes-dto";
+import { CreateSolicitudRequest, getSolicitudByIdDTO, getSolicitudByIdEstatusReq, getSolicitudByIdReq, getSolicitudByIdTipoLicenciaReq, getSolicitudByIdUsuarioReq, getSolicitudesDTO, SolicitudesDTO } from "../../models/from-tables/solicitudes-dto";
 import { QueryParams } from "@principal/commons-module/proyecto/utils/query-params";
 
 @Injectable()
@@ -70,7 +70,7 @@ export class SolicitudesService {
         return respuesta;
     }
 
-    public async createSolicitud(payload: SolicitudesDTO): Promise<void> {
+    public async createSolicitud(payload: CreateSolicitudRequest): Promise<void> {
         await this.solicitudesTService.createSolicitud(payload);
       }
       

@@ -28,7 +28,7 @@ export class SolicitudesMapping {
       .addSelect('vigencia', 'vigencia')
       .addSelect('idestatus', 'idestatus');
   }
-
+/*
   public static dTOToEntity(payload: Partial<SolicitudesDTO>) {
     const unit = new SolicitudesEntity();
     unit.id = payload.id;
@@ -68,4 +68,5 @@ export class SolicitudesMapping {
     const mapping = payload.map(this.dTOToEntity.bind(this));
     return mapping;
   }
+    */
 }

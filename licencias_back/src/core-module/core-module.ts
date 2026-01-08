@@ -52,7 +52,7 @@ import { SolicitudesService } from './proyecto/services/from-front/solicitudes-s
     CatPruebasEntity,
     CatVigenciaEntity,
     SolicitudesEntity])],
-  controllers: [CatalogoController, UsuariosController, SolicitudesController],
+  controllers: [CatalogoController, UsuariosController, SolicitudesController, FaceController],
   providers: [
     CatUsuarioRepository,
     CatUsuarioService,
