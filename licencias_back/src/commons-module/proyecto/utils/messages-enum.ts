@@ -5,7 +5,8 @@
  * Categoría: UTILIDADES
  *
  */
-export enum INTERNAL_CODES { // eslint-disable-line
+export enum INTERNAL_CODES {
+  // eslint-disable-line
   SUCCESFULL = '0000',
   ERROR_CODE = '0002',
   ERROR_DB_CODE = '0003',
@@ -24,7 +25,8 @@ export enum INTERNAL_CODES { // eslint-disable-line
  * Categoría: UTILIDADES
  *
  */
-export enum INTERNAL_MESSAGES { // eslint-disable-line
+export enum INTERNAL_MESSAGES {
+  // eslint-disable-line
   SUCCESFULL = 'Consulta Exitosa',
   SUCCESFULLVALIDATION = 'Validación Exitosa',
   ERROR_MESSAGE = 'Por el momento los servicios no están disponibles.',
@@ -33,6 +35,14 @@ export enum INTERNAL_MESSAGES { // eslint-disable-line
   FILE_UNDEFINED_MESSAGE = 'El archivo no fue especificado',
   EMMPTY_RESULT_MESSAGE = 'No se encontraron resultados',
   NOT_VALID_ERROR_CODE = 'Falló la validación',
+
+  // 🔐 Autenticación
+  LOGIN_SUCCESS = 'Autenticación exitosa',
+  LOGIN_INVALID_CREDENTIALS = 'Usuario o contraseña incorrectos',
+  LOGIN_USER_INACTIVE = 'El usuario se encuentra inactivo',
+  LOGIN_USER_LOCKED = 'El usuario se encuentra bloqueado',
+  LOGIN_TOO_MANY_ATTEMPTS = 'Se excedió el número de intentos permitidos',
+  LOGIN_TOKEN_GENERATION_ERROR = 'No fue posible generar el token de autenticación',
 }
 
 /**
@@ -42,7 +52,8 @@ export enum INTERNAL_MESSAGES { // eslint-disable-line
  * Categoría: UTILIDADES
  *
  */
-export enum RESPONSE_CODES { // eslint-disable-line
+export enum RESPONSE_CODES {
+  // eslint-disable-line
   SUCCESFULL = '200',
   ERROR_CODE = '500',
   ERROR_DB_CODE = '400',

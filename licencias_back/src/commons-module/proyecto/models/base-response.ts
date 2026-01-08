@@ -3,5 +3,6 @@ export class BaseResponse<T> {
   internalCode: string;
   message: string;
   correlationId: string;
+  WasSuccess: boolean;
   data: T | null;
 }

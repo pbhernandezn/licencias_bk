@@ -79,7 +79,8 @@ export function isDateMatchingRFC(date: string, rfc: string): boolean {
   const match = rfc.match(rfcRegex);
   if (!match) return false;
 
-  const year = parseInt(match[1], 10) + (parseInt(match[1], 10) < 50 ? 2000 : 1900);
+  const year =
+    parseInt(match[1], 10) + (parseInt(match[1], 10) < 50 ? 2000 : 1900);
   const month = match[2];
   const day = match[3];
   const rfcDate = `${year}-${month}-${day}`;
@@ -100,7 +101,23 @@ export function isValidDate(date: string): boolean {
   if (isNaN(parsedDate.getTime())) return false;
 
   const today = new Date();
-  const hundredYearsAgo = new Date(today.getFullYear() - 100, today.getMonth(), today.getDate());
+  const hundredYearsAgo = new Date(
+    today.getFullYear() - 100,
+    today.getMonth(),
+    today.getDate(),
+  );
 
   return parsedDate >= hundredYearsAgo && parsedDate <= today;
+}
+
+/**
+ *  Valida si una contraseña cumple reglas mínimas de seguridad.
+ * @param password - Contraseña a validar.
+ * @returns True si es válida, false en caso contrario.
+ * Valida una contraseña con reglas avanzadas de seguridad.
+ */
+export function isValidPassword(password: string): boolean {
+  const regex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&._-])[A-Za-z\d@$!%*?&._-]{10,}$/;
+  return regex.test(password);
 }
