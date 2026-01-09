@@ -34,7 +34,12 @@ import { CatLugaresService } from './proyecto/services/from-tables/catlugares-se
 import { CatPruebasService } from './proyecto/services/from-tables/catpruebas-service';
 import { CatVigenciaService } from './proyecto/services/from-tables/catvigencia-service';
 import { FaceController } from '@principal/main-module/proyecto/triggers/face-controller';
-
+import { SolicitudesEntity } from './proyecto/models/entities/solicitudes-entity';
+import { SolicitudesController } from '@principal/main-module/proyecto/triggers/solicitudes-controller';
+import { SolicitudesTService } from './proyecto/services/from-tables/solicitudes-service';
+import { SolicitudesExpose } from './proyecto/expose/from-front/solicitudes-expose';
+import { SolicitudesRepository } from './proyecto/repository/solicitudes-repository';
+import { SolicitudesService } from './proyecto/services/from-front/solicitudes-service';
 @Module({
   imports: [TypeOrmModule.forFeature([CatUsuarioEntity, 
     UsuariosEntity, 
@@ -45,8 +50,9 @@ import { FaceController } from '@principal/main-module/proyecto/triggers/face-co
     CatLicenciasEntity,
     CatLugaresEntity,
     CatPruebasEntity,
-    CatVigenciaEntity])],
-  controllers: [CatalogoController, UsuariosController, FaceController],
+    CatVigenciaEntity,
+    SolicitudesEntity])],
+  controllers: [CatalogoController, UsuariosController, SolicitudesController, FaceController],
   providers: [
     CatUsuarioRepository,
     CatUsuarioService,
@@ -71,6 +77,10 @@ import { FaceController } from '@principal/main-module/proyecto/triggers/face-co
     CatLugaresService,
     CatPruebasService,
     CatVigenciaService,
+    SolicitudesRepository,
+    SolicitudesTService,
+    SolicitudesExpose,
+    SolicitudesService,
   ],
   exports: [
     CatalogoExpose,
@@ -82,6 +92,8 @@ import { FaceController } from '@principal/main-module/proyecto/triggers/face-co
     UsuariosTService,
     UsuariosRepository,
     UsuariosEntity,
+    SolicitudesTService,
+    SolicitudesExpose
   ],
 })
 export class CoreModule {}
