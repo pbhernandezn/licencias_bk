@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+
 
 @Entity('solicitudes', { schema: 'public' })
 export class SolicitudesEntity {
@@ -8,12 +9,19 @@ export class SolicitudesEntity {
   @Column({ type: 'integer', name: 'idusuario'})
   idusuario: number;
   
-  @Column('date', {name: 'creacion', nullable: true, default: () => 'CURRENT_DATE'})
-   creacion: string | null;
+/* @Column('date', {name: 'creacion', nullable: true, default: () => 'CURRENT_DATE'})
+ creacion: string | null;
    
-   @Column('date', {name: 'modificacion', nullable: true, default: () => 'CURRENT_DATE'})
-   modificacion: string | null;
-   
+ @Column('date', {name: 'modificacion', nullable: true, default: () => 'CURRENT_DATE'})
+ modificacion: string | null;
+ */
+
+  @CreateDateColumn({ name: 'creacion' })
+  creacion: Date;
+ 
+  @UpdateDateColumn({ name: 'modificacion' })
+  modificacion: Date;
+ 
   @Column({ type: 'integer', name: 'idtipolicencia' })
   idtipolicencia: number;
   
