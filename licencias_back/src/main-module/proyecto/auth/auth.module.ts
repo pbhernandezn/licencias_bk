@@ -10,7 +10,7 @@ import { AuthRepository } from './auth-repository';
 import { UsuariosEntity } from '@principal/core-module/proyecto/models/entities/usuarios-entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DetalleSesionEntity } from '@principal/core-module/proyecto/models/entities/detalle_sesion-entity';
-import { ParametrosEntity } from '@principal/core-module/proyecto/models/entities/ParametrosEntity';
+import { ParametrosEntity } from '@principal/core-module/proyecto/models/entities/parametros-entity';
 
 @Module({
   imports: [

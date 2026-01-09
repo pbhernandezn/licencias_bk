@@ -122,6 +122,10 @@ export class DetalleSesionDataResponse {
   comentarios?: string;
 }
 
+export class ErrorSesionDTO {
+  sesionActiva?: boolean;
+  note?: string;
+}
 export class createDetalleSesionDTO {
   @ApiProperty({
     description: 'Indica si el usuario pudo ser dado de alta.',
@@ -129,5 +133,10 @@ export class createDetalleSesionDTO {
   })
   creado: boolean;
   @ApiProperty({ description: 'Detalle de errores' })
-  errores?: DetalleSesionDataResponse;
+  errores?: DetalleSesionDataResponse | null;
+}
+
+export class createDeatilSedsionDTO {
+  creado: boolean;
+  errores: ErrorSesionDTO | null;
 }

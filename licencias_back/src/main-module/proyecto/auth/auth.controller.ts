@@ -25,15 +25,9 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'Credenciales inválidas' })
   @ApiBody({ type: LoginDto })
   async login(@Body() body: LoginDto, @Req() req: Request) {
-    const network = req.ip;
-
     const ip =
       (req.headers['x-forwarded-for'] as string)?.split(',')[0] ||
       req.connection?.remoteAddress;
-
-    console.log('es una ip??', ip);
-
-    console.log('es una netWork??', network);
 
     const respuesta = await this.authexpose.validateCredentials(body, ip);
 

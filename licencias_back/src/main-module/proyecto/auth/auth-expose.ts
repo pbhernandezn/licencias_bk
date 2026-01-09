@@ -3,7 +3,10 @@ import { BaseResponse } from '@principal/commons-module/proyecto/models/base-res
 import { authResponse } from './authResponse';
 import { LoginDto } from '@principal/core-module/proyecto/models/from-tables/login.dto';
 import { AuthService } from './auth.service';
-import { getAuthByEmailReq } from '@principal/core-module/proyecto/models/from-tables/Auth-dto';
+import {
+  getAuthByEmailReq,
+  userlockreq,
+} from '@principal/core-module/proyecto/models/from-tables/Auth-dto';
 import {
   isValidEmail,
   isValidPassword,
@@ -37,7 +40,7 @@ export class authexpose {
 
     const request: getAuthByEmailReq = { email: loginDto.username };
 
-    if (!loginDto?.username?.trim()) {
+    if (!loginDto.username.trim()) {
       throw new BadRequestException('Invalid authentication data');
     }
 
@@ -59,7 +62,7 @@ export class authexpose {
       return resultado;
     }
 
-    if (!isValidPassword(loginDto?.password)) {
+    if (!isValidPassword(loginDto.password)) {
       console.log('Invalid password format');
       //throw new BadRequestException('Invalid format');
       resultado.code = RESPONSE_CODES.ERROR_CODE;
@@ -73,16 +76,19 @@ export class authexpose {
       };
       return resultado;
     }
-
+    /* 1 . Parámetros */
     const params = await this.authRepository.getParametros();
 
     const map = Object.fromEntries(params.map((p) => [p.parametro, p.valor]));
 
     const maxFailed = Number(map['MAX_FAILED_ATTEMPTS']);
     const lockMinutes = Number(map['LOCK_TIME_MINUTES']);
+    const status_locked_id = Number(map['USER_STATUS_LOCKED_ID']);
 
     console.log('maxFailed', maxFailed);
     console.log('lockMinutes', lockMinutes);
+
+    /* 2. Usuario */
 
     const respuesta = await this.authRepository.getUsuarioByEmail(request);
 
@@ -101,17 +107,76 @@ export class authexpose {
     } else {
       /*
         aqui todo va bien!!!
-      */
+      
+      3. Intentos fallidos */
+
       console.log('Auth repository response:', respuesta);
+
+      const failedAttempts = await this.authRepository.getFAttchronologically(
+        respuesta.usuario.user_Id,
+        lockMinutes,
+      );
+
+      console.log('Failed attempts chronologically --:-- ', failedAttempts);
+
+      if (Number(failedAttempts) >= Number(maxFailed)) {
+        /* EN ESTA PARTE SE RTIENE QUE HACER UN INSERT DETALLE_SESION =>  actualizar el usuario bloquearlo*/
+        const request: userlockreq = {
+          idUsuario: respuesta.usuario.user_Id,
+          username: respuesta.usuario.username,
+          statuslockedid: status_locked_id,
+        };
+
+        const userlock = await this.authRepository.updateUserLock(request);
+
+        if (!userlock.existe) {
+          console.log('algo paso aqui se bloquea el usuario');
+          resultado.code = RESPONSE_CODES.ERROR_CODE;
+          resultado.internalCode = INTERNAL_CODES.ERROR_CODE;
+          resultado.message = userlock.autorizado.errores;
+          resultado.WasSuccess = false;
+          resultado.data = {
+            token: null,
+            username: loginDto.username,
+            roles: [],
+          };
+          return resultado;
+        } else {
+          resultado.code = RESPONSE_CODES.ERROR_CODE;
+          resultado.internalCode = INTERNAL_CODES.ERROR_CODE;
+          resultado.message = userlock.autorizado.errores;
+          resultado.WasSuccess = false;
+          resultado.data = {
+            token: null,
+            username: loginDto.username,
+            roles: [],
+          };
+          return resultado;
+        }
+      }
 
       /* 4. Validar password */
       const passwordOk = await bcrypt.compare(
-        loginDto?.password,
+        loginDto.password,
         respuesta.usuario.password,
       );
 
       if (!passwordOk) {
+        /* aqui va los intentos fallidos */
+
         console.log('password no valido');
+
+        detalleSesionRequest.idUsuario = respuesta.usuario.user_Id;
+        detalleSesionRequest.fechaInicio = new Date();
+        detalleSesionRequest.fechaFin = null;
+        detalleSesionRequest.ip = ip;
+        detalleSesionRequest.exitoso = false;
+        detalleSesionRequest.token = 'N/D';
+        detalleSesionRequest.idStatus = respuesta.usuario.statusid;
+        detalleSesionRequest.comentarios = 'Falla el password';
+        const sesionesactivas =
+          await this.authRepository.crearSesionUnica(detalleSesionRequest);
+
         resultado.code = RESPONSE_CODES.ERROR_CODE;
         resultado.internalCode = INTERNAL_CODES.ERROR_CODE;
         resultado.message = INTERNAL_MESSAGES.LOGIN_INVALID_CREDENTIALS;
@@ -121,6 +186,7 @@ export class authexpose {
           username: respuesta.usuario.username,
           roles: [],
         };
+        return resultado;
       }
 
       const userLogin = {
@@ -136,7 +202,7 @@ export class authexpose {
       */
 
       console.log(`Bearer ${token.access_token}`);
-      /*
+
       detalleSesionRequest.idUsuario = respuesta.usuario.user_Id;
       detalleSesionRequest.fechaInicio = new Date();
       detalleSesionRequest.fechaFin = null;
@@ -146,13 +212,31 @@ export class authexpose {
       detalleSesionRequest.idStatus = respuesta.usuario.statusid;
       detalleSesionRequest.comentarios = 'Login exitoso';
 
-     
+      /* 5. Cerrar sesiones activas */
+      const sesionesactivas =
+        await this.authRepository.crearSesionUnica(detalleSesionRequest);
 
+      if (sesionesactivas.creado && sesionesactivas.errores.sesionActiva) {
+        console.log('sesiones activas');
+        resultado.code = RESPONSE_CODES.SUCCESFULL;
+        resultado.internalCode = INTERNAL_CODES.SUCCESFULL;
+        resultado.message = INTERNAL_MESSAGES.LOGIN_SUCCESS;
+        resultado.WasSuccess = true;
+        resultado.data = {
+          token: token.access_token,
+          username: respuesta.usuario.username,
+          roles: [respuesta.usuario.usuario],
+        };
+
+        return resultado;
+      }
+
+      console.log('sesiones Normal');
       const DSrespuesta =
         await this.authRepository.createDetalleSesion(detalleSesionRequest);
 
       console.log(DSrespuesta);
-*/
+
       resultado.code = RESPONSE_CODES.SUCCESFULL;
       resultado.internalCode = INTERNAL_CODES.SUCCESFULL;
       resultado.message = INTERNAL_MESSAGES.LOGIN_SUCCESS;
@@ -162,7 +246,6 @@ export class authexpose {
         username: respuesta.usuario.username,
         roles: [respuesta.usuario.usuario],
       };
-
       return resultado;
     }
   }

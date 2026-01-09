@@ -63,3 +63,19 @@ export class getAuthByEmailReq {
   })
   email: string;
 }
+
+export class userlockDataResponse {
+  user_Id?: number;
+  username?: string;
+  errores?: string;
+}
+export class userlockreq {
+  idUsuario: number;
+  username: string;
+  statuslockedid: number;
+}
+
+export class userlockDTO {
+  existe: boolean;
+  autorizado?: userlockDataResponse;
+}

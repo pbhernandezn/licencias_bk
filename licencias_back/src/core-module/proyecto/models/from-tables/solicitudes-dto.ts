@@ -1,5 +1,5 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { IsDateString, IsInt, IsString } from "class-validator";
+import { ApiProperty } from '@nestjs/swagger';
+import { IsDateString, IsInt, IsString } from 'class-validator';
 
 export class SolicitudesDTO {
   id: number;
@@ -11,7 +11,6 @@ export class SolicitudesDTO {
   expedicion: string;
   vigencia: string;
   idestatus: number;
-
 }
 
 export class getSolicitudByIdDTO {
@@ -23,7 +22,6 @@ export class getSolicitudesDTO {
   existe: boolean;
   solicitudesData: Array<SolicitudesDataDTO>;
 }
-
 
 export class SolicitudesDataDTO {
   id: number;
@@ -54,12 +52,18 @@ export class getSolicitudByIdUsuarioReq {
 }
 
 export class getSolicitudByIdTipoLicenciaReq {
-  @ApiProperty({ description: 'Solicitud a buscar por el tipo de licencia', example: 1 })
+  @ApiProperty({
+    description: 'Solicitud a buscar por el tipo de licencia',
+    example: 1,
+  })
   idTipoLicencia: number;
 }
 
 export class getSolicitudByIdEstatusReq {
-  @ApiProperty({ description: 'Solicitud a buscar por el tipo de estatus', example: 20 })
+  @ApiProperty({
+    description: 'Solicitud a buscar por el tipo de estatus',
+    example: 20,
+  })
   idEstatus: number;
 }
 
@@ -71,7 +75,6 @@ export class CreateSolicitudRequest {
   @ApiProperty({ description: 'ID del tipo de licencia', example: 1 })
   @IsInt()
   idtipolicencia: number;
-
 }
 
 export class UpdateSolicitudRequest {
@@ -95,5 +98,4 @@ export class UpdateSolicitudRequest {
 
   @ApiProperty({ description: 'Fecha de vigencia', example: '2029-01-01' })
   vigencia: string;
-
 }
