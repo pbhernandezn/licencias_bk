@@ -28,6 +28,7 @@ import { CoreModule } from '@principal/core-module/core-module';
         synchronize: configService.get<boolean>('DB_SYNCHRONIZE', false),
         logging: configService.get<boolean>('DB_LOGGING', true),
         //ssl: configService.get<boolean>('UNIT_DB_SSL', false),
+        ssl:{ rejectUnauthorized: false  },
       }),
     }),
     HealthCheckModule,

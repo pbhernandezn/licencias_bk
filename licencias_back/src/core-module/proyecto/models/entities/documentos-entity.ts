@@ -25,6 +25,12 @@ export class DocumentosEntity {
    
    @Column({ type: 'integer', name: 'tamanio' })
    tamanio: number;
+
+   @Column('character varying', { name: 'urlarchivo', nullable: true })
+   urlarchivo: string | null;
+
+   @Column('character varying', { name: 'nombreblob', nullable: true })
+   nombreblob: string | null;
    
    @Column('date', {name: 'validacionfecha', nullable: true})
    validacionfecha: string | null;
