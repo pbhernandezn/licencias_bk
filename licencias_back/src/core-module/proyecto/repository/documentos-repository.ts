@@ -301,6 +301,17 @@ export class DocumentosRepository {
     }
   }
 
+  public async updateDocumento(id: number, updateData: Partial<DocumentosEntity>): Promise<void> {
+    try {
+      await this.documentosRepository.update(id, updateData);
+    } catch (error) {
+      throw ManejadorErrores.getFallaBaseDatos(
+        error.message,
+        'TYPE-U-documentos-007',
+      );
+    }
+  }
+
   public async deleteDocumento(id: number): Promise<void> {
     try {
       await this.documentosRepository.delete(id);

@@ -10,7 +10,8 @@ import {
   getDocumentosBySolicitudReq,
   getDocumentosDTO,
   DownloadDocumentoReq,
-  DeleteDocumentoReq
+  DeleteDocumentoReq,
+  UpdateDocumentoRequest
 } from "../../models/from-tables/documentos-dto";
 
 @Injectable()
@@ -80,6 +81,15 @@ export class DocumentosExpose {
     resultado.code = RESPONSE_CODES.SUCCESFULL;
     resultado.internalCode = INTERNAL_CODES.SUCCESFULL;
     resultado.message = 'Documento eliminado exitosamente de Azure Blob Storage y base de datos';
+    return resultado;
+  }
+
+  public async updateDocumento(request: UpdateDocumentoRequest): Promise<BaseResponse<void>> {
+    await this.documentosService.updateDocumento(request);
+    const resultado = new BaseResponse<void>();
+    resultado.code = RESPONSE_CODES.SUCCESFULL;
+    resultado.internalCode = INTERNAL_CODES.SUCCESFULL;
+    resultado.message = 'Documento actualizado exitosamente en Azure Blob Storage y base de datos';
     return resultado;
   }
 }

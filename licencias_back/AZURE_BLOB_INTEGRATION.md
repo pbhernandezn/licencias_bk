@@ -128,7 +128,63 @@ La tabla `documentos` ahora incluye:
 }
 ```
 
-### 4. Listar Documentos
+### 4. Actualizar Documento
+
+**POST** `/api/documentos/updateDocumento`
+
+Este endpoint permite actualizar tanto el archivo en Azure como los metadatos del documento. Puedes actualizar:
+- **Solo el archivo**: Proporciona `archivoBase64`, `formato`, `nombreoriginal` y `tamanio`
+- **Solo metadatos**: Proporciona campos de validación o estatus
+- **Ambos**: Combina archivo y metadatos
+
+**Body (Actualizar archivo):**
+```json
+{
+  "id": 1,
+  "archivoBase64": "JVBERi0xLjQKJeLjz9MKMy4uLg==",
+  "formato": "pdf",
+  "nombreoriginal": "licencia_actualizada.pdf",
+  "tamanio": 204800
+}
+```
+
+**Body (Actualizar metadatos):**
+```json
+{
+  "id": 1,
+  "validacion": "aprobado",
+  "validacioncomentarios": "Documento verificado correctamente",
+  "validacionusuario": 2,
+  "idestatus": 2
+}
+```
+
+**Body (Actualizar ambos):**
+```json
+{
+  "id": 1,
+  "archivoBase64": "JVBERi0xLjQKJeLjz9MKMy4uLg==",
+  "formato": "pdf",
+  "nombreoriginal": "licencia_actualizada.pdf",
+  "tamanio": 204800,
+  "validacion": "aprobado",
+  "validacioncomentarios": "Documento actualizado y verificado",
+  "validacionusuario": 2,
+  "idestatus": 2
+}
+```
+
+**Response:**
+```json
+{
+  "code": 200,
+  "internalCode": "SUCCESS",
+  "message": "Documento actualizado exitosamente en Azure Blob Storage y base de datos",
+  "data": null
+}
+```
+
+### 5. Listar Documentos
 
 **GET** `/api/documentos/documentos`
 
@@ -164,7 +220,7 @@ La tabla `documentos` ahora incluye:
 }
 ```
 
-### 5. Obtener Documento por ID
+### 6. Obtener Documento por ID
 
 **POST** `/api/documentos/documentoById`
 
@@ -175,7 +231,7 @@ La tabla `documentos` ahora incluye:
 }
 ```
 
-### 6. Obtener Documentos por Usuario
+### 7. Obtener Documentos por Usuario
 
 **POST** `/api/documentos/documentosByUsuario`
 
@@ -186,7 +242,7 @@ La tabla `documentos` ahora incluye:
 }
 ```
 
-### 7. Obtener Documentos por Solicitud
+### 8. Obtener Documentos por Solicitud
 
 **POST** `/api/documentos/documentosBySolicitud`
 
@@ -294,6 +350,48 @@ const a = document.createElement('a');
 a.href = url;
 a.download = 'documento.pdf';
 a.click();
+
+// Actualizar documento (solo metadatos)
+await fetch('http://localhost:3001/api/documentos/updateDocumento', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    id: 1,
+    validacion: 'aprobado',
+    validacioncomentarios: 'Documento verificado',
+    validacionusuario: 2,
+    idestatus: 2
+  })
+});
+
+// Actualizar documento (reemplazar archivo)
+const newFile = document.querySelector('input[type="file"]').files[0];
+const newReader = new FileReader();
+
+newReader.onload = async (e) => {
+  const base64 = e.target.result.split(',')[1];
+  
+  await fetch('http://localhost:3001/api/documentos/updateDocumento', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      id: 1,
+      archivoBase64: base64,
+      formato: newFile.name.split('.').pop(),
+      nombreoriginal: newFile.name,
+      tamanio: newFile.size,
+      validacion: 'actualizado',
+      validacioncomentarios: 'Archivo reemplazado',
+      validacionusuario: 2
+    })
+  });
+};
+
+newReader.readAsDataURL(newFile);
 ```
 
 ## Notas Importantes

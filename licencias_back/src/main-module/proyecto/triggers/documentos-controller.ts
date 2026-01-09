@@ -10,7 +10,8 @@ import {
   getDocumentosBySolicitudReq,
   getDocumentosDTO,
   DownloadDocumentoReq,
-  DeleteDocumentoReq
+  DeleteDocumentoReq,
+  UpdateDocumentoRequest
 } from "@principal/core-module/proyecto/models/from-tables/documentos-dto";
 import { Response } from 'express';
 
@@ -74,6 +75,14 @@ export class DocumentosController {
     });
 
     return new StreamableFile(buffer);
+  }
+
+  @Post('/updateDocumento')
+  @ApiBody({ type: UpdateDocumentoRequest })
+  @ApiResponse({ status: 200, description: 'Documento actualizado en Azure Blob Storage', type: BaseResponse })
+  async updateDocumento(@Body() request: UpdateDocumentoRequest): Promise<BaseResponse<void>> {
+    const respuesta = await this.documentosExpose.updateDocumento(request);
+    return respuesta;
   }
 
   @Post('/deleteDocumento')

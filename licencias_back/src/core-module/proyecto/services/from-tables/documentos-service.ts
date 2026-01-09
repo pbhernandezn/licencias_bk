@@ -8,7 +8,8 @@ import {
   getDocumentosByUsuarioReq,
   getDocumentosBySolicitudReq,
   getDocumentosDTO,
-  DeleteDocumentoReq 
+  DeleteDocumentoReq,
+  UpdateDocumentoRequest
 } from "../../models/from-tables/documentos-dto";
 import { AzureBlobService } from "./azure-blob-service";
 import { DocumentosMapping } from "../../utils/from-tables/documentos-mapping";
@@ -120,6 +121,69 @@ export class DocumentosTService {
       throw ManejadorErrores.getFallaBaseDatos(
         `Error al eliminar documento: ${error.message}`,
         'TYPE-E-documentos-delete-002'
+      );
+    }
+  }
+
+  public async updateDocumento(request: UpdateDocumentoRequest): Promise<void> {
+    try {
+      // Obtener información del documento actual
+      const documentoActual = await this.documentosRepository.getDocumentoById({ id: request.id });
+      
+      if (!documentoActual.existe || !documentoActual.documentoData) {
+        throw ManejadorErrores.getBusquedaVacia(
+          'Documento no encontrado',
+          'TYPE-U-documentos-update-001'
+        );
+      }
+
+      const updateData: any = {};
+
+      // Si se proporciona un nuevo archivo, reemplazarlo en Azure
+      if (request.archivoBase64) {
+        // Eliminar archivo anterior de Azure
+        await this.azureBlobService.deleteFile(documentoActual.documentoData.nombreblob);
+
+        // Decodificar el nuevo archivo base64
+        const buffer = Buffer.from(request.archivoBase64, 'base64');
+        
+        // Generar nuevo nombre para el blob
+        const nombreBlob = this.azureBlobService.generateBlobName(
+          documentoActual.documentoData.idusuario,
+          documentoActual.documentoData.idsolicitud,
+          request.nombreoriginal || documentoActual.documentoData.nombreoriginal
+        );
+
+        // Subir nuevo archivo a Azure Blob Storage
+        const urlArchivo = await this.azureBlobService.uploadFile(
+          buffer,
+          nombreBlob,
+          `application/${request.formato || documentoActual.documentoData.formato}`
+        );
+
+        updateData.urlarchivo = urlArchivo;
+        updateData.nombreblob = nombreBlob;
+        
+        if (request.formato) updateData.formato = request.formato;
+        if (request.nombreoriginal) updateData.nombreoriginal = request.nombreoriginal;
+        if (request.tamanio) updateData.tamanio = request.tamanio;
+      }
+
+      // Actualizar campos de metadata si se proporcionan
+      if (request.validacion) updateData.validacion = request.validacion;
+      if (request.validacioncomentarios) updateData.validacioncomentarios = request.validacioncomentarios;
+      if (request.validacionusuario) {
+        updateData.validacionusuario = request.validacionusuario;
+        updateData.validacionfecha = new Date().toISOString().split('T')[0];
+      }
+      if (request.idestatus) updateData.idestatus = request.idestatus;
+
+      // Actualizar en base de datos
+      await this.documentosRepository.updateDocumento(request.id, updateData);
+    } catch (error) {
+      throw ManejadorErrores.getFallaBaseDatos(
+        `Error al actualizar documento: ${error.message}`,
+        'TYPE-U-documentos-update-002'
       );
     }
   }

@@ -107,3 +107,41 @@ export class DeleteDocumentoReq {
   @IsInt()
   id: number;
 }
+
+export class UpdateDocumentoRequest {
+  @ApiProperty({ description: 'ID del documento a actualizar', example: 1 })
+  @IsInt()
+  id: number;
+
+  @ApiProperty({ description: 'Formato del documento', example: 'pdf', required: false })
+  @IsString()
+  formato?: string;
+
+  @ApiProperty({ description: 'Nombre original del archivo', example: 'documento_actualizado.pdf', required: false })
+  @IsString()
+  nombreoriginal?: string;
+
+  @ApiProperty({ description: 'Tamaño del archivo en bytes', example: 204800, required: false })
+  @IsInt()
+  tamanio?: number;
+
+  @ApiProperty({ description: 'Archivo en base64 (nuevo archivo)', example: 'JVBERi0xLjQKJeLjz9MKMy...', required: false })
+  @IsString()
+  archivoBase64?: string;
+
+  @ApiProperty({ description: 'Estado de validación', example: 'aprobado', required: false })
+  @IsString()
+  validacion?: string;
+
+  @ApiProperty({ description: 'Comentarios de validación', example: 'Documento verificado correctamente', required: false })
+  @IsString()
+  validacioncomentarios?: string;
+
+  @ApiProperty({ description: 'ID del usuario que valida', example: 2, required: false })
+  @IsInt()
+  validacionusuario?: number;
+
+  @ApiProperty({ description: 'ID del estatus', example: 2, required: false })
+  @IsInt()
+  idestatus?: number;
+}

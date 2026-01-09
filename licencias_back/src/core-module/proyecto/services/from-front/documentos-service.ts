@@ -9,7 +9,8 @@ import {
   getDocumentosBySolicitudReq,
   getDocumentosDTO,
   DownloadDocumentoReq,
-  DeleteDocumentoReq
+  DeleteDocumentoReq,
+  UpdateDocumentoRequest
 } from "../../models/from-tables/documentos-dto";
 import { QueryParams } from "@principal/commons-module/proyecto/utils/query-params";
 
@@ -93,5 +94,9 @@ export class DocumentosService {
 
   public async deleteDocumento(request: DeleteDocumentoReq): Promise<void> {
     await this.documentosTService.deleteDocumento(request);
+  }
+
+  public async updateDocumento(request: UpdateDocumentoRequest): Promise<void> {
+    await this.documentosTService.updateDocumento(request);
   }
 }
