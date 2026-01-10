@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule } from '@nestjs/config';
 import { CatUsuarioEntity } from './proyecto/models/entities/catUsuario-entity';
 import { CatUsuarioRepository } from './proyecto/repository/catUsuario-repository';
 import { CatUsuarioService } from './proyecto/services/from-tables/catusuario-service';
@@ -40,8 +41,18 @@ import { SolicitudesTService } from './proyecto/services/from-tables/solicitudes
 import { SolicitudesExpose } from './proyecto/expose/from-front/solicitudes-expose';
 import { SolicitudesRepository } from './proyecto/repository/solicitudes-repository';
 import { SolicitudesService } from './proyecto/services/from-front/solicitudes-service';
+import { DocumentosEntity } from './proyecto/models/entities/documentos-entity';
+import { DocumentosRepository } from './proyecto/repository/documentos-repository';
+import { DocumentosTService } from './proyecto/services/from-tables/documentos-service';
+import { DocumentosService } from './proyecto/services/from-front/documentos-service';
+import { DocumentosExpose } from './proyecto/expose/from-front/documentos-expose';
+import { DocumentosController } from '@principal/main-module/proyecto/triggers/documentos-controller';
+import { AzureBlobService } from './proyecto/services/from-tables/azure-blob-service';
+
 @Module({
-  imports: [TypeOrmModule.forFeature([CatUsuarioEntity, 
+  imports: [
+    ConfigModule,
+    TypeOrmModule.forFeature([CatUsuarioEntity, 
     UsuariosEntity, 
     CatEstatusEntity, 
     CatUsuarioEntity,
@@ -51,8 +62,9 @@ import { SolicitudesService } from './proyecto/services/from-front/solicitudes-s
     CatLugaresEntity,
     CatPruebasEntity,
     CatVigenciaEntity,
-    SolicitudesEntity])],
-  controllers: [CatalogoController, UsuariosController, SolicitudesController, FaceController],
+    SolicitudesEntity,
+    DocumentosEntity])],
+  controllers: [CatalogoController, UsuariosController, SolicitudesController, FaceController, DocumentosController],
   providers: [
     CatUsuarioRepository,
     CatUsuarioService,
@@ -81,6 +93,11 @@ import { SolicitudesService } from './proyecto/services/from-front/solicitudes-s
     SolicitudesTService,
     SolicitudesExpose,
     SolicitudesService,
+    DocumentosRepository,
+    DocumentosTService,
+    DocumentosService,
+    DocumentosExpose,
+    AzureBlobService,
   ],
   exports: [
     CatalogoExpose,
@@ -93,7 +110,10 @@ import { SolicitudesService } from './proyecto/services/from-front/solicitudes-s
     UsuariosRepository,
     UsuariosEntity,
     SolicitudesTService,
-    SolicitudesExpose
+    SolicitudesExpose,
+    DocumentosExpose,
+    DocumentosService,
+    AzureBlobService,
   ],
 })
 export class CoreModule {}

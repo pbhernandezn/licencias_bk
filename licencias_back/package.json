@@ -24,6 +24,7 @@
     "@azure/core-sse": "latest",
     "@azure/identity": "^4.10.0",
     "@azure/openai": "^2.0.0",
+    "@azure/storage-blob": "^12.29.1",
     "@nestjs/axios": "^4.0.0",
     "@nestjs/common": "^11.1.11",
     "@nestjs/config": "^4.0.2",
