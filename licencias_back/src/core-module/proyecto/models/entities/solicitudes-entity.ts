@@ -37,4 +37,7 @@ export class SolicitudesEntity {
    @Column({ type: 'integer', name: 'idestatus' })
   idestatus: number;
 
+  @Column({ type: 'integer', name: 'idmetodopago' })
+  idmetodopago: number;
+
 }

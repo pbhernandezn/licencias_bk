@@ -6,7 +6,7 @@ import { CatalogoExpose } from '@principal/core-module/proyecto/expose/from-fron
 import { CatCPDTO, getCatCPByIdDTO, getCatCPByIdReq, getLocalidadByCPReq, getLocalidadesByCPDTO } from '@principal/core-module/proyecto/models/from-tables/catCP-dto';
 import { CatDocumentosDataDTO, CatDocumentosDTO, getCatDocumentoByIdDTO, getCatDocumentoByIdReq } from '@principal/core-module/proyecto/models/from-tables/catDocumentos-dto';
 import { CatEstatusDTO, getCatEstatusByIdDTO, getCatEstatusByIdReq, getCatEstatusByTablaDTO, getCatEstatusByTablaReq } from '@principal/core-module/proyecto/models/from-tables/catEstatus-dto';
-import { CatLicenciasDTO, getCatLicenciaByIdDTO, getCatLicenciaByIdReq, getLicenciasByLicenciaDTO, getLicenciasByLicenciaReq } from '@principal/core-module/proyecto/models/from-tables/catLicencias-dto';
+import { CatLicenciasDataDTO, CatLicenciasDTO, getCatLicenciaByIdDTO, getCatLicenciaByIdReq, getLicenciasByLicenciaDTO, getLicenciasByLicenciaReq } from '@principal/core-module/proyecto/models/from-tables/catLicencias-dto';
 import { CatLugaresDataDTO, CatLugaresDTO, getCatLugarByIdReq, getCatLugaresByIdDTO } from '@principal/core-module/proyecto/models/from-tables/catLugares-dto';
 import { CatPruebasDataDTO, CatPruebasDTO, getCatPruebaByIdReq, getCatPruebasByIdDTO } from '@principal/core-module/proyecto/models/from-tables/catPruebas-dto';
 import { CatUsuarioDTO, CatUsuariosDataDTO, getCatUsuarioByIdDTO, getCatUsuarioByIdReq } from '@principal/core-module/proyecto/models/from-tables/catUsuario-dto';
@@ -93,6 +93,12 @@ export class CatalogoController {
       const respuesta = await this.catalogoExpose.catLicenciaById(request);
       return respuesta;
     }
+
+  @Get('/catLicencias')
+  async catLicencias(): Promise<BaseResponse<Array<CatLicenciasDataDTO>>> {
+    const respuesta = await this.catalogoExpose.catLicencias();
+    return respuesta;
+  }
 
   @Get('/catLugares')
   async catLugares(): Promise<BaseResponse<Array<CatLugaresDataDTO>>> {
