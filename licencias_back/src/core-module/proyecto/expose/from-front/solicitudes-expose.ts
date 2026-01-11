@@ -3,7 +3,7 @@ import { SolicitudesService } from "../../services/from-front/solicitudes-servic
 import { getLocalidadesByCPDTO } from "../../models/from-tables/catCP-dto";
 import { BaseResponse } from "@principal/commons-module/proyecto/models/base-response";
 import { INTERNAL_CODES, INTERNAL_MESSAGES, RESPONSE_CODES } from "@principal/commons-module/proyecto/utils/messages-enum";
-import { CreateSolicitudRequest, getSolicitudByIdDTO, getSolicitudByIdEstatusReq, getSolicitudByIdReq, getSolicitudByIdTipoLicenciaReq, getSolicitudByIdUsuarioReq, getSolicitudesDTO, SolicitudesDTO } from "../../models/from-tables/solicitudes-dto";
+import { CreateSolicitudRequest, getSolicitudByIdDTO, getSolicitudByIdEstatusReq, getSolicitudByIdReq, getSolicitudByIdTipoLicenciaReq, getSolicitudByIdUsuarioReq, getSolicitudesDTO, SolicitudesDTO, UpdateSolicitudRequest } from "../../models/from-tables/solicitudes-dto";
 
 @Injectable()
 export class SolicitudesExpose {
@@ -72,8 +72,8 @@ export class SolicitudesExpose {
       return resultado;
     }
 
-    public async updateSolicitud(id: number, payload: Partial<SolicitudesDTO>): Promise<BaseResponse<void>> {
-      const respuesta = await this.solicitudesService.updateSolicitud(id,payload);
+    public async updateSolicitud(payload: UpdateSolicitudRequest): Promise<BaseResponse<void>> {
+      const respuesta = await this.solicitudesService.updateSolicitud(payload);
       const resultado = new BaseResponse<void>();
       resultado.code = RESPONSE_CODES.SUCCESFULL;
        resultado.internalCode = INTERNAL_CODES.SUCCESFULL;

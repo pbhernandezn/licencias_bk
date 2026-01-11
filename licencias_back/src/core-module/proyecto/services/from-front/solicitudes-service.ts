@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { SolicitudesTService } from "../from-tables/solicitudes-service";
 import { ManejadorErrores } from "@principal/commons-module/proyecto/utils/manejador-errores";
-import { CreateSolicitudRequest, getSolicitudByIdDTO, getSolicitudByIdEstatusReq, getSolicitudByIdReq, getSolicitudByIdTipoLicenciaReq, getSolicitudByIdUsuarioReq, getSolicitudesDTO, SolicitudesDTO } from "../../models/from-tables/solicitudes-dto";
+import { CreateSolicitudRequest, getSolicitudByIdDTO, getSolicitudByIdEstatusReq, getSolicitudByIdReq, getSolicitudByIdTipoLicenciaReq, getSolicitudByIdUsuarioReq, getSolicitudesDTO, SolicitudesDTO, UpdateSolicitudRequest } from "../../models/from-tables/solicitudes-dto";
 import { QueryParams } from "@principal/commons-module/proyecto/utils/query-params";
 
 @Injectable()
@@ -75,7 +75,7 @@ export class SolicitudesService {
       }
       
       
-      public async updateSolicitud(id: number, payload: Partial<SolicitudesDTO>): Promise<void> {
-        await this.solicitudesTService.updateSolicitud(id, payload);
+      public async updateSolicitud(payload: UpdateSolicitudRequest): Promise<void> {
+        await this.solicitudesTService.updateSolicitud(payload);
       }
 }
