@@ -14,6 +14,11 @@ import { CatEstatusEntity } from '../models/entities/catEstatus-entity';
 import e from 'express';
 import { CatCPRepository } from './catCP-repository';
 import { CatCPEntity } from '../models/entities/catCP-entity';
+import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcryptjs';
+import { LoginReq } from '../models/from-tables/auth-dto';
+import { passwordEncrypt } from '../utils/common';
+
 
 @Injectable()
 export class UsuariosRepository {
@@ -26,6 +31,7 @@ export class UsuariosRepository {
         private readonly catCPRepository: Repository<CatCPEntity>,
         @InjectRepository(CatUsuarioEntity)
         private readonly catUsuarioRepository: Repository<CatUsuarioEntity>,
+        private readonly jwtService: JwtService,
     ) { }
 
     public async getUsuarioById(
@@ -128,7 +134,7 @@ export class UsuariosRepository {
                     apellidomaterno: request.apellidomaterno,
                     curp: request.curp,
                     email: request.email,
-                    password: request.password,
+                    password: passwordEncrypt(request.password),
                     username: request.email,
                     logintype: 'all',
                     idestatus: 1,
@@ -167,13 +173,13 @@ export class UsuariosRepository {
 
             const cpid = await this.validateCpExists(request.cp)
             const cpcoid = await this.validateCpExists(request.conocidoCp)
-            if(request.cp && cpid === 0){
+            if (request.cp && cpid === 0) {
                 res.errores.cp = 'El código postal no existe.';
                 res.actualizado = false;
-            }else if(request.conocidoCp && cpcoid === 0){
+            } else if (request.conocidoCp && cpcoid === 0) {
                 res.errores.cp = 'El código postal del conocido no existe.';
                 res.actualizado = false;
-            }else if (!usuarioExists) {
+            } else if (!usuarioExists) {
                 res.actualizado = false;
                 res.errores.necesarios = 'El usuario no existe.';
             } else {
@@ -182,7 +188,7 @@ export class UsuariosRepository {
                 if (request.apellidopaterno !== undefined) updateData.apellidopaterno = request.apellidopaterno;
                 if (request.apellidomaterno !== undefined) updateData.apellidomaterno = request.apellidomaterno;
                 if (request.curp !== undefined) updateData.curp = request.curp;
-                if (request.password !== undefined) updateData.password = request.password;
+                if (request.password !== undefined) updateData.password =  passwordEncrypt(request.password);
                 if (request.rfc !== undefined) updateData.rfc = request.rfc;
                 if (request.domicilio !== undefined) updateData.domicilio = request.domicilio;
                 if (request.colonia !== undefined) updateData.colonia = request.colonia;
@@ -209,9 +215,6 @@ export class UsuariosRepository {
                 if (request.idEstatus !== undefined) updateData.idestatus = request.idEstatus;
                 if (request.tipoUsuario !== undefined) updateData.idtipousuario = request.tipoUsuario;
 
-                console.log(request);
-                console.log(updateData);
-
                 await this.usuariosRepository.update(
                     { id: request.idUsuario },
                     updateData,
@@ -237,5 +240,48 @@ export class UsuariosRepository {
             .getRawOne();
 
         return cpRecord ? cpRecord.id : 0;
+    }
+
+    public async validateUserCredentials(request: LoginReq): Promise<{ status: string; token?: string }> {
+        try {
+            const user = await this.usuariosRepository
+                .createQueryBuilder('usuarios')
+                .leftJoin('cat_estatus', 'estatus', 'usuarios.idestatus = estatus.id')
+                .leftJoin('cat_usuarios', 'tipoUsuario', 'usuarios.idtipousuario = tipoUsuario.id')
+                .select('usuarios.id', 'id')
+                .addSelect('usuarios.username', 'username')
+                .addSelect('usuarios.password', 'password')
+                .addSelect('estatus.estatus', 'estatus')
+                .addSelect('tipoUsuario.usuario', 'rol')
+                .where('usuarios.username = :username', { username: request.username })
+                .getRawOne();
+            if (!user) {
+                return { status: 'Usuario no encontrado' };
+            }
+
+            if (user.estatus !== 'Activo') {
+                return { status: user.estatus };
+            }
+
+            const buffer = Buffer.from(request.password, 'utf-8');
+            const b64 = buffer.toString('base64');
+            if (bcrypt.compareSync(b64, user.password) === false) {
+                return { status: 'Contraseña incorrecta' };
+            }
+
+            const payload = { 
+                username: user.username,
+                rol: user.rol,
+                aData: user.id
+            };
+            const token = this.jwtService.sign(payload);
+
+            return { status: user.estatus, token };
+        } catch (error) {
+            throw ManejadorErrores.getFallaBaseDatos(
+                error.message,
+                'TYPE-A-validateUserCredentials',
+            );
+        }
     }
 }

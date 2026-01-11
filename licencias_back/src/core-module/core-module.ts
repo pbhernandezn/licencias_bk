@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { JwtModule } from '@nestjs/jwt';
 import { CatUsuarioEntity } from './proyecto/models/entities/catUsuario-entity';
 import { CatUsuarioRepository } from './proyecto/repository/catUsuario-repository';
 import { CatUsuarioService } from './proyecto/services/from-tables/catusuario-service';
@@ -36,16 +37,24 @@ import { CatVigenciaService } from './proyecto/services/from-tables/catvigencia-
 import { FaceController } from '@principal/main-module/proyecto/triggers/face-controller';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([CatUsuarioEntity, 
-    UsuariosEntity, 
-    CatEstatusEntity, 
-    CatUsuarioEntity,
-    CatCPEntity,
-    CatDocumentosEntity,
-    CatLicenciasEntity,
-    CatLugaresEntity,
-    CatPruebasEntity,
-    CatVigenciaEntity])],
+  imports: [
+    TypeOrmModule.forFeature([
+      CatUsuarioEntity,
+      UsuariosEntity,
+      CatEstatusEntity,
+      CatUsuarioEntity,
+      CatCPEntity,
+      CatDocumentosEntity,
+      CatLicenciasEntity,
+      CatLugaresEntity,
+      CatPruebasEntity,
+      CatVigenciaEntity,
+    ]),
+    JwtModule.register({
+      secret: process.env.JWT_SECRET || 'CHANGE_ME',
+      signOptions: { expiresIn: '1h' },
+    }),
+  ],
   controllers: [CatalogoController, UsuariosController, FaceController],
   providers: [
     CatUsuarioRepository,
