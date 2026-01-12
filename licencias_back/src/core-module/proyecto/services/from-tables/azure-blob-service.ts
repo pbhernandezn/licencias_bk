@@ -12,11 +12,12 @@ export class AzureBlobService {
     const containerName = this.configService.get<string>('AZURE_STORAGE_CONTAINER_NAME', 'documentos');
 
     if (!connectionString) {
-      throw new Error('AZURE_STORAGE_CONNECTION_STRING no está configurada');
-    }
-
+      //throw new Error('AZURE_STORAGE_CONNECTION_STRING no está configurada');
+    }else{
     const blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
     this.containerClient = blobServiceClient.getContainerClient(containerName);
+    }
+
   }
 
   /**

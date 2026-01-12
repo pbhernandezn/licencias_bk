@@ -14,6 +14,14 @@ import { CatEstatusEntity } from '../models/entities/catEstatus-entity';
 import e from 'express';
 import { CatCPRepository } from './catCP-repository';
 import { CatCPEntity } from '../models/entities/catCP-entity';
+import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcryptjs';
+import { LoginReq } from '../models/from-tables/auth-dto';
+import { CommonService, passwordEncrypt } from '../utils/common';
+import { DetalleSesionEntity } from '../models/entities/detalleSesion-entity';
+import { last } from 'rxjs';
+import { parse } from 'path';
+
 
 @Injectable()
 export class UsuariosRepository {
@@ -26,6 +34,10 @@ export class UsuariosRepository {
         private readonly catCPRepository: Repository<CatCPEntity>,
         @InjectRepository(CatUsuarioEntity)
         private readonly catUsuarioRepository: Repository<CatUsuarioEntity>,
+        private readonly jwtService: JwtService,
+        private commonService: CommonService,
+        @InjectRepository(DetalleSesionEntity)
+        private readonly detalleSesionRepository: Repository<DetalleSesionEntity>,
     ) { }
 
     public async getUsuarioById(
@@ -128,7 +140,7 @@ export class UsuariosRepository {
                     apellidomaterno: request.apellidomaterno,
                     curp: request.curp,
                     email: request.email,
-                    password: request.password,
+                    password: passwordEncrypt(request.password),
                     username: request.email,
                     logintype: 'all',
                     idestatus: 1,
@@ -167,13 +179,13 @@ export class UsuariosRepository {
 
             const cpid = await this.validateCpExists(request.cp)
             const cpcoid = await this.validateCpExists(request.conocidoCp)
-            if(request.cp && cpid === 0){
+            if (request.cp && cpid === 0) {
                 res.errores.cp = 'El código postal no existe.';
                 res.actualizado = false;
-            }else if(request.conocidoCp && cpcoid === 0){
+            } else if (request.conocidoCp && cpcoid === 0) {
                 res.errores.cp = 'El código postal del conocido no existe.';
                 res.actualizado = false;
-            }else if (!usuarioExists) {
+            } else if (!usuarioExists) {
                 res.actualizado = false;
                 res.errores.necesarios = 'El usuario no existe.';
             } else {
@@ -182,7 +194,7 @@ export class UsuariosRepository {
                 if (request.apellidopaterno !== undefined) updateData.apellidopaterno = request.apellidopaterno;
                 if (request.apellidomaterno !== undefined) updateData.apellidomaterno = request.apellidomaterno;
                 if (request.curp !== undefined) updateData.curp = request.curp;
-                if (request.password !== undefined) updateData.password = request.password;
+                if (request.password !== undefined) updateData.password = passwordEncrypt(request.password);
                 if (request.rfc !== undefined) updateData.rfc = request.rfc;
                 if (request.domicilio !== undefined) updateData.domicilio = request.domicilio;
                 if (request.colonia !== undefined) updateData.colonia = request.colonia;
@@ -209,9 +221,6 @@ export class UsuariosRepository {
                 if (request.idEstatus !== undefined) updateData.idestatus = request.idEstatus;
                 if (request.tipoUsuario !== undefined) updateData.idtipousuario = request.tipoUsuario;
 
-                console.log(request);
-                console.log(updateData);
-
                 await this.usuariosRepository.update(
                     { id: request.idUsuario },
                     updateData,
@@ -237,5 +246,113 @@ export class UsuariosRepository {
             .getRawOne();
 
         return cpRecord ? cpRecord.id : 0;
+    }
+
+    public async validateUserCredentials(request: LoginReq, ipAddress: string): Promise<{ status: string; token?: string }> {
+        try {
+            const user = await this.usuariosRepository
+                .createQueryBuilder('usuarios')
+                .leftJoin('cat_estatus', 'estatus', 'usuarios.idestatus = estatus.id')
+                .leftJoin('cat_usuarios', 'tipoUsuario', 'usuarios.idtipousuario = tipoUsuario.id')
+                .select('usuarios.id', 'id')
+                .addSelect('usuarios.username', 'username')
+                .addSelect('usuarios.password', 'password')
+                .addSelect('estatus.estatus', 'estatus')
+                .addSelect('tipoUsuario.usuario', 'rol')
+                .where('usuarios.username = :username', { username: request.username })
+                .getRawOne();
+            if (!user) {
+                return { status: 'Usuario no encontrado' };
+            }
+
+            if (user.estatus !== 'Activo') {
+                return { status: user.estatus };
+            }
+
+            const buffer = Buffer.from(request.password, 'utf-8');
+            const b64 = buffer.toString('base64');
+            if (bcrypt.compareSync(b64, user.password) === false) {
+                return { status: 'Contraseña incorrecta' };
+            }
+
+            const recientes = await this.getSesionesRecientes(user.id);
+
+            const exitosos = recientes.filter(s => s.exitoso === true);
+            const lastSuccess = exitosos.length > 0 ? exitosos[0] : null;
+            var fallidos = recientes.filter(s => s.exitoso === false);
+            
+            if (lastSuccess) {
+                fallidos = fallidos.filter(s => s.fecha_inicio > lastSuccess.fecha_inicio);
+            }
+            const maxFails = parseInt(await this.commonService.getParametro("MAX_LOGIN_RETRIES"));
+
+            if (fallidos.length >= maxFails) {
+                return { status: 'Bloqueado por reintentos.' };
+            }
+
+            const payload = {
+                username: user.username,
+                rol: user.rol,
+                aData: user.id
+            };
+
+            const sessionTime = parseInt(await this.commonService.getParametro("SESSION_TIME"));
+            const token = this.jwtService.sign(payload, { expiresIn: sessionTime });
+
+            if(lastSuccess && lastSuccess.estatus === 'Abierta'){
+                var thisLastSession = await this.detalleSesionRepository.findOne({ where: { id: lastSuccess.detalle_sesion_id } });
+                thisLastSession.comentarios = 'Sesión cerrada por nuevo inicio de sesión - ' + token;
+                thisLastSession.fechaFin = new Date();
+                thisLastSession.idEstatus = (await this.catEstatusRepository.findOne({ where: { tabla: 'detalle_sesion', estatus: 'Cerrada' } }))?.id || null;
+                await this.detalleSesionRepository.save(thisLastSession);
+            }
+            
+
+            const newSession = this.detalleSesionRepository.create({
+                idUsuario: user.id,
+                fechaInicio: new Date(),
+                fechaFin: null,
+                ip: ipAddress,
+                exitoso: true,
+                token: token,               
+                idEstatus: (await this.catEstatusRepository.findOne({ where: { tabla: 'detalle_sesion', estatus: 'Abierta' } }))?.id || null
+            });
+            await this.detalleSesionRepository.save(newSession);
+
+            return { status: user.estatus, token };
+        } catch (error) {
+            throw ManejadorErrores.getFallaBaseDatos(
+                error.message,
+                'TYPE-A-validateUserCredentials',
+            );
+        }
+    }
+
+    public async getSesionesRecientes(userId: number): Promise<any[]> {
+        try {
+            const now = new Date();
+            const fifteenMinutesAgo = new Date(now.getTime() - 15 * 60 * 1000);
+
+            const sessions = await this.detalleSesionRepository
+                .createQueryBuilder('detalle_sesion')
+                .leftJoinAndSelect('cat_estatus', 'estatus', 'detalle_sesion.id_estatus = estatus.id')
+                .select('detalle_sesion.id')
+                .addSelect('detalle_sesion.fecha_inicio', 'fecha_inicio')
+                .addSelect('detalle_sesion.fecha_fin', 'fecha_fin')
+                .addSelect('estatus.estatus', 'estatus')
+                .addSelect('detalle_sesion.exitoso', 'exitoso')
+                .where('detalle_sesion.id_usuario = :userId', { userId })
+                .andWhere('detalle_sesion.fecha_inicio >= :fifteenMinutesAgo', { fifteenMinutesAgo })
+                //.orWhere('detalle_sesion.fecha_fin >= :fifteenMinutesAgo', { fifteenMinutesAgo })
+                .orderBy('detalle_sesion.fecha_inicio', 'DESC')
+                .getRawMany();
+                
+            return sessions;
+        } catch (error) {
+            throw ManejadorErrores.getFallaBaseDatos(
+                error.message,
+                'TYPE-A-getRecentSessions',
+            );
+        }
     }
 }

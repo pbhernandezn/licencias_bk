@@ -13,7 +13,7 @@ export class UsuariosController {
 
   @Post('/getUsuarioById')
   @ApiBody({ type: getUsuarioByIdReq })
-  @ApiResponse({ status: 200, description: 'Usuario encontrado', type: BaseResponse })
+  @ApiResponse({ status: 200, description: 'Usuario encontrado', type: BaseResponse<getUsuarioByIdDTO> })
   async getUsuarioById(@Body() request: getUsuarioByIdReq): Promise<BaseResponse<getUsuarioByIdDTO>> {
     const respuesta = await this.usuariosExpose.getUsuarioById(request);
     return respuesta;
@@ -21,7 +21,7 @@ export class UsuariosController {
 
   @Post('/createUsuario')
   @ApiBody({ type: createUsuarioReq })
-  @ApiResponse({ status: 200, description: 'Usuario encontrado', type: BaseResponse })
+  @ApiResponse({ status: 200, description: 'Usuario encontrado', type: BaseResponse<createUsuarioDTO> })
   async createUsuario(@Body() request: createUsuarioReq): Promise<BaseResponse<createUsuarioDTO>> {
     const respuesta = await this.usuariosExpose.createUsuario(request);
     return respuesta;
@@ -29,8 +29,9 @@ export class UsuariosController {
 
   @Post('/updateUsuario')
   @ApiBody({ type: updateUsuarioReq })
-  @ApiResponse({ status: 200, description: 'Usuario encontrado', type: BaseResponse })
+  @ApiResponse({ status: 200, description: 'Usuario encontrado', type: BaseResponse<updateUsuarioDTO> })
   async updateUsuario(@Body() request: updateUsuarioReq): Promise<BaseResponse<updateUsuarioDTO>> {
+    console.log("Request recibido en controller: " + JSON.stringify(request));
     const respuesta = await this.usuariosExpose.updateUsuario(request);
     return respuesta;
   }

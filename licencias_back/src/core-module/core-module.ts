@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule } from '@nestjs/config';
 import { CatUsuarioEntity } from './proyecto/models/entities/catUsuario-entity';
 import { CatUsuarioRepository } from './proyecto/repository/catUsuario-repository';
@@ -48,11 +49,14 @@ import { DocumentosService } from './proyecto/services/from-front/documentos-ser
 import { DocumentosExpose } from './proyecto/expose/from-front/documentos-expose';
 import { DocumentosController } from '@principal/main-module/proyecto/triggers/documentos-controller';
 import { AzureBlobService } from './proyecto/services/from-tables/azure-blob-service';
+import { CommonModule } from './proyecto/utils/common.module';
+import { DetalleSesionEntity } from './proyecto/models/entities/detalleSesion-entity';
 
 @Module({
   imports: [
     ConfigModule,
-    TypeOrmModule.forFeature([CatUsuarioEntity, 
+    TypeOrmModule.forFeature([
+	CatUsuarioEntity, 
     UsuariosEntity, 
     CatEstatusEntity, 
     CatUsuarioEntity,
@@ -63,7 +67,15 @@ import { AzureBlobService } from './proyecto/services/from-tables/azure-blob-ser
     CatPruebasEntity,
     CatVigenciaEntity,
     SolicitudesEntity,
-    DocumentosEntity])],
+    DocumentosEntity,
+    DetalleSesionEntity
+  ]),
+    JwtModule.register({
+      secret: process.env.JWT_SECRET || 'CHANGE_ME',
+      signOptions: { expiresIn: '1h' },
+    }),
+    CommonModule,
+	],
   controllers: [CatalogoController, UsuariosController, SolicitudesController, FaceController, DocumentosController],
   providers: [
     CatUsuarioRepository,
@@ -101,18 +113,32 @@ import { AzureBlobService } from './proyecto/services/from-tables/azure-blob-ser
   ],
   exports: [
     CatalogoExpose,
-    CatalogoService,
-    CatUsuarioService,
-    CatUsuarioRepository,
     UsuariosExpose,
     UsuariosService,
     UsuariosTService,
-    UsuariosRepository,
     UsuariosEntity,
+    CatCPRepository,
+    CatDocumentosRepository,
+    CatEstatusRepository,
+    CatLicenciasRepository,
+    CatLugaresRepository,
+    CatPruebasRepository,
+    CatVigenciaRepository,
+    CatCPService,
+    CatDocumentosService,
+    CatEstatusService,
+    CatLicenciasService,
+    CatLugaresService,
+    CatPruebasService,
+    CatVigenciaService,
+    SolicitudesRepository,
     SolicitudesTService,
     SolicitudesExpose,
-    DocumentosExpose,
+    SolicitudesService,
+    DocumentosRepository,
+    DocumentosTService,
     DocumentosService,
+    DocumentosExpose,
     AzureBlobService,
   ],
 })
