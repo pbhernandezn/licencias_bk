@@ -32,6 +32,7 @@ export class AuthService {
       console.log("Payload del token: " + JSON.stringify(tData));
 
       
+      
 
       return !!payload;
     } catch (error) {
