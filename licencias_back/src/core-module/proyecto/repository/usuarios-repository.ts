@@ -21,6 +21,7 @@ import { CommonService, passwordEncrypt } from '../utils/common';
 import { DetalleSesionEntity } from '../models/entities/detalleSesion-entity';
 import { last } from 'rxjs';
 import { parse } from 'path';
+import { use } from 'passport';
 
 
 @Injectable()
@@ -177,15 +178,18 @@ export class UsuariosRepository {
                 errores: {},
             };
 
-            const cpid = await this.validateCpExists(request.cp)
-            const cpcoid = await this.validateCpExists(request.conocidoCp)
-            if (request.cp && cpid === 0) {
-                res.errores.cp = 'El código postal no existe.';
-                res.actualizado = false;
-            } else if (request.conocidoCp && cpcoid === 0) {
-                res.errores.cp = 'El código postal del conocido no existe.';
-                res.actualizado = false;
-            } else if (!usuarioExists) {
+            // const cpid = await this.validateCpExists(request.cp)
+            // const cpcoid = await this.validateCpExists(request.conocidoCp)
+
+
+            // if (request.cp && cpid === 0) {
+            //     res.errores.cp = 'El código postal no existe.';
+            //     res.actualizado = false;
+            // } else if (request.conocidoCp && cpcoid === 0) {
+            //     res.errores.cp = 'El código postal del conocido no existe.';
+            //     res.actualizado = false;
+            // } else 
+            if (!usuarioExists) {
                 res.actualizado = false;
                 res.errores.necesarios = 'El usuario no existe.';
             } else {
@@ -198,7 +202,7 @@ export class UsuariosRepository {
                 if (request.rfc !== undefined) updateData.rfc = request.rfc;
                 if (request.domicilio !== undefined) updateData.domicilio = request.domicilio;
                 if (request.colonia !== undefined) updateData.colonia = request.colonia;
-                if (request.cp !== undefined) updateData.cp = cpid;
+                if (request.cp !== undefined) updateData.cp = request.cp;
                 if (request.municipio !== undefined) updateData.municipio = request.municipio;
                 if (request.localidad !== undefined) updateData.localidad = request.localidad;
                 if (request.entidad !== undefined) updateData.entidad = request.entidad;
@@ -213,7 +217,7 @@ export class UsuariosRepository {
                 if (request.conocidoApellidoPaterno !== undefined) updateData.conocido_apellidopaterno = request.conocidoApellidoPaterno;
                 if (request.conocidoApellidoMaterno !== undefined) updateData.conocido_apellidomaterno = request.conocidoApellidoMaterno;
                 if (request.conocidoDomicilio !== undefined) updateData.conocido_domicilio = request.conocidoDomicilio;
-                if (request.conocidoCp !== undefined) updateData.conodico_cp = cpcoid;
+                if (request.conocidoCp !== undefined) updateData.conodico_cp = request.conocidoCp;
                 if (request.conocidoColonia !== undefined) updateData.conodico_colonia = request.conocidoColonia;
                 if (request.conocidoMunicipio !== undefined) updateData.conodico_municipio = request.conocidoMunicipio;
                 if (request.conocidoLocalidad !== undefined) updateData.conodico_localidad = request.conocidoLocalidad;
@@ -245,7 +249,7 @@ export class UsuariosRepository {
             .where('cat_cp.cp = :cp', { cp })
             .getRawOne();
 
-        return cpRecord ? cpRecord.id : 0;
+        return cpRecord ? cpRecord.cat_cp_id : 0;
     }
 
     public async validateUserCredentials(request: LoginReq, ipAddress: string): Promise<{ status: string; token?: string }> {
@@ -254,15 +258,44 @@ export class UsuariosRepository {
                 .createQueryBuilder('usuarios')
                 .leftJoin('cat_estatus', 'estatus', 'usuarios.idestatus = estatus.id')
                 .leftJoin('cat_usuarios', 'tipoUsuario', 'usuarios.idtipousuario = tipoUsuario.id')
-                .select('usuarios.id', 'id')
-                .addSelect('usuarios.username', 'username')
-                .addSelect('usuarios.password', 'password')
+                .select('usuarios.*')
                 .addSelect('estatus.estatus', 'estatus')
                 .addSelect('tipoUsuario.usuario', 'rol')
                 .where('usuarios.username = :username', { username: request.username })
                 .getRawOne();
+
+            var perfil = 'Incompleto';
+
             if (!user) {
                 return { status: 'Usuario no encontrado' };
+            } else {
+                if (
+                    user.nombres && 
+                    user.apellidopaterno && 
+                    user.email && 
+                    user.curp &&
+                    user.rfc &&
+                    user.domicilio && 
+                    user.colonia &&
+                    user.cp &&
+                    user.municipio &&
+                    user.localidad &&
+                    user.entidad &&
+                    user.nacionalidad &&
+                    user.sexo &&
+                    user.tiposangre &&
+                    user.lugartrabajo &&
+                    user.conodico_telefono &&
+                    user.conocido_nombres &&
+                    user.conocido_apellidopaterno &&
+                    user.conodico_cp &&
+                    user.conodico_telefono &&
+                    user.conodico_municipio &&
+                    user.conodico_localidad &&
+                    user.conodico_domicilio 
+                ) {
+                    perfil = 'Completo';
+                }
             }
 
             if (user.estatus !== 'Activo') {
@@ -280,7 +313,7 @@ export class UsuariosRepository {
             const exitosos = recientes.filter(s => s.exitoso === true);
             const lastSuccess = exitosos.length > 0 ? exitosos[0] : null;
             var fallidos = recientes.filter(s => s.exitoso === false);
-            
+
             if (lastSuccess) {
                 fallidos = fallidos.filter(s => s.fecha_inicio > lastSuccess.fecha_inicio);
             }
@@ -293,20 +326,21 @@ export class UsuariosRepository {
             const payload = {
                 username: user.username,
                 rol: user.rol,
-                aData: user.id
+                aData: user.id,
+                perfil: perfil
             };
 
             const sessionTime = parseInt(await this.commonService.getParametro("SESSION_TIME"));
             const token = this.jwtService.sign(payload, { expiresIn: sessionTime });
 
-            if(lastSuccess && lastSuccess.estatus === 'Abierta'){
+            if (lastSuccess && lastSuccess.estatus === 'Abierta') {
                 var thisLastSession = await this.detalleSesionRepository.findOne({ where: { id: lastSuccess.detalle_sesion_id } });
                 thisLastSession.comentarios = 'Sesión cerrada por nuevo inicio de sesión - ' + token;
                 thisLastSession.fechaFin = new Date();
                 thisLastSession.idEstatus = (await this.catEstatusRepository.findOne({ where: { tabla: 'detalle_sesion', estatus: 'Cerrada' } }))?.id || null;
                 await this.detalleSesionRepository.save(thisLastSession);
             }
-            
+
 
             const newSession = this.detalleSesionRepository.create({
                 idUsuario: user.id,
@@ -314,7 +348,7 @@ export class UsuariosRepository {
                 fechaFin: null,
                 ip: ipAddress,
                 exitoso: true,
-                token: token,               
+                token: token,
                 idEstatus: (await this.catEstatusRepository.findOne({ where: { tabla: 'detalle_sesion', estatus: 'Abierta' } }))?.id || null
             });
             await this.detalleSesionRepository.save(newSession);
@@ -346,7 +380,7 @@ export class UsuariosRepository {
                 //.orWhere('detalle_sesion.fecha_fin >= :fifteenMinutesAgo', { fifteenMinutesAgo })
                 .orderBy('detalle_sesion.fecha_inicio', 'DESC')
                 .getRawMany();
-                
+
             return sessions;
         } catch (error) {
             throw ManejadorErrores.getFallaBaseDatos(

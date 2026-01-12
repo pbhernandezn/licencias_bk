@@ -5,6 +5,7 @@ import { IsString } from 'class-validator';
 import { LoginReq } from '@principal/core-module/proyecto/models/from-tables/auth-dto';
 import { CommonService } from '@principal/core-module/proyecto/utils/common';
 import { Request } from 'express';
+import { BaseResponse } from '@principal/commons-module/proyecto/models/base-response';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -18,12 +19,18 @@ export class AuthController {
   @ApiOperation({ summary: 'Login endpoint', description: 'Iniciar sesión con usuario y contraseña' })
   @ApiBody({ type: LoginReq, description: 'Credenciales de inicio de sesión' })
   @Post('login')
-  async login(@Body() request: LoginReq, @Req() req: Request) {
+  async login(@Body() request: LoginReq, @Req() req: Request): Promise<BaseResponse<any>> {
     const ipAddress = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'IP no disponible';
     console.log(`IP Address: ${ipAddress}`);
 
     const login = await this.authService.validateUser(request, ipAddress.toString());
-    return login;
+
+    var res = new BaseResponse<any>();
+    res.code = login.status === 'Activo' ? '200' : '330';
+    res.message = login.status === 'Activo' ? 'Login correcto' : 'Login incorrecto';
+    res.data = login;
+
+    return res;
   }
 
 
