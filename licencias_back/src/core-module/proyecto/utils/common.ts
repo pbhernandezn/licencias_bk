@@ -1,3 +1,8 @@
+import * as bcrypt from 'bcryptjs';
+import * as jwt from 'jsonwebtoken';
+import { Injectable } from '@nestjs/common';
+import { ParametrosRepository } from '../repository/parametros-repository';
+
 /**
  * Valida si una cadena contiene solo letras mayúsculas, minúsculas y vocales con acentos.
  * @param input - La cadena a validar.
@@ -104,3 +109,40 @@ export function isValidDate(date: string): boolean {
 
   return parsedDate >= hundredYearsAgo && parsedDate <= today;
 }
+
+
+export function passwordEncrypt(password: string): string {
+  const buffer = Buffer.from(password, 'utf-8');
+  const b64 = buffer.toString('base64');
+  const newpass = bcrypt.hashSync(b64, 10);
+  return newpass;
+}
+
+/**
+ * Decodifica el payload de un JWT sin validar su firma.
+ * @param token - El token JWT a decodificar.
+ * @returns El payload decodificado o null si el token no es válido.
+ */
+export function decodeJWTPayload(token: string): any {
+  try {
+    const decoded = jwt.decode(token);
+    return decoded;
+  } catch (error) {
+    console.error('Error al decodificar el JWT:', error);
+    return null;
+  }
+}
+
+@Injectable()
+export class CommonService {
+  constructor(private readonly parametrosRepository: ParametrosRepository) { }
+
+  public async getParametro(parametro: string): Promise<string> {
+    const resultado = await this.parametrosRepository.getParametros(parametro);
+
+    return resultado.parametro;
+  }
+}
+
+
+

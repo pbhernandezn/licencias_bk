@@ -86,9 +86,9 @@ export class SolicitudesTService {
           );
       }
 
-      //Si la revisiÃ³n de la solicitud es aceptada
+      //Si la revisión de la solicitud es aceptada
       //El estatus de la solicitud se cambiara a aceptada
-      if(payload.idestatus==22) {//Este nÃºmero 22 corresponde al identificador de la tabla de cat_estatus
+      if(payload.idestatus==22) {//Este número 22 corresponde al identificador de la tabla de cat_estatus
         const requestLicencia: getCatLicenciaByIdReq = {id: respuesta.solicitudData.idtipolicencia};
         const consultaLicencia = await this.catLicenciasRepository.getCatLicenciasById(requestLicencia);
 

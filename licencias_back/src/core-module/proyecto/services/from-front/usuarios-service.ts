@@ -127,9 +127,7 @@ export class UsuariosService {
                     respuesta.actualizado = false;
                     respuesta.errores.fechanacimiento = 'La fecha de nacimiento no es válida.';
                 }
-
-
-
+                
                 if ( !respuesta.actualizado ) {
                     respuesta.actualizado = false;
                 }else{

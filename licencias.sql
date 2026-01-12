@@ -2,59 +2,18 @@
 -- PostgreSQL database dump
 --
 
-\restrict 03di3dL5vmdCrZfc1AlMGeaWuuaaJxwfaYkF0xUl7blN4DXENh7qkze6ffgUkba
-
--- Dumped from database version 18.0
--- Dumped by pg_dump version 18.0
-
--- Started on 2025-12-30 09:19:57
-
-SET statement_timeout = 0;
-SET lock_timeout = 0;
-SET idle_in_transaction_session_timeout = 0;
-SET transaction_timeout = 0;
-SET client_encoding = 'UTF8';
-SET standard_conforming_strings = on;
-SELECT pg_catalog.set_config('search_path', '', false);
-SET check_function_bodies = false;
-SET xmloption = content;
-SET client_min_messages = warning;
-SET row_security = off;
-
-DROP DATABASE licencias;
 --
--- TOC entry 5155 (class 1262 OID 24652)
--- Name: licencias; Type: DATABASE; Schema: -; Owner: postgres
+-- TOC entry 5 (class 2615 OID 25077)
+-- Name: public; Type: SCHEMA; Schema: -; Owner: dgolicencias
 --
 
-CREATE DATABASE licencias WITH TEMPLATE = template0 ENCODING = 'UTF8' LOCALE_PROVIDER = libc LOCALE = 'Spanish_Mexico.1252';
+DROP SCHEMA IF EXISTS public CASCADE;
+CREATE SCHEMA public;
 
-
-ALTER DATABASE licencias OWNER TO postgres;
-
-\unrestrict 03di3dL5vmdCrZfc1AlMGeaWuuaaJxwfaYkF0xUl7blN4DXENh7qkze6ffgUkba
-\connect licencias
-\restrict 03di3dL5vmdCrZfc1AlMGeaWuuaaJxwfaYkF0xUl7blN4DXENh7qkze6ffgUkba
-
-SET statement_timeout = 0;
-SET lock_timeout = 0;
-SET idle_in_transaction_session_timeout = 0;
-SET transaction_timeout = 0;
-SET client_encoding = 'UTF8';
-SET standard_conforming_strings = on;
-SELECT pg_catalog.set_config('search_path', '', false);
-SET check_function_bodies = false;
-SET xmloption = content;
-SET client_min_messages = warning;
-SET row_security = off;
-
-SET default_tablespace = '';
-
-SET default_table_access_method = heap;
 
 --
--- TOC entry 244 (class 1259 OID 25353)
--- Name: cat_cp; Type: TABLE; Schema: public; Owner: postgres
+-- TOC entry 217 (class 1259 OID 25079)
+-- Name: cat_cp; Type: TABLE; Schema: public; Owner: dgolicencias
 --
 
 CREATE TABLE public.cat_cp (
@@ -65,11 +24,10 @@ CREATE TABLE public.cat_cp (
 );
 
 
-ALTER TABLE public.cat_cp OWNER TO postgres;
 
 --
--- TOC entry 243 (class 1259 OID 25352)
--- Name: cat_cp_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- TOC entry 218 (class 1259 OID 25084)
+-- Name: cat_cp_id_seq; Type: SEQUENCE; Schema: public; Owner: dgolicencias
 --
 
 ALTER TABLE public.cat_cp ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
@@ -83,8 +41,8 @@ ALTER TABLE public.cat_cp ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 
 
 --
--- TOC entry 224 (class 1259 OID 25079)
--- Name: cat_documentos; Type: TABLE; Schema: public; Owner: postgres
+-- TOC entry 219 (class 1259 OID 25085)
+-- Name: cat_documentos; Type: TABLE; Schema: public; Owner: dgolicencias
 --
 
 CREATE TABLE public.cat_documentos (
@@ -95,11 +53,9 @@ CREATE TABLE public.cat_documentos (
 );
 
 
-ALTER TABLE public.cat_documentos OWNER TO postgres;
-
 --
--- TOC entry 223 (class 1259 OID 25078)
--- Name: cat_documentos_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- TOC entry 220 (class 1259 OID 25090)
+-- Name: cat_documentos_id_seq; Type: SEQUENCE; Schema: public; Owner: dgolicencias
 --
 
 ALTER TABLE public.cat_documentos ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
@@ -113,23 +69,22 @@ ALTER TABLE public.cat_documentos ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTI
 
 
 --
--- TOC entry 220 (class 1259 OID 25054)
--- Name: cat_estatus; Type: TABLE; Schema: public; Owner: postgres
+-- TOC entry 221 (class 1259 OID 25091)
+-- Name: cat_estatus; Type: TABLE; Schema: public; Owner: dgolicencias
 --
 
 CREATE TABLE public.cat_estatus (
     id smallint NOT NULL,
     estatus character varying NOT NULL,
     tabla character varying NOT NULL,
-    activo boolean DEFAULT true CONSTRAINT cat_estatus_idestatus_not_null NOT NULL
+    activo boolean DEFAULT true NOT NULL
 );
 
 
-ALTER TABLE public.cat_estatus OWNER TO postgres;
 
 --
--- TOC entry 219 (class 1259 OID 25053)
--- Name: cat_estatus_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- TOC entry 222 (class 1259 OID 25097)
+-- Name: cat_estatus_id_seq; Type: SEQUENCE; Schema: public; Owner: dgolicencias
 --
 
 ALTER TABLE public.cat_estatus ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
@@ -143,8 +98,8 @@ ALTER TABLE public.cat_estatus ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY 
 
 
 --
--- TOC entry 222 (class 1259 OID 25066)
--- Name: cat_licencias; Type: TABLE; Schema: public; Owner: postgres
+-- TOC entry 223 (class 1259 OID 25098)
+-- Name: cat_licencias; Type: TABLE; Schema: public; Owner: dgolicencias
 --
 
 CREATE TABLE public.cat_licencias (
@@ -157,11 +112,10 @@ CREATE TABLE public.cat_licencias (
 );
 
 
-ALTER TABLE public.cat_licencias OWNER TO postgres;
 
 --
--- TOC entry 221 (class 1259 OID 25065)
--- Name: cat_licencias_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- TOC entry 224 (class 1259 OID 25104)
+-- Name: cat_licencias_id_seq; Type: SEQUENCE; Schema: public; Owner: dgolicencias
 --
 
 ALTER TABLE public.cat_licencias ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
@@ -175,13 +129,13 @@ ALTER TABLE public.cat_licencias ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTIT
 
 
 --
--- TOC entry 230 (class 1259 OID 25117)
--- Name: cat_lugares; Type: TABLE; Schema: public; Owner: postgres
+-- TOC entry 225 (class 1259 OID 25105)
+-- Name: cat_lugares; Type: TABLE; Schema: public; Owner: dgolicencias
 --
 
 CREATE TABLE public.cat_lugares (
     id smallint NOT NULL,
-    lugar character varying CONSTRAINT cat_lugares_luegar_not_null NOT NULL,
+    lugar character varying NOT NULL,
     direccion character varying NOT NULL,
     horario character varying NOT NULL,
     telefono character varying NOT NULL,
@@ -189,11 +143,10 @@ CREATE TABLE public.cat_lugares (
 );
 
 
-ALTER TABLE public.cat_lugares OWNER TO postgres;
 
 --
--- TOC entry 229 (class 1259 OID 25116)
--- Name: cat_lugares_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- TOC entry 226 (class 1259 OID 25110)
+-- Name: cat_lugares_id_seq; Type: SEQUENCE; Schema: public; Owner: dgolicencias
 --
 
 ALTER TABLE public.cat_lugares ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
@@ -207,8 +160,8 @@ ALTER TABLE public.cat_lugares ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY 
 
 
 --
--- TOC entry 228 (class 1259 OID 25104)
--- Name: cat_pruebas; Type: TABLE; Schema: public; Owner: postgres
+-- TOC entry 227 (class 1259 OID 25111)
+-- Name: cat_pruebas; Type: TABLE; Schema: public; Owner: dgolicencias
 --
 
 CREATE TABLE public.cat_pruebas (
@@ -220,11 +173,10 @@ CREATE TABLE public.cat_pruebas (
 );
 
 
-ALTER TABLE public.cat_pruebas OWNER TO postgres;
 
 --
--- TOC entry 227 (class 1259 OID 25103)
--- Name: cat_pruebas_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- TOC entry 228 (class 1259 OID 25116)
+-- Name: cat_pruebas_id_seq; Type: SEQUENCE; Schema: public; Owner: dgolicencias
 --
 
 ALTER TABLE public.cat_pruebas ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
@@ -238,8 +190,8 @@ ALTER TABLE public.cat_pruebas ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY 
 
 
 --
--- TOC entry 232 (class 1259 OID 25131)
--- Name: cat_usuarios; Type: TABLE; Schema: public; Owner: postgres
+-- TOC entry 229 (class 1259 OID 25117)
+-- Name: cat_usuarios; Type: TABLE; Schema: public; Owner: dgolicencias
 --
 
 CREATE TABLE public.cat_usuarios (
@@ -250,11 +202,10 @@ CREATE TABLE public.cat_usuarios (
 );
 
 
-ALTER TABLE public.cat_usuarios OWNER TO postgres;
 
 --
--- TOC entry 231 (class 1259 OID 25130)
--- Name: cat_usuarios_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- TOC entry 230 (class 1259 OID 25122)
+-- Name: cat_usuarios_id_seq; Type: SEQUENCE; Schema: public; Owner: dgolicencias
 --
 
 ALTER TABLE public.cat_usuarios ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
@@ -268,8 +219,8 @@ ALTER TABLE public.cat_usuarios ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY
 
 
 --
--- TOC entry 226 (class 1259 OID 25091)
--- Name: cat_vigencia; Type: TABLE; Schema: public; Owner: postgres
+-- TOC entry 231 (class 1259 OID 25123)
+-- Name: cat_vigencia; Type: TABLE; Schema: public; Owner: dgolicencias
 --
 
 CREATE TABLE public.cat_vigencia (
@@ -281,11 +232,10 @@ CREATE TABLE public.cat_vigencia (
 );
 
 
-ALTER TABLE public.cat_vigencia OWNER TO postgres;
 
 --
--- TOC entry 225 (class 1259 OID 25090)
--- Name: cat_vigencia_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- TOC entry 232 (class 1259 OID 25128)
+-- Name: cat_vigencia_id_seq; Type: SEQUENCE; Schema: public; Owner: dgolicencias
 --
 
 ALTER TABLE public.cat_vigencia ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
@@ -299,8 +249,27 @@ ALTER TABLE public.cat_vigencia ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY
 
 
 --
--- TOC entry 234 (class 1259 OID 25143)
--- Name: documentos; Type: TABLE; Schema: public; Owner: postgres
+-- TOC entry 244 (class 1259 OID 25320)
+-- Name: detalle_sesion; Type: TABLE; Schema: public; Owner: dgolicencias
+--
+
+CREATE TABLE public.detalle_sesion (
+    id integer NOT NULL,
+    id_usuario integer NOT NULL,
+    fecha_inicio timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    fecha_fin timestamp without time zone,
+    ip character varying,
+    exitoso boolean,
+    token character varying,
+    id_estatus integer NOT NULL,
+    comentarios character varying
+);
+
+
+
+--
+-- TOC entry 233 (class 1259 OID 25129)
+-- Name: documentos; Type: TABLE; Schema: public; Owner: dgolicencias
 --
 
 CREATE TABLE public.documentos (
@@ -320,11 +289,10 @@ CREATE TABLE public.documentos (
 );
 
 
-ALTER TABLE public.documentos OWNER TO postgres;
 
 --
--- TOC entry 233 (class 1259 OID 25142)
--- Name: documentos_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- TOC entry 234 (class 1259 OID 25135)
+-- Name: documentos_id_seq; Type: SEQUENCE; Schema: public; Owner: dgolicencias
 --
 
 ALTER TABLE public.documentos ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
@@ -338,8 +306,21 @@ ALTER TABLE public.documentos ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 
 
 --
--- TOC entry 238 (class 1259 OID 25179)
--- Name: pruebas; Type: TABLE; Schema: public; Owner: postgres
+-- TOC entry 243 (class 1259 OID 25313)
+-- Name: parametros; Type: TABLE; Schema: public; Owner: dgolicencias
+--
+
+CREATE TABLE public.parametros (
+    id integer NOT NULL,
+    parametro character varying NOT NULL,
+    valor character varying NOT NULL
+);
+
+
+
+--
+-- TOC entry 235 (class 1259 OID 25136)
+-- Name: pruebas; Type: TABLE; Schema: public; Owner: dgolicencias
 --
 
 CREATE TABLE public.pruebas (
@@ -355,11 +336,10 @@ CREATE TABLE public.pruebas (
 );
 
 
-ALTER TABLE public.pruebas OWNER TO postgres;
 
 --
--- TOC entry 237 (class 1259 OID 25178)
--- Name: pruebas_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- TOC entry 236 (class 1259 OID 25141)
+-- Name: pruebas_id_seq; Type: SEQUENCE; Schema: public; Owner: dgolicencias
 --
 
 ALTER TABLE public.pruebas ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
@@ -373,8 +353,8 @@ ALTER TABLE public.pruebas ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 
 
 --
--- TOC entry 240 (class 1259 OID 25194)
--- Name: revisiones; Type: TABLE; Schema: public; Owner: postgres
+-- TOC entry 237 (class 1259 OID 25142)
+-- Name: revisiones; Type: TABLE; Schema: public; Owner: dgolicencias
 --
 
 CREATE TABLE public.revisiones (
@@ -388,11 +368,10 @@ CREATE TABLE public.revisiones (
 );
 
 
-ALTER TABLE public.revisiones OWNER TO postgres;
 
 --
--- TOC entry 239 (class 1259 OID 25193)
--- Name: revisiones_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- TOC entry 238 (class 1259 OID 25149)
+-- Name: revisiones_id_seq; Type: SEQUENCE; Schema: public; Owner: dgolicencias
 --
 
 ALTER TABLE public.revisiones ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
@@ -406,8 +385,8 @@ ALTER TABLE public.revisiones ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 
 
 --
--- TOC entry 242 (class 1259 OID 25208)
--- Name: solicitudes; Type: TABLE; Schema: public; Owner: postgres
+-- TOC entry 239 (class 1259 OID 25150)
+-- Name: solicitudes; Type: TABLE; Schema: public; Owner: dgolicencias
 --
 
 CREATE TABLE public.solicitudes (
@@ -416,15 +395,16 @@ CREATE TABLE public.solicitudes (
     creacion date DEFAULT CURRENT_TIMESTAMP,
     modificacion date DEFAULT CURRENT_TIMESTAMP,
     idtipolicencia integer NOT NULL,
+	numerolicencia character varying,
+    expedicion date,
+    vigencia date,
     idestatus integer NOT NULL
 );
 
 
-ALTER TABLE public.solicitudes OWNER TO postgres;
-
 --
--- TOC entry 241 (class 1259 OID 25207)
--- Name: solicitudes_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- TOC entry 240 (class 1259 OID 25155)
+-- Name: solicitudes_id_seq; Type: SEQUENCE; Schema: public; Owner: dgolicencias
 --
 
 ALTER TABLE public.solicitudes ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
@@ -438,8 +418,8 @@ ALTER TABLE public.solicitudes ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY 
 
 
 --
--- TOC entry 236 (class 1259 OID 25160)
--- Name: usuarios; Type: TABLE; Schema: public; Owner: postgres
+-- TOC entry 241 (class 1259 OID 25156)
+-- Name: usuarios; Type: TABLE; Schema: public; Owner: dgolicencias
 --
 
 CREATE TABLE public.usuarios (
@@ -451,7 +431,8 @@ CREATE TABLE public.usuarios (
     username character varying NOT NULL,
     password character varying NOT NULL,
     logintype character varying NOT NULL,
-    apellidos character varying NOT NULL,
+    apellidopaterno character varying NOT NULL,
+    apellidomaterno character varying NOT NULL,
     rfc character varying,
     curp character varying NOT NULL,
     domicilio character varying,
@@ -469,7 +450,8 @@ CREATE TABLE public.usuarios (
     restricciones character varying,
     observacionmedica character varying,
     conocido_nombres character varying,
-    conocido_apellidos character varying,
+    conocido_apellidopaterno character varying,
+    conocido_apellidomaterno character varying,
     conocido_domicilio character varying,
     conodico_cp integer,
     conodico_colonia character varying,
@@ -480,11 +462,10 @@ CREATE TABLE public.usuarios (
 );
 
 
-ALTER TABLE public.usuarios OWNER TO postgres;
 
 --
--- TOC entry 235 (class 1259 OID 25159)
--- Name: usuarios_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- TOC entry 242 (class 1259 OID 25163)
+-- Name: usuarios_id_seq; Type: SEQUENCE; Schema: public; Owner: dgolicencias
 --
 
 ALTER TABLE public.usuarios ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
@@ -498,9 +479,9 @@ ALTER TABLE public.usuarios ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 
 
 --
--- TOC entry 5149 (class 0 OID 25353)
--- Dependencies: 244
--- Data for Name: cat_cp; Type: TABLE DATA; Schema: public; Owner: postgres
+-- TOC entry 4223 (class 0 OID 25079)
+-- Dependencies: 217
+-- Data for Name: cat_cp; Type: TABLE DATA; Schema: public; Owner: dgolicencias
 --
 
 INSERT INTO public.cat_cp OVERRIDING SYSTEM VALUE VALUES (1, '34000', 'Durango', 'Colonia Victoria de Durango Centro');
@@ -1368,9 +1349,9 @@ INSERT INTO public.cat_cp OVERRIDING SYSTEM VALUE VALUES (862, '34398', 'Durango
 
 
 --
--- TOC entry 5129 (class 0 OID 25079)
--- Dependencies: 224
--- Data for Name: cat_documentos; Type: TABLE DATA; Schema: public; Owner: postgres
+-- TOC entry 4225 (class 0 OID 25085)
+-- Dependencies: 219
+-- Data for Name: cat_documentos; Type: TABLE DATA; Schema: public; Owner: dgolicencias
 --
 
 INSERT INTO public.cat_documentos OVERRIDING SYSTEM VALUE VALUES (1, 'Comprobante de domicilio', 'Debe ser actual (un mes de antigüedad) y puede ser un recibo de Teléfono fijo, luz o agua.', 8);
@@ -1383,9 +1364,9 @@ INSERT INTO public.cat_documentos OVERRIDING SYSTEM VALUE VALUES (7, 'Responsiva
 
 
 --
--- TOC entry 5125 (class 0 OID 25054)
--- Dependencies: 220
--- Data for Name: cat_estatus; Type: TABLE DATA; Schema: public; Owner: postgres
+-- TOC entry 4227 (class 0 OID 25091)
+-- Dependencies: 221
+-- Data for Name: cat_estatus; Type: TABLE DATA; Schema: public; Owner: dgolicencias
 --
 
 INSERT INTO public.cat_estatus OVERRIDING SYSTEM VALUE VALUES (1, 'Activo', 'usuarios', true);
@@ -1426,9 +1407,9 @@ INSERT INTO public.cat_estatus OVERRIDING SYSTEM VALUE VALUES (10, 'Inactivo', '
 
 
 --
--- TOC entry 5127 (class 0 OID 25066)
--- Dependencies: 222
--- Data for Name: cat_licencias; Type: TABLE DATA; Schema: public; Owner: postgres
+-- TOC entry 4229 (class 0 OID 25098)
+-- Dependencies: 223
+-- Data for Name: cat_licencias; Type: TABLE DATA; Schema: public; Owner: dgolicencias
 --
 
 INSERT INTO public.cat_licencias OVERRIDING SYSTEM VALUE VALUES (1, 'A', 'Automovilista (3 años)', 2, 18, 912);
@@ -1438,9 +1419,9 @@ INSERT INTO public.cat_licencias OVERRIDING SYSTEM VALUE VALUES (4, 'D', 'Motoci
 
 
 --
--- TOC entry 5135 (class 0 OID 25117)
--- Dependencies: 230
--- Data for Name: cat_lugares; Type: TABLE DATA; Schema: public; Owner: postgres
+-- TOC entry 4231 (class 0 OID 25105)
+-- Dependencies: 225
+-- Data for Name: cat_lugares; Type: TABLE DATA; Schema: public; Owner: dgolicencias
 --
 
 INSERT INTO public.cat_lugares OVERRIDING SYSTEM VALUE VALUES (1, 'Lugar 1', 'Av. 123', 'De Lunes a Viernes de 9:00 a 16:00 horas', '55-123-455678', 28);
@@ -1448,17 +1429,20 @@ INSERT INTO public.cat_lugares OVERRIDING SYSTEM VALUE VALUES (2, 'lugar 2', 'Av
 
 
 --
--- TOC entry 5133 (class 0 OID 25104)
--- Dependencies: 228
--- Data for Name: cat_pruebas; Type: TABLE DATA; Schema: public; Owner: postgres
+-- TOC entry 4233 (class 0 OID 25111)
+-- Dependencies: 227
+-- Data for Name: cat_pruebas; Type: TABLE DATA; Schema: public; Owner: dgolicencias
 --
 
+INSERT INTO public.cat_pruebas OVERRIDING SYSTEM VALUE VALUES (1, 'Prueba Práctica (Automóvil)', 'Prueba práctica Automóvil', true, 26);
+INSERT INTO public.cat_pruebas OVERRIDING SYSTEM VALUE VALUES (2, 'Prueba práctica (Motocicleta)', 'Prueba práctica Motocicleta', true, 26);
+INSERT INTO public.cat_pruebas OVERRIDING SYSTEM VALUE VALUES (3, 'Prueba escrita', 'Prueba escrita (cualquier licencia)', false, 26);
 
 
 --
--- TOC entry 5137 (class 0 OID 25131)
--- Dependencies: 232
--- Data for Name: cat_usuarios; Type: TABLE DATA; Schema: public; Owner: postgres
+-- TOC entry 4235 (class 0 OID 25117)
+-- Dependencies: 229
+-- Data for Name: cat_usuarios; Type: TABLE DATA; Schema: public; Owner: dgolicencias
 --
 
 INSERT INTO public.cat_usuarios OVERRIDING SYSTEM VALUE VALUES (1, 'Admin', 'Administrador', 1);
@@ -1467,9 +1451,9 @@ INSERT INTO public.cat_usuarios OVERRIDING SYSTEM VALUE VALUES (3, 'Revisor', 'U
 
 
 --
--- TOC entry 5131 (class 0 OID 25091)
--- Dependencies: 226
--- Data for Name: cat_vigencia; Type: TABLE DATA; Schema: public; Owner: postgres
+-- TOC entry 4237 (class 0 OID 25123)
+-- Dependencies: 231
+-- Data for Name: cat_vigencia; Type: TABLE DATA; Schema: public; Owner: dgolicencias
 --
 
 INSERT INTO public.cat_vigencia OVERRIDING SYSTEM VALUE VALUES (1, '1 año', 'Duración de 1 año', 1, 17);
@@ -1479,165 +1463,181 @@ INSERT INTO public.cat_vigencia OVERRIDING SYSTEM VALUE VALUES (4, 'Permanente',
 
 
 --
--- TOC entry 5139 (class 0 OID 25143)
--- Dependencies: 234
--- Data for Name: documentos; Type: TABLE DATA; Schema: public; Owner: postgres
+-- TOC entry 4250 (class 0 OID 25320)
+-- Dependencies: 244
+-- Data for Name: detalle_sesion; Type: TABLE DATA; Schema: public; Owner: dgolicencias
 --
 
 
 
 --
--- TOC entry 5143 (class 0 OID 25179)
--- Dependencies: 238
--- Data for Name: pruebas; Type: TABLE DATA; Schema: public; Owner: postgres
+-- TOC entry 4239 (class 0 OID 25129)
+-- Dependencies: 233
+-- Data for Name: documentos; Type: TABLE DATA; Schema: public; Owner: dgolicencias
 --
 
 
 
 --
--- TOC entry 5145 (class 0 OID 25194)
--- Dependencies: 240
--- Data for Name: revisiones; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-
-
---
--- TOC entry 5147 (class 0 OID 25208)
--- Dependencies: 242
--- Data for Name: solicitudes; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-
-
---
--- TOC entry 5141 (class 0 OID 25160)
--- Dependencies: 236
--- Data for Name: usuarios; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-
-
---
--- TOC entry 5156 (class 0 OID 0)
+-- TOC entry 4249 (class 0 OID 25313)
 -- Dependencies: 243
--- Name: cat_cp_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+-- Data for Name: parametros; Type: TABLE DATA; Schema: public; Owner: dgolicencias
+--
+
+
+
+--
+-- TOC entry 4241 (class 0 OID 25136)
+-- Dependencies: 235
+-- Data for Name: pruebas; Type: TABLE DATA; Schema: public; Owner: dgolicencias
+--
+
+
+
+--
+-- TOC entry 4243 (class 0 OID 25142)
+-- Dependencies: 237
+-- Data for Name: revisiones; Type: TABLE DATA; Schema: public; Owner: dgolicencias
+--
+
+
+
+--
+-- TOC entry 4245 (class 0 OID 25150)
+-- Dependencies: 239
+-- Data for Name: solicitudes; Type: TABLE DATA; Schema: public; Owner: dgolicencias
+--
+
+
+
+--
+-- TOC entry 4247 (class 0 OID 25156)
+-- Dependencies: 241
+-- Data for Name: usuarios; Type: TABLE DATA; Schema: public; Owner: dgolicencias
+--
+
+
+
+--
+-- TOC entry 4257 (class 0 OID 0)
+-- Dependencies: 218
+-- Name: cat_cp_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dgolicencias
 --
 
 SELECT pg_catalog.setval('public.cat_cp_id_seq', 862, true);
 
 
 --
--- TOC entry 5157 (class 0 OID 0)
--- Dependencies: 223
--- Name: cat_documentos_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+-- TOC entry 4258 (class 0 OID 0)
+-- Dependencies: 220
+-- Name: cat_documentos_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dgolicencias
 --
 
 SELECT pg_catalog.setval('public.cat_documentos_id_seq', 7, true);
 
 
 --
--- TOC entry 5158 (class 0 OID 0)
--- Dependencies: 219
--- Name: cat_estatus_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+-- TOC entry 4259 (class 0 OID 0)
+-- Dependencies: 222
+-- Name: cat_estatus_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dgolicencias
 --
 
 SELECT pg_catalog.setval('public.cat_estatus_id_seq', 35, true);
 
 
 --
--- TOC entry 5159 (class 0 OID 0)
--- Dependencies: 221
--- Name: cat_licencias_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+-- TOC entry 4260 (class 0 OID 0)
+-- Dependencies: 224
+-- Name: cat_licencias_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dgolicencias
 --
 
 SELECT pg_catalog.setval('public.cat_licencias_id_seq', 4, true);
 
 
 --
--- TOC entry 5160 (class 0 OID 0)
--- Dependencies: 229
--- Name: cat_lugares_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+-- TOC entry 4261 (class 0 OID 0)
+-- Dependencies: 226
+-- Name: cat_lugares_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dgolicencias
 --
 
 SELECT pg_catalog.setval('public.cat_lugares_id_seq', 2, true);
 
 
 --
--- TOC entry 5161 (class 0 OID 0)
--- Dependencies: 227
--- Name: cat_pruebas_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+-- TOC entry 4262 (class 0 OID 0)
+-- Dependencies: 228
+-- Name: cat_pruebas_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dgolicencias
 --
 
-SELECT pg_catalog.setval('public.cat_pruebas_id_seq', 1, false);
+SELECT pg_catalog.setval('public.cat_pruebas_id_seq', 3, true);
 
 
 --
--- TOC entry 5162 (class 0 OID 0)
--- Dependencies: 231
--- Name: cat_usuarios_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+-- TOC entry 4263 (class 0 OID 0)
+-- Dependencies: 230
+-- Name: cat_usuarios_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dgolicencias
 --
 
 SELECT pg_catalog.setval('public.cat_usuarios_id_seq', 3, true);
 
 
 --
--- TOC entry 5163 (class 0 OID 0)
--- Dependencies: 225
--- Name: cat_vigencia_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+-- TOC entry 4264 (class 0 OID 0)
+-- Dependencies: 232
+-- Name: cat_vigencia_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dgolicencias
 --
 
 SELECT pg_catalog.setval('public.cat_vigencia_id_seq', 4, true);
 
 
 --
--- TOC entry 5164 (class 0 OID 0)
--- Dependencies: 233
--- Name: documentos_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+-- TOC entry 4265 (class 0 OID 0)
+-- Dependencies: 234
+-- Name: documentos_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dgolicencias
 --
 
 SELECT pg_catalog.setval('public.documentos_id_seq', 1, false);
 
 
 --
--- TOC entry 5165 (class 0 OID 0)
--- Dependencies: 237
--- Name: pruebas_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+-- TOC entry 4266 (class 0 OID 0)
+-- Dependencies: 236
+-- Name: pruebas_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dgolicencias
 --
 
 SELECT pg_catalog.setval('public.pruebas_id_seq', 1, false);
 
 
 --
--- TOC entry 5166 (class 0 OID 0)
--- Dependencies: 239
--- Name: revisiones_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+-- TOC entry 4267 (class 0 OID 0)
+-- Dependencies: 238
+-- Name: revisiones_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dgolicencias
 --
 
 SELECT pg_catalog.setval('public.revisiones_id_seq', 1, false);
 
 
 --
--- TOC entry 5167 (class 0 OID 0)
--- Dependencies: 241
--- Name: solicitudes_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+-- TOC entry 4268 (class 0 OID 0)
+-- Dependencies: 240
+-- Name: solicitudes_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dgolicencias
 --
 
 SELECT pg_catalog.setval('public.solicitudes_id_seq', 1, false);
 
 
 --
--- TOC entry 5168 (class 0 OID 0)
--- Dependencies: 235
--- Name: usuarios_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+-- TOC entry 4269 (class 0 OID 0)
+-- Dependencies: 242
+-- Name: usuarios_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dgolicencias
 --
 
 SELECT pg_catalog.setval('public.usuarios_id_seq', 1, false);
 
 
 --
--- TOC entry 4952 (class 2606 OID 25362)
--- Name: cat_cp cat_cp_pk; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 4023 (class 2606 OID 25167)
+-- Name: cat_cp cat_cp_pk; Type: CONSTRAINT; Schema: public; Owner: dgolicencias
 --
 
 ALTER TABLE ONLY public.cat_cp
@@ -1645,8 +1645,8 @@ ALTER TABLE ONLY public.cat_cp
 
 
 --
--- TOC entry 4932 (class 2606 OID 25089)
--- Name: cat_documentos cat_documentos_pk; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 4025 (class 2606 OID 25169)
+-- Name: cat_documentos cat_documentos_pk; Type: CONSTRAINT; Schema: public; Owner: dgolicencias
 --
 
 ALTER TABLE ONLY public.cat_documentos
@@ -1654,8 +1654,8 @@ ALTER TABLE ONLY public.cat_documentos
 
 
 --
--- TOC entry 4928 (class 2606 OID 25064)
--- Name: cat_estatus cat_estatus_pk; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 4027 (class 2606 OID 25171)
+-- Name: cat_estatus cat_estatus_pk; Type: CONSTRAINT; Schema: public; Owner: dgolicencias
 --
 
 ALTER TABLE ONLY public.cat_estatus
@@ -1663,8 +1663,8 @@ ALTER TABLE ONLY public.cat_estatus
 
 
 --
--- TOC entry 4930 (class 2606 OID 25077)
--- Name: cat_licencias cat_licencias_pk; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 4029 (class 2606 OID 25173)
+-- Name: cat_licencias cat_licencias_pk; Type: CONSTRAINT; Schema: public; Owner: dgolicencias
 --
 
 ALTER TABLE ONLY public.cat_licencias
@@ -1672,8 +1672,8 @@ ALTER TABLE ONLY public.cat_licencias
 
 
 --
--- TOC entry 4938 (class 2606 OID 25129)
--- Name: cat_lugares cat_lugares_pk; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 4031 (class 2606 OID 25175)
+-- Name: cat_lugares cat_lugares_pk; Type: CONSTRAINT; Schema: public; Owner: dgolicencias
 --
 
 ALTER TABLE ONLY public.cat_lugares
@@ -1681,8 +1681,8 @@ ALTER TABLE ONLY public.cat_lugares
 
 
 --
--- TOC entry 4936 (class 2606 OID 25115)
--- Name: cat_pruebas cat_pruebas_pk; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 4033 (class 2606 OID 25177)
+-- Name: cat_pruebas cat_pruebas_pk; Type: CONSTRAINT; Schema: public; Owner: dgolicencias
 --
 
 ALTER TABLE ONLY public.cat_pruebas
@@ -1690,8 +1690,8 @@ ALTER TABLE ONLY public.cat_pruebas
 
 
 --
--- TOC entry 4940 (class 2606 OID 25141)
--- Name: cat_usuarios cat_usuarios_pk; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 4035 (class 2606 OID 25179)
+-- Name: cat_usuarios cat_usuarios_pk; Type: CONSTRAINT; Schema: public; Owner: dgolicencias
 --
 
 ALTER TABLE ONLY public.cat_usuarios
@@ -1699,8 +1699,8 @@ ALTER TABLE ONLY public.cat_usuarios
 
 
 --
--- TOC entry 4934 (class 2606 OID 25102)
--- Name: cat_vigencia cat_vigencia_pk; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 4037 (class 2606 OID 25181)
+-- Name: cat_vigencia cat_vigencia_pk; Type: CONSTRAINT; Schema: public; Owner: dgolicencias
 --
 
 ALTER TABLE ONLY public.cat_vigencia
@@ -1708,8 +1708,17 @@ ALTER TABLE ONLY public.cat_vigencia
 
 
 --
--- TOC entry 4942 (class 2606 OID 25158)
--- Name: documentos documentos_pk; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 4051 (class 2606 OID 25327)
+-- Name: detalle_sesion detalle_sesion_pk; Type: CONSTRAINT; Schema: public; Owner: dgolicencias
+--
+
+ALTER TABLE ONLY public.detalle_sesion
+    ADD CONSTRAINT detalle_sesion_pk PRIMARY KEY (id);
+
+
+--
+-- TOC entry 4039 (class 2606 OID 25183)
+-- Name: documentos documentos_pk; Type: CONSTRAINT; Schema: public; Owner: dgolicencias
 --
 
 ALTER TABLE ONLY public.documentos
@@ -1717,8 +1726,17 @@ ALTER TABLE ONLY public.documentos
 
 
 --
--- TOC entry 4946 (class 2606 OID 25192)
--- Name: pruebas pruebas_pk; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 4049 (class 2606 OID 25319)
+-- Name: parametros parametros_pk; Type: CONSTRAINT; Schema: public; Owner: dgolicencias
+--
+
+ALTER TABLE ONLY public.parametros
+    ADD CONSTRAINT parametros_pk PRIMARY KEY (id);
+
+
+--
+-- TOC entry 4041 (class 2606 OID 25185)
+-- Name: pruebas pruebas_pk; Type: CONSTRAINT; Schema: public; Owner: dgolicencias
 --
 
 ALTER TABLE ONLY public.pruebas
@@ -1726,8 +1744,8 @@ ALTER TABLE ONLY public.pruebas
 
 
 --
--- TOC entry 4948 (class 2606 OID 25206)
--- Name: revisiones revisiones_pk; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 4043 (class 2606 OID 25187)
+-- Name: revisiones revisiones_pk; Type: CONSTRAINT; Schema: public; Owner: dgolicencias
 --
 
 ALTER TABLE ONLY public.revisiones
@@ -1735,8 +1753,8 @@ ALTER TABLE ONLY public.revisiones
 
 
 --
--- TOC entry 4950 (class 2606 OID 25218)
--- Name: solicitudes solicitudes_pk; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 4045 (class 2606 OID 25189)
+-- Name: solicitudes solicitudes_pk; Type: CONSTRAINT; Schema: public; Owner: dgolicencias
 --
 
 ALTER TABLE ONLY public.solicitudes
@@ -1744,8 +1762,8 @@ ALTER TABLE ONLY public.solicitudes
 
 
 --
--- TOC entry 4944 (class 2606 OID 25177)
--- Name: usuarios usuarios_pk; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 4047 (class 2606 OID 25191)
+-- Name: usuarios usuarios_pk; Type: CONSTRAINT; Schema: public; Owner: dgolicencias
 --
 
 ALTER TABLE ONLY public.usuarios
@@ -1753,8 +1771,8 @@ ALTER TABLE ONLY public.usuarios
 
 
 --
--- TOC entry 4955 (class 2606 OID 25233)
--- Name: cat_documentos cat_documentos_cat_estatus_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 4052 (class 2606 OID 25192)
+-- Name: cat_documentos cat_documentos_cat_estatus_fk; Type: FK CONSTRAINT; Schema: public; Owner: dgolicencias
 --
 
 ALTER TABLE ONLY public.cat_documentos
@@ -1762,8 +1780,8 @@ ALTER TABLE ONLY public.cat_documentos
 
 
 --
--- TOC entry 4953 (class 2606 OID 25245)
--- Name: cat_licencias cat_licencias_cat_estatus_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 4053 (class 2606 OID 25197)
+-- Name: cat_licencias cat_licencias_cat_estatus_fk; Type: FK CONSTRAINT; Schema: public; Owner: dgolicencias
 --
 
 ALTER TABLE ONLY public.cat_licencias
@@ -1771,8 +1789,8 @@ ALTER TABLE ONLY public.cat_licencias
 
 
 --
--- TOC entry 4954 (class 2606 OID 25250)
--- Name: cat_licencias cat_licencias_cat_vigencia_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 4054 (class 2606 OID 25202)
+-- Name: cat_licencias cat_licencias_cat_vigencia_fk; Type: FK CONSTRAINT; Schema: public; Owner: dgolicencias
 --
 
 ALTER TABLE ONLY public.cat_licencias
@@ -1780,8 +1798,8 @@ ALTER TABLE ONLY public.cat_licencias
 
 
 --
--- TOC entry 4957 (class 2606 OID 25257)
--- Name: cat_lugares cat_lugares_cat_estatus_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 4055 (class 2606 OID 25207)
+-- Name: cat_lugares cat_lugares_cat_estatus_fk; Type: FK CONSTRAINT; Schema: public; Owner: dgolicencias
 --
 
 ALTER TABLE ONLY public.cat_lugares
@@ -1789,8 +1807,8 @@ ALTER TABLE ONLY public.cat_lugares
 
 
 --
--- TOC entry 4958 (class 2606 OID 25228)
--- Name: cat_usuarios cat_usuarios_cat_estatus_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 4056 (class 2606 OID 25212)
+-- Name: cat_usuarios cat_usuarios_cat_estatus_fk; Type: FK CONSTRAINT; Schema: public; Owner: dgolicencias
 --
 
 ALTER TABLE ONLY public.cat_usuarios
@@ -1798,8 +1816,8 @@ ALTER TABLE ONLY public.cat_usuarios
 
 
 --
--- TOC entry 4956 (class 2606 OID 25262)
--- Name: cat_vigencia cat_vigencia_cat_estatus_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 4057 (class 2606 OID 25217)
+-- Name: cat_vigencia cat_vigencia_cat_estatus_fk; Type: FK CONSTRAINT; Schema: public; Owner: dgolicencias
 --
 
 ALTER TABLE ONLY public.cat_vigencia
@@ -1807,8 +1825,26 @@ ALTER TABLE ONLY public.cat_vigencia
 
 
 --
--- TOC entry 4959 (class 2606 OID 25282)
--- Name: documentos documentos_cat_documentos_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 4076 (class 2606 OID 25333)
+-- Name: detalle_sesion detalle_sesion_cat_estatus_fk; Type: FK CONSTRAINT; Schema: public; Owner: dgolicencias
+--
+
+ALTER TABLE ONLY public.detalle_sesion
+    ADD CONSTRAINT detalle_sesion_cat_estatus_fk FOREIGN KEY (id_estatus) REFERENCES public.cat_estatus(id);
+
+
+--
+-- TOC entry 4077 (class 2606 OID 25328)
+-- Name: detalle_sesion detalle_sesion_usuarios_fk; Type: FK CONSTRAINT; Schema: public; Owner: dgolicencias
+--
+
+ALTER TABLE ONLY public.detalle_sesion
+    ADD CONSTRAINT detalle_sesion_usuarios_fk FOREIGN KEY (id_usuario) REFERENCES public.usuarios(id);
+
+
+--
+-- TOC entry 4058 (class 2606 OID 25222)
+-- Name: documentos documentos_cat_documentos_fk; Type: FK CONSTRAINT; Schema: public; Owner: dgolicencias
 --
 
 ALTER TABLE ONLY public.documentos
@@ -1816,8 +1852,8 @@ ALTER TABLE ONLY public.documentos
 
 
 --
--- TOC entry 4960 (class 2606 OID 25267)
--- Name: documentos documentos_cat_estatus_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 4059 (class 2606 OID 25227)
+-- Name: documentos documentos_cat_estatus_fk; Type: FK CONSTRAINT; Schema: public; Owner: dgolicencias
 --
 
 ALTER TABLE ONLY public.documentos
@@ -1825,8 +1861,8 @@ ALTER TABLE ONLY public.documentos
 
 
 --
--- TOC entry 4961 (class 2606 OID 25277)
--- Name: documentos documentos_solicitudes_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 4060 (class 2606 OID 25232)
+-- Name: documentos documentos_solicitudes_fk; Type: FK CONSTRAINT; Schema: public; Owner: dgolicencias
 --
 
 ALTER TABLE ONLY public.documentos
@@ -1834,8 +1870,8 @@ ALTER TABLE ONLY public.documentos
 
 
 --
--- TOC entry 4962 (class 2606 OID 25272)
--- Name: documentos documentos_usuarios_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 4061 (class 2606 OID 25237)
+-- Name: documentos documentos_usuarios_fk; Type: FK CONSTRAINT; Schema: public; Owner: dgolicencias
 --
 
 ALTER TABLE ONLY public.documentos
@@ -1843,8 +1879,8 @@ ALTER TABLE ONLY public.documentos
 
 
 --
--- TOC entry 4967 (class 2606 OID 25287)
--- Name: pruebas pruebas_cat_documentos_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 4062 (class 2606 OID 25242)
+-- Name: pruebas pruebas_cat_documentos_fk; Type: FK CONSTRAINT; Schema: public; Owner: dgolicencias
 --
 
 ALTER TABLE ONLY public.pruebas
@@ -1852,8 +1888,8 @@ ALTER TABLE ONLY public.pruebas
 
 
 --
--- TOC entry 4968 (class 2606 OID 25302)
--- Name: pruebas pruebas_cat_lugares_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 4063 (class 2606 OID 25247)
+-- Name: pruebas pruebas_cat_lugares_fk; Type: FK CONSTRAINT; Schema: public; Owner: dgolicencias
 --
 
 ALTER TABLE ONLY public.pruebas
@@ -1861,8 +1897,8 @@ ALTER TABLE ONLY public.pruebas
 
 
 --
--- TOC entry 4969 (class 2606 OID 25347)
--- Name: pruebas pruebas_cat_pruebas_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 4064 (class 2606 OID 25252)
+-- Name: pruebas pruebas_cat_pruebas_fk; Type: FK CONSTRAINT; Schema: public; Owner: dgolicencias
 --
 
 ALTER TABLE ONLY public.pruebas
@@ -1870,8 +1906,8 @@ ALTER TABLE ONLY public.pruebas
 
 
 --
--- TOC entry 4970 (class 2606 OID 25292)
--- Name: pruebas pruebas_solicitudes_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 4065 (class 2606 OID 25257)
+-- Name: pruebas pruebas_solicitudes_fk; Type: FK CONSTRAINT; Schema: public; Owner: dgolicencias
 --
 
 ALTER TABLE ONLY public.pruebas
@@ -1879,8 +1915,8 @@ ALTER TABLE ONLY public.pruebas
 
 
 --
--- TOC entry 4971 (class 2606 OID 25312)
--- Name: revisiones revisiones_cat_estatus_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 4066 (class 2606 OID 25262)
+-- Name: revisiones revisiones_cat_estatus_fk; Type: FK CONSTRAINT; Schema: public; Owner: dgolicencias
 --
 
 ALTER TABLE ONLY public.revisiones
@@ -1888,8 +1924,8 @@ ALTER TABLE ONLY public.revisiones
 
 
 --
--- TOC entry 4972 (class 2606 OID 25307)
--- Name: revisiones revisiones_solicitudes_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 4067 (class 2606 OID 25267)
+-- Name: revisiones revisiones_solicitudes_fk; Type: FK CONSTRAINT; Schema: public; Owner: dgolicencias
 --
 
 ALTER TABLE ONLY public.revisiones
@@ -1897,8 +1933,8 @@ ALTER TABLE ONLY public.revisiones
 
 
 --
--- TOC entry 4973 (class 2606 OID 25317)
--- Name: revisiones revisiones_usuarios_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 4068 (class 2606 OID 25272)
+-- Name: revisiones revisiones_usuarios_fk; Type: FK CONSTRAINT; Schema: public; Owner: dgolicencias
 --
 
 ALTER TABLE ONLY public.revisiones
@@ -1906,8 +1942,8 @@ ALTER TABLE ONLY public.revisiones
 
 
 --
--- TOC entry 4974 (class 2606 OID 25332)
--- Name: solicitudes solicitudes_cat_estatus_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 4069 (class 2606 OID 25277)
+-- Name: solicitudes solicitudes_cat_estatus_fk; Type: FK CONSTRAINT; Schema: public; Owner: dgolicencias
 --
 
 ALTER TABLE ONLY public.solicitudes
@@ -1915,8 +1951,8 @@ ALTER TABLE ONLY public.solicitudes
 
 
 --
--- TOC entry 4975 (class 2606 OID 25342)
--- Name: solicitudes solicitudes_cat_licencias_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 4070 (class 2606 OID 25282)
+-- Name: solicitudes solicitudes_cat_licencias_fk; Type: FK CONSTRAINT; Schema: public; Owner: dgolicencias
 --
 
 ALTER TABLE ONLY public.solicitudes
@@ -1924,8 +1960,8 @@ ALTER TABLE ONLY public.solicitudes
 
 
 --
--- TOC entry 4976 (class 2606 OID 25337)
--- Name: solicitudes solicitudes_usuarios_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 4071 (class 2606 OID 25287)
+-- Name: solicitudes solicitudes_usuarios_fk; Type: FK CONSTRAINT; Schema: public; Owner: dgolicencias
 --
 
 ALTER TABLE ONLY public.solicitudes
@@ -1933,8 +1969,8 @@ ALTER TABLE ONLY public.solicitudes
 
 
 --
--- TOC entry 4963 (class 2606 OID 25385)
--- Name: usuarios usuarios_cat_cp_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 4072 (class 2606 OID 25292)
+-- Name: usuarios usuarios_cat_cp_fk; Type: FK CONSTRAINT; Schema: public; Owner: dgolicencias
 --
 
 ALTER TABLE ONLY public.usuarios
@@ -1942,8 +1978,8 @@ ALTER TABLE ONLY public.usuarios
 
 
 --
--- TOC entry 4964 (class 2606 OID 25390)
--- Name: usuarios usuarios_cat_cp_fk_1; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 4073 (class 2606 OID 25297)
+-- Name: usuarios usuarios_cat_cp_fk_1; Type: FK CONSTRAINT; Schema: public; Owner: dgolicencias
 --
 
 ALTER TABLE ONLY public.usuarios
@@ -1951,8 +1987,8 @@ ALTER TABLE ONLY public.usuarios
 
 
 --
--- TOC entry 4965 (class 2606 OID 25327)
--- Name: usuarios usuarios_cat_estatus_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 4074 (class 2606 OID 25302)
+-- Name: usuarios usuarios_cat_estatus_fk; Type: FK CONSTRAINT; Schema: public; Owner: dgolicencias
 --
 
 ALTER TABLE ONLY public.usuarios
@@ -1960,19 +1996,17 @@ ALTER TABLE ONLY public.usuarios
 
 
 --
--- TOC entry 4966 (class 2606 OID 25322)
--- Name: usuarios usuarios_cat_usuarios_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 4075 (class 2606 OID 25307)
+-- Name: usuarios usuarios_cat_usuarios_fk; Type: FK CONSTRAINT; Schema: public; Owner: dgolicencias
 --
 
 ALTER TABLE ONLY public.usuarios
     ADD CONSTRAINT usuarios_cat_usuarios_fk FOREIGN KEY (idtipousuario) REFERENCES public.cat_usuarios(id);
 
 
--- Completed on 2025-12-30 09:19:57
+-- Completed on 2026-01-07 12:43:43
 
 --
 -- PostgreSQL database dump complete
 --
-
-\unrestrict 03di3dL5vmdCrZfc1AlMGeaWuuaaJxwfaYkF0xUl7blN4DXENh7qkze6ffgUkba
 
