@@ -10,18 +10,22 @@ import { UsuariosEntity } from '@principal/core-module/proyecto/models/entities/
 import { CatEstatusEntity } from '@principal/core-module/proyecto/models/entities/catEstatus-entity';
 import { CatCPEntity } from '@principal/core-module/proyecto/models/entities/catCP-entity';
 import { CatUsuarioEntity } from '@principal/core-module/proyecto/models/entities/catUsuario-entity';
+import { CommonService } from '@principal/core-module/proyecto/utils/common';
+import { ParametrosModule } from '@principal/core-module/proyecto/repository/parametros.module';
+import { DetalleSesionEntity } from '@principal/core-module/proyecto/models/entities/detalleSesion-entity';
 
 @Module({
   imports: [
     PassportModule,
     JwtModule.register({
-      secret: process.env.JWT_SECRET || 'CHANGE_ME',
-      signOptions: { expiresIn: '1h' },
+      secret: process.env.JWT_SECRET || 'LaLluviaÁcidaCubríaMadrid'
     }),
-    TypeOrmModule.forFeature([UsuariosEntity, CatEstatusEntity, CatCPEntity, CatUsuarioEntity]),
+    TypeOrmModule.forFeature([UsuariosEntity, CatEstatusEntity, CatCPEntity, CatUsuarioEntity, DetalleSesionEntity]),
+    ParametrosModule,
+    
   ],
-  providers: [AuthService, JwtStrategy, UsuariosRepository],
+  providers: [AuthService, JwtStrategy, UsuariosRepository, CommonService],
   controllers: [AuthController],
   exports: [AuthService],
 })
-export class AuthModule {}
+export class AuthModule { }

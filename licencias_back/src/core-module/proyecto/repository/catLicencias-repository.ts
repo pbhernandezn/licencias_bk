@@ -9,6 +9,7 @@ import { CatLicenciasEntity } from '../models/entities/catLicencias-entity';
 import { CatLicenciasDataDTO, CatLicenciasDTO, getCatLicenciaByIdDTO, getCatLicenciaByIdReq, getLicenciasByLicenciaDTO, getLicenciasByLicenciaReq } from '../models/from-tables/catLicencias-dto';
 import { CatLicenciasMapping } from '../utils/from-tables/catLicencias-mapping';
 import { CatEstatusEntity } from '../models/entities/catEstatus-entity';
+import { CatVigenciaEntity } from '../models/entities/catVigencia-entity';
 
 @Injectable()
 export class CatLicenciasRepository {
@@ -16,7 +17,9 @@ export class CatLicenciasRepository {
     @InjectRepository(CatLicenciasEntity)
     private readonly repository: Repository<CatLicenciasEntity>,
     @InjectRepository(CatEstatusEntity)
-            private readonly catEstatusRepository: Repository<CatEstatusEntity>,
+    private readonly catEstatusRepository: Repository<CatEstatusEntity>,
+    @InjectRepository(CatVigenciaEntity)
+    private readonly catVigenciaRepository: Repository<CatVigenciaEntity>,
   ) {}
 
     /**
@@ -37,6 +40,11 @@ export class CatLicenciasRepository {
               'estatus.tabla = :tabla AND cat_licencias.idestatus = estatus.id',
               { tabla: 'cat_licencias' },
             )
+            .leftJoin(
+              'cat_vigencia',
+              'vigencia',
+              'cat_licencias.vigencia = vigencia.id',
+            )
             .select([
               'cat_licencias.id',
               'cat_licencias.licencia',
@@ -44,7 +52,9 @@ export class CatLicenciasRepository {
               'cat_licencias.vigencia',
               'cat_licencias.precio',
               'cat_licencias.idestatus',
-              'estatus.estatus AS estatus_estatus'
+              'estatus.estatus AS estatus_estatus',
+              'vigencia.vigencia AS vigencia_vigencia',
+              'vigencia.anios AS vigencia_anios'
             ])
             .where('cat_licencias.id = :id', { id: request.id })
             .getRawOne();
@@ -56,7 +66,9 @@ export class CatLicenciasRepository {
                   id: result['cat_licencias_id'],
                   licencia: result['cat_licencias_licencia'],
                   descripcion: result['cat_licencias_descripcion'],
-                  vigencia: result['cat_licencias_vigencia'],
+                  idvigencia: result['cat_licencias_vigencia'],
+                  vigencia: result['vigencia_vigencia'],
+                  anios: result['vigencia_anios'],
                   precio: result['cat_licencias_precio'],
                   idestatus: result['cat_licencias_idestatus'],
                   estatus: result['estatus_estatus'],
@@ -84,21 +96,28 @@ export class CatLicenciasRepository {
         ): Promise<getLicenciasByLicenciaDTO> {
           try {
             const result: any[] = await this.repository
-              .createQueryBuilder('cat_licencias')
+            .createQueryBuilder('cat_licencias')
             .leftJoin(
               'cat_estatus',
               'estatus',
               'estatus.tabla = :tabla AND cat_licencias.idestatus = estatus.id',
               { tabla: 'cat_licencias' },
             )
+            .leftJoin(
+              'cat_vigencia',
+              'vigencia',
+              'cat_licencias.vigencia = vigencia.id',
+            )
             .select([
                 'cat_licencias.id',
                 'cat_licencias.licencia',
                 'cat_licencias.descripcion',
                 'cat_licencias.vigencia',
+                'vigencia.vigencia AS vigencia_vigencia',
+                'vigencia.anios AS vigencia_anios',
                 'cat_licencias.precio',
                 'cat_licencias.idestatus',
-                'estatus.estatus AS estatus_estatus'
+                'estatus.estatus AS estatus_estatus',
               ])
               .where('cat_licencias.licencia = :licencia', { licencia: request.licencia })
               .getRawMany();
@@ -111,7 +130,9 @@ export class CatLicenciasRepository {
               id: r['cat_licencias_id'],
               licencia: r['cat_licencias_licencia'],
               descripcion: r['cat_licencias_descripcion'],
-              vigencia: r['cat_licencias_vigencia'],
+              idvigencia: r['cat_licencias_vigencia'],
+              vigencia: r['vigencia_vigencia'],
+              anios: r['vigencia_anios'],
               precio: r['cat_licencias_precio'],
               idestatus: r['cat_licencias_idestatus'],
               estatus: r['estatus_estatus'],
@@ -131,6 +152,57 @@ export class CatLicenciasRepository {
                 );
               }
         }
+
+  public async getCatLicencias(): Promise<Array<CatLicenciasDataDTO>> {
+      try {
+        const result: any[] = await this.repository
+        .createQueryBuilder('cat_licencias')
+        .leftJoin(
+          'cat_estatus',
+          'estatus',
+          'estatus.tabla = :tabla AND cat_licencias.idestatus = estatus.id',
+          { tabla: 'cat_licencias' },
+        )
+        .leftJoin(
+          'cat_vigencia',
+          'vigencia',
+          'cat_licencias.vigencia = vigencia.id',
+        )
+        .select([
+            'cat_licencias.id',
+            'cat_licencias.licencia',
+            'cat_licencias.descripcion',
+            'cat_licencias.vigencia',
+            'vigencia.vigencia AS vigencia_vigencia',
+            'vigencia.anios AS vigencia_anios',
+            'cat_licencias.precio',
+            'cat_licencias.idestatus',
+            'estatus.estatus AS estatus_estatus',
+          ])
+          .getRawMany();
+  
+        if (!result || result.length === 0) return [];
+  
+        const catLicencias: Array<CatLicenciasDataDTO> = result.map((r) => ({
+          id: r['cat_licencias_id'],
+          licencia: r['cat_licencias_licencia'],
+          descripcion: r['cat_licencias_descripcion'],
+          idvigencia: r['cat_licencias_vigencia'],
+          vigencia: r['vigencia_vigencia'],
+          anios: r['vigencia_anios'],
+          precio: r['cat_licencias_precio'],
+          idestatus: r['cat_licencias_idestatus'],
+          estatus: r['estatus_estatus'],
+        }));
+
+       return catLicencias;
+          } catch (error) {
+            throw ManejadorErrores.getFallaBaseDatos(
+              error.message,
+              'TYPE-A-c6eed039-90ad-40a7-9316-381f5c5_cli2',
+            );
+          }
+    }
 
   /**
    * Verifica si existe una licencia con el ID especificado.

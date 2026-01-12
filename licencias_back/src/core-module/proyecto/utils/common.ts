@@ -1,5 +1,7 @@
 import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
+import { Injectable } from '@nestjs/common';
+import { ParametrosRepository } from '../repository/parametros-repository';
 
 /**
  * Valida si una cadena contiene solo letras mayúsculas, minúsculas y vocales con acentos.
@@ -128,6 +130,17 @@ export function decodeJWTPayload(token: string): any {
   } catch (error) {
     console.error('Error al decodificar el JWT:', error);
     return null;
+  }
+}
+
+@Injectable()
+export class CommonService {
+  constructor(private readonly parametrosRepository: ParametrosRepository) { }
+
+  public async getParametro(parametro: string): Promise<string> {
+    const resultado = await this.parametrosRepository.getParametros(parametro);
+
+    return resultado.parametro;
   }
 }
 

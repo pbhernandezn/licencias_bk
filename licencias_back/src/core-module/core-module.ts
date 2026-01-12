@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
+import { ConfigModule } from '@nestjs/config';
 import { CatUsuarioEntity } from './proyecto/models/entities/catUsuario-entity';
 import { CatUsuarioRepository } from './proyecto/repository/catUsuario-repository';
 import { CatUsuarioService } from './proyecto/services/from-tables/catusuario-service';
@@ -35,27 +36,44 @@ import { CatLugaresService } from './proyecto/services/from-tables/catlugares-se
 import { CatPruebasService } from './proyecto/services/from-tables/catpruebas-service';
 import { CatVigenciaService } from './proyecto/services/from-tables/catvigencia-service';
 import { FaceController } from '@principal/main-module/proyecto/triggers/face-controller';
+import { SolicitudesEntity } from './proyecto/models/entities/solicitudes-entity';
+import { SolicitudesController } from '@principal/main-module/proyecto/triggers/solicitudes-controller';
+import { SolicitudesTService } from './proyecto/services/from-tables/solicitudes-service';
+import { SolicitudesExpose } from './proyecto/expose/from-front/solicitudes-expose';
+import { SolicitudesRepository } from './proyecto/repository/solicitudes-repository';
+import { SolicitudesService } from './proyecto/services/from-front/solicitudes-service';
+import { DocumentosEntity } from './proyecto/models/entities/documentos-entity';
+import { DocumentosRepository } from './proyecto/repository/documentos-repository';
+import { DocumentosTService } from './proyecto/services/from-tables/documentos-service';
+import { DocumentosService } from './proyecto/services/from-front/documentos-service';
+import { DocumentosExpose } from './proyecto/expose/from-front/documentos-expose';
+import { DocumentosController } from '@principal/main-module/proyecto/triggers/documentos-controller';
+import { AzureBlobService } from './proyecto/services/from-tables/azure-blob-service';
+import { CommonModule } from './proyecto/utils/common.module';
 
 @Module({
   imports: [
+    ConfigModule,
     TypeOrmModule.forFeature([
-      CatUsuarioEntity,
-      UsuariosEntity,
-      CatEstatusEntity,
-      CatUsuarioEntity,
-      CatCPEntity,
-      CatDocumentosEntity,
-      CatLicenciasEntity,
-      CatLugaresEntity,
-      CatPruebasEntity,
-      CatVigenciaEntity,
-    ]),
+	CatUsuarioEntity, 
+    UsuariosEntity, 
+    CatEstatusEntity, 
+    CatUsuarioEntity,
+    CatCPEntity,
+    CatDocumentosEntity,
+    CatLicenciasEntity,
+    CatLugaresEntity,
+    CatPruebasEntity,
+    CatVigenciaEntity,
+    SolicitudesEntity,
+    DocumentosEntity]),
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'CHANGE_ME',
       signOptions: { expiresIn: '1h' },
     }),
-  ],
-  controllers: [CatalogoController, UsuariosController, FaceController],
+    CommonModule,
+	],
+  controllers: [CatalogoController, UsuariosController, SolicitudesController, FaceController, DocumentosController],
   providers: [
     CatUsuarioRepository,
     CatUsuarioService,
@@ -80,17 +98,45 @@ import { FaceController } from '@principal/main-module/proyecto/triggers/face-co
     CatLugaresService,
     CatPruebasService,
     CatVigenciaService,
+    SolicitudesRepository,
+    SolicitudesTService,
+    SolicitudesExpose,
+    SolicitudesService,
+    DocumentosRepository,
+    DocumentosTService,
+    DocumentosService,
+    DocumentosExpose,
+    AzureBlobService,
   ],
   exports: [
     CatalogoExpose,
-    CatalogoService,
-    CatUsuarioService,
-    CatUsuarioRepository,
     UsuariosExpose,
     UsuariosService,
     UsuariosTService,
-    UsuariosRepository,
     UsuariosEntity,
+    CatCPRepository,
+    CatDocumentosRepository,
+    CatEstatusRepository,
+    CatLicenciasRepository,
+    CatLugaresRepository,
+    CatPruebasRepository,
+    CatVigenciaRepository,
+    CatCPService,
+    CatDocumentosService,
+    CatEstatusService,
+    CatLicenciasService,
+    CatLugaresService,
+    CatPruebasService,
+    CatVigenciaService,
+    SolicitudesRepository,
+    SolicitudesTService,
+    SolicitudesExpose,
+    SolicitudesService,
+    DocumentosRepository,
+    DocumentosTService,
+    DocumentosService,
+    DocumentosExpose,
+    AzureBlobService,
   ],
 })
 export class CoreModule {}

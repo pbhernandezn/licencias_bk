@@ -17,7 +17,7 @@ import { CatCPEntity } from '../models/entities/catCP-entity';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { LoginReq } from '../models/from-tables/auth-dto';
-import { passwordEncrypt } from '../utils/common';
+import { CommonService, passwordEncrypt } from '../utils/common';
 
 
 @Injectable()
@@ -32,6 +32,7 @@ export class UsuariosRepository {
         @InjectRepository(CatUsuarioEntity)
         private readonly catUsuarioRepository: Repository<CatUsuarioEntity>,
         private readonly jwtService: JwtService,
+        private commonService: CommonService
     ) { }
 
     public async getUsuarioById(
@@ -188,7 +189,7 @@ export class UsuariosRepository {
                 if (request.apellidopaterno !== undefined) updateData.apellidopaterno = request.apellidopaterno;
                 if (request.apellidomaterno !== undefined) updateData.apellidomaterno = request.apellidomaterno;
                 if (request.curp !== undefined) updateData.curp = request.curp;
-                if (request.password !== undefined) updateData.password =  passwordEncrypt(request.password);
+                if (request.password !== undefined) updateData.password = passwordEncrypt(request.password);
                 if (request.rfc !== undefined) updateData.rfc = request.rfc;
                 if (request.domicilio !== undefined) updateData.domicilio = request.domicilio;
                 if (request.colonia !== undefined) updateData.colonia = request.colonia;
@@ -269,12 +270,14 @@ export class UsuariosRepository {
                 return { status: 'Contraseña incorrecta' };
             }
 
-            const payload = { 
+            const payload = {
                 username: user.username,
                 rol: user.rol,
                 aData: user.id
             };
-            const token = this.jwtService.sign(payload);
+
+            const sessionTime = parseInt(await this.commonService.getParametro("SESSION_TIME"));
+            const token = this.jwtService.sign(payload, { expiresIn: sessionTime });
 
             return { status: user.estatus, token };
         } catch (error) {

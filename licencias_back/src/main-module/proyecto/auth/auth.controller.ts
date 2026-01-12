@@ -1,13 +1,17 @@
-import { Controller, Post, Body, HttpException, HttpStatus, Headers, Get } from '@nestjs/common';
+import { Controller, Post, Body, HttpException, HttpStatus, Headers, Get, Param } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ApiBody, ApiOperation, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { IsString } from 'class-validator';
 import { LoginReq } from '@principal/core-module/proyecto/models/from-tables/auth-dto';
+import { CommonService } from '@principal/core-module/proyecto/utils/common';
 
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private commonService: CommonService
+  ) {}
 
 
   @ApiOperation({ summary: 'Login endpoint', description: 'Iniciar sesión con usuario y contraseña' })
@@ -32,4 +36,14 @@ export class AuthController {
     }
   }
 
+  @ApiOperation({ summary: 'Obtener parámetro', description: 'Obtiene el valor de un parámetro dado' })
+  @Get('parametro/:parametro')
+  async obtenerParametro(@Param('parametro') parametro: string) {
+    try {
+      const valor = await this.commonService.getParametro(parametro);
+      return { parametro, valor };
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+    }
+  }
 }
