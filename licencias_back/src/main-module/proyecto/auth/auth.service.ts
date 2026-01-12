@@ -28,11 +28,11 @@ export class AuthService {
     try {
       const payload = this.jwtService.verify(token);
 
+
       const tData = this.jwtService.decode(token);
       console.log("Payload del token: " + JSON.stringify(tData));
 
-      
-      
+
 
       return !!payload;
     } catch (error) {
