@@ -13,7 +13,7 @@ import { CatUsuarioDTO, CatUsuariosDataDTO, getCatUsuarioByIdDTO, getCatUsuarioB
 import { CatCPDTO, getCatCPByIdDTO, getCatCPByIdReq, getLocalidadByCPReq, getLocalidadesByCPDTO } from '../../models/from-tables/catCP-dto';
 import { CatDocumentosDataDTO, CatDocumentosDTO, getCatDocumentoByIdDTO, getCatDocumentoByIdReq } from '../../models/from-tables/catDocumentos-dto';
 import { CatEstatusDTO, getCatEstatusByIdDTO, getCatEstatusByIdReq, getCatEstatusByTablaDTO, getCatEstatusByTablaReq } from '../../models/from-tables/catEstatus-dto';
-import { CatLicenciasDTO, getCatLicenciaByIdDTO, getCatLicenciaByIdReq, getLicenciasByLicenciaDTO, getLicenciasByLicenciaReq } from '../../models/from-tables/catLicencias-dto';
+import { CatLicenciasDataDTO, CatLicenciasDTO, getCatLicenciaByIdDTO, getCatLicenciaByIdReq, getLicenciasByLicenciaDTO, getLicenciasByLicenciaReq } from '../../models/from-tables/catLicencias-dto';
 import { CatLugaresDataDTO, CatLugaresDTO, getCatLugarByIdReq, getCatLugaresByIdDTO } from '../../models/from-tables/catLugares-dto';
 import { CatPruebasDataDTO, CatPruebasDTO, getCatPruebaByIdReq, getCatPruebasByIdDTO } from '../../models/from-tables/catPruebas-dto';
 import { CatVigenciaDataDTO, CatVigenciaDTO, getCatVigenciaByIdDTO, getCatVigenciaByIdReq } from '../../models/from-tables/catVigencia-dto';
@@ -225,6 +225,21 @@ export class CatalogoService {
       );
     }
     return respuesta;
+  }
+
+  public async getCatLicencias(): Promise<Array<CatLicenciasDataDTO>> {
+    let catLicencias: Array<CatLicenciasDataDTO>;
+    
+    const respuesta = await this.CatLicenciasService.getCatLicencias();
+    if (!respuesta || respuesta.length === 0) {
+      throw ManejadorErrores.getBusquedaVacia(
+        'No se encontraron datos en el catalogo de licencias. ',
+        'TYPE-A-6a09d086-e7c1-4d36-8367-66bc832_cli3',
+      );
+    }
+    catLicencias = respuesta as Array<CatLicenciasDataDTO>;
+
+    return catLicencias;
   }
 
   /**   

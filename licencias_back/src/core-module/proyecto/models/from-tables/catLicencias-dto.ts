@@ -23,7 +23,9 @@ export class CatLicenciasDataDTO {
     id: number;
     licencia: string;
     descripcion: string;
-    vigencia: number;
+    idvigencia: number;
+    vigencia: string;
+    anios: number;
     idestatus: number;
     estatus: string;
     precio: string;

@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ManejadorErrores } from '@principal/commons-module/proyecto/utils/manejador-errores';
 import { Wrapper } from '@principal/commons-module/proyecto/utils/wrapper';
 import { CatLicenciasRepository } from '../../repository/catLicencias-repository';
-import { CatLicenciasDTO, getCatLicenciaByIdDTO, getCatLicenciaByIdReq, getLicenciasByLicenciaDTO, getLicenciasByLicenciaReq } from '../../models/from-tables/catLicencias-dto';
+import { CatLicenciasDataDTO, CatLicenciasDTO, getCatLicenciaByIdDTO, getCatLicenciaByIdReq, getLicenciasByLicenciaDTO, getLicenciasByLicenciaReq } from '../../models/from-tables/catLicencias-dto';
 
 
 @Injectable()
@@ -29,6 +29,10 @@ export class CatLicenciasService {
       request: getLicenciasByLicenciaReq
     ): Promise<getLicenciasByLicenciaDTO> {
       return await this.catLicenciasRepository.getCatLicenciasByLicencia(request);
+    }
+
+    public async getCatLicencias(): Promise<Array<CatLicenciasDataDTO>> {
+      return await this.catLicenciasRepository.getCatLicencias();
     }
 
     /**

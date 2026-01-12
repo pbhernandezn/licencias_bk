@@ -62,6 +62,7 @@ export class SolicitudesRepository {
             'solicitudes.vigencia',
             'solicitudes.idestatus',
             'estatus.estatus AS estatus_estatus',
+            'solicitudes.idmetodopago',
         ])
         .getRawMany();
 
@@ -85,6 +86,7 @@ export class SolicitudesRepository {
             vigencia: r['solicitudes_vigencia'],
             idestatus: r['solicitudes_idestatus'],
             estatus: r['estatus_estatus'],
+            idmetodopago: r['solicitudes_idmetodopago']
         }));
 
         const solicitudesDataDTO: getSolicitudesDTO = {
@@ -139,6 +141,7 @@ export class SolicitudesRepository {
                 'solicitudes.vigencia',
                 'solicitudes.idestatus',
                 'estatus.estatus AS estatus_estatus',
+                'solicitudes.idmetodopago'
             ])
             .where('solicitudes.id = :id', { id: request.id })
             .getRawOne();
@@ -162,6 +165,7 @@ export class SolicitudesRepository {
                 vigencia: result['solicitudes_vigencia'],
                 idestatus: result['solicitudes_idestatus'],
                 estatus: result['estatus_estatus'],
+                idmetodopago: result['solicitudes_idmetodopago']
                 }
             : undefined,
         };
@@ -229,6 +233,7 @@ export class SolicitudesRepository {
             'solicitudes.vigencia',
             'solicitudes.idestatus',
             'estatus.estatus AS estatus_estatus',
+            'solicitudes.idmetodopago'
         ])
         .where('solicitudes.idusuario = :idusuario', { idusuario: request.idUsuario })
         .getRawMany();
@@ -253,6 +258,7 @@ export class SolicitudesRepository {
             vigencia: r['solicitudes_vigencia'],
             idestatus: r['solicitudes_idestatus'],
             estatus: r['estatus_estatus'],
+            idmetodopago: r['solicitudes_idmetodopago'],
         }));
 
         const solicitudesDataDTO: getSolicitudesDTO = {
@@ -307,6 +313,7 @@ export class SolicitudesRepository {
             'solicitudes.vigencia',
             'solicitudes.idestatus',
             'estatus.estatus AS estatus_estatus',
+            'solicitudes.idmetodopago'
         ])
         .where('solicitudes.idtipolicencia = :idtipolicencia', { idtipolicencia: request.idTipoLicencia })
         .getRawMany();
@@ -331,6 +338,7 @@ export class SolicitudesRepository {
             vigencia: r['solicitudes_vigencia'],
             idestatus: r['solicitudes_idestatus'],
             estatus: r['estatus_estatus'],
+            idmetodopago: r['solicitudes_idmetodopago'],
         }));
 
         const solicitudesDataDTO: getSolicitudesDTO = {
@@ -385,6 +393,7 @@ export class SolicitudesRepository {
             'solicitudes.vigencia',
             'solicitudes.idestatus',
             'estatus.estatus AS estatus_estatus',
+            'solicitudes.idmetodopago',
         ])
         .where('solicitudes.idestatus = :idestatus', { idestatus: request.idEstatus })
         .getRawMany();
@@ -409,6 +418,7 @@ export class SolicitudesRepository {
             vigencia: r['solicitudes_vigencia'],
             idestatus: r['solicitudes_idestatus'],
             estatus: r['estatus_estatus'],
+            idmetodopago: r['solicitudes_idmetodopago'],
         }));
 
         const solicitudesDataDTO: getSolicitudesDTO = {
@@ -425,11 +435,29 @@ export class SolicitudesRepository {
         }
   }
 
+  public async isExistsSolicitudByUsuarioTipoLicencia(idUsuario: number,idTipoLicencia: number): Promise<number> {
+    try {
+      const query = this.SolicitudesRepository
+        .createQueryBuilder()
+        .select('count(*)', 'cuenta')
+        .where('idusuario = :idUsuario AND idtipolicencia = :idTipoLicencia', { idUsuario, idTipoLicencia });
+      const unit: any = await query.getRawMany();
+      if (!unit) return null;
+      return unit[0].cuenta;
+    } catch (error) {
+      throw ManejadorErrores.getFallaBaseDatos(
+        error.message,
+        'TYPE-C-1f355201-aa52-4f57-94a6-53892d6d4a20',
+      );
+    }
+  }
+
   public async saveSolicitud(request: CreateSolicitudRequest): Promise<void> {
     try {
       const unit = this.SolicitudesRepository.create({
         idusuario: request.idusuario,
         idtipolicencia: request.idtipolicencia,
+        idmetodopago: request.idmetodopago,
         idestatus: 20,
       });
 
@@ -442,10 +470,17 @@ export class SolicitudesRepository {
     }
   }
 
-  /*
-  public async updateSolicitud(id: number, payload: Partial<SolicitudesDTO>): Promise<void> {
+  
+  public async updateSolicitud(id: number, payload: SolicitudesDTO): Promise<void> {
     try {
-      const unit = SolicitudesMapping.dTOToEntity(payload);
+      const unit: Partial<SolicitudesEntity>={};
+      unit.idusuario = payload.idusuario;
+      unit.idtipolicencia = payload.idtipolicencia;
+      unit.numerolicencia = payload.numerolicencia;
+      unit.expedicion = payload.expedicion;
+      unit.vigencia = payload.vigencia;
+      unit.idestatus = payload.idestatus;
+
       await this.SolicitudesRepository.update(id, unit);
     } catch (error) {
       throw ManejadorErrores.getFallaBaseDatos(
@@ -454,7 +489,7 @@ export class SolicitudesRepository {
       );
     }
   }
-    */
+  
 
   
 }

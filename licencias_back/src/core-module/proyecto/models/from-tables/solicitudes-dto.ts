@@ -11,6 +11,7 @@ export class SolicitudesDTO {
   expedicion: string;
   vigencia: string;
   idestatus: number;
+  idmetodopago: number;
 
 }
 
@@ -41,6 +42,7 @@ export class SolicitudesDataDTO {
   vigencia: string;
   idestatus: number;
   estatus: string;
+  idmetodopago: number;
 }
 
 export class getSolicitudByIdReq {
@@ -72,28 +74,20 @@ export class CreateSolicitudRequest {
   @IsInt()
   idtipolicencia: number;
 
+  @ApiProperty({ description: 'ID del método de pago', example: 1 })
+  @IsInt()
+  idmetodopago: number;
+
 }
 
 export class UpdateSolicitudRequest {
-  @ApiProperty({ description: 'ID del usuario', example: 1 })
+  @ApiProperty({ description: 'ID de la solicitud', example: 1 })
   @IsInt()
-  idusuario: number;
+  idsolicitud: number;
 
-  @ApiProperty({ description: 'ID del tipo de licencia', example: 1 })
-  @IsInt()
-  idtipolicencia: number;
-
-  @ApiProperty({ description: 'ID del estatus', example: 1 })
+ @ApiProperty({ description: 'ID del estatus', example: 1 })
   @IsInt()
   idestatus: number;
 
-  @ApiProperty({ description: 'Número de licencia', example: 'Lic-12345-6789' })
-  numerolicencia: string;
-
-  @ApiProperty({ description: 'Fecha de expedición', example: '2026-01-01' })
-  expedicion: string;
-
-  @ApiProperty({ description: 'Fecha de vigencia', example: '2029-01-01' })
-  vigencia: string;
 
 }

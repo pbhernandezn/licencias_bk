@@ -12,17 +12,12 @@ export class AzureBlobService {
     const containerName = this.configService.get<string>('AZURE_STORAGE_CONTAINER_NAME', 'documentos');
 
     if (!connectionString) {
-      console.warn('⚠️  AZURE_STORAGE_CONNECTION_STRING no está configurada - Azure Blob Storage no estará disponible');
-      return;
+      //throw new Error('AZURE_STORAGE_CONNECTION_STRING no está configurada');
+    }else{
+    const blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
+    this.containerClient = blobServiceClient.getContainerClient(containerName);
     }
 
-    try {
-      const blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
-      this.containerClient = blobServiceClient.getContainerClient(containerName);
-      console.log('✅ Azure Blob Storage configurado correctamente');
-    } catch (error) {
-      console.error('❌ Error al configurar Azure Blob Storage:', error.message);
-    }
   }
 
   /**
@@ -33,13 +28,6 @@ export class AzureBlobService {
    * @returns URL del archivo subido (privada - solo para referencia)
    */
   async uploadFile(buffer: Buffer, blobName: string, contentType: string): Promise<string> {
-    if (!this.containerClient) {
-      throw ManejadorErrores.getFallaBaseDatos(
-        'Azure Blob Storage no está configurado. Verifica AZURE_STORAGE_CONNECTION_STRING',
-        'AZURE-BLOB-001'
-      );
-    }
-
     try {
       // Crear el contenedor si no existe (privado - sin acceso público)
       await this.containerClient.createIfNotExists();
@@ -67,13 +55,6 @@ export class AzureBlobService {
    * @returns Buffer del archivo
    */
   async downloadFile(blobName: string): Promise<Buffer> {
-    if (!this.containerClient) {
-      throw ManejadorErrores.getFallaBaseDatos(
-        'Azure Blob Storage no está configurado. Verifica AZURE_STORAGE_CONNECTION_STRING',
-        'AZURE-BLOB-001'
-      );
-    }
-
     try {
       const blockBlobClient: BlockBlobClient = this.containerClient.getBlockBlobClient(blobName);
       const downloadResponse = await blockBlobClient.download();
@@ -97,13 +78,6 @@ export class AzureBlobService {
    * @param blobName - Nombre del blob
    */
   async deleteFile(blobName: string): Promise<void> {
-    if (!this.containerClient) {
-      throw ManejadorErrores.getFallaBaseDatos(
-        'Azure Blob Storage no está configurado. Verifica AZURE_STORAGE_CONNECTION_STRING',
-        'AZURE-BLOB-001'
-      );
-    }
-
     try {
       const blockBlobClient: BlockBlobClient = this.containerClient.getBlockBlobClient(blobName);
       await blockBlobClient.deleteIfExists();
@@ -123,13 +97,6 @@ export class AzureBlobService {
    * @returns URL del blob
    */
   getBlobUrl(blobName: string): string {
-    if (!this.containerClient) {
-      throw ManejadorErrores.getFallaBaseDatos(
-        'Azure Blob Storage no está configurado. Verifica AZURE_STORAGE_CONNECTION_STRING',
-        'AZURE-BLOB-001'
-      );
-    }
-
     const blockBlobClient: BlockBlobClient = this.containerClient.getBlockBlobClient(blobName);
     return blockBlobClient.url;
   }

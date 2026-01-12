@@ -2,7 +2,7 @@ import { Body, Controller, Get, Post } from "@nestjs/common";
 import { ApiBody, ApiResponse } from "@nestjs/swagger";
 import { BaseResponse } from "@principal/commons-module/proyecto/models/base-response";
 import { SolicitudesExpose } from "@principal/core-module/proyecto/expose/from-front/solicitudes-expose";
-import { CreateSolicitudRequest, getSolicitudByIdDTO, getSolicitudByIdEstatusReq, getSolicitudByIdReq, getSolicitudByIdTipoLicenciaReq, getSolicitudByIdUsuarioReq, getSolicitudesDTO, SolicitudesDTO } from "@principal/core-module/proyecto/models/from-tables/solicitudes-dto";
+import { CreateSolicitudRequest, getSolicitudByIdDTO, getSolicitudByIdEstatusReq, getSolicitudByIdReq, getSolicitudByIdTipoLicenciaReq, getSolicitudByIdUsuarioReq, getSolicitudesDTO, SolicitudesDTO, UpdateSolicitudRequest } from "@principal/core-module/proyecto/models/from-tables/solicitudes-dto";
 
 
 @Controller('/api/solicitudes')
@@ -54,6 +54,14 @@ export class SolicitudesController {
       @ApiResponse({ status: 200, description: 'Solicitud creada.', type: BaseResponse })
       async createSolicitud(@Body() request: CreateSolicitudRequest): Promise<BaseResponse<void>> {
         const respuesta = await this.solicitudesExpose.createSolicitud(request);
+        return respuesta;
+      }
+
+    @Post('/updateSolicitud')
+      @ApiBody({ type: UpdateSolicitudRequest })
+      @ApiResponse({ status: 200, description: 'Solicitud actualizada.', type: BaseResponse })
+      async updateSolicitud(@Body() request: UpdateSolicitudRequest): Promise<BaseResponse<void>> {
+        const respuesta = await this.solicitudesExpose.updateSolicitud(request);
         return respuesta;
       }
 

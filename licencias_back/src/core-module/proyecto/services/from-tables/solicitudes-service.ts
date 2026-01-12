@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { SolicitudesRepository } from "../../repository/solicitudes-repository";
 import { QueryParams } from "@principal/commons-module/proyecto/utils/query-params";
-import { CreateSolicitudRequest, getSolicitudByIdDTO, getSolicitudByIdEstatusReq, getSolicitudByIdReq, getSolicitudByIdTipoLicenciaReq, getSolicitudByIdUsuarioReq, getSolicitudesDTO, SolicitudesDTO } from "../../models/from-tables/solicitudes-dto";
+import { CreateSolicitudRequest, getSolicitudByIdDTO, getSolicitudByIdEstatusReq, getSolicitudByIdReq, getSolicitudByIdTipoLicenciaReq, getSolicitudByIdUsuarioReq, getSolicitudesDTO, SolicitudesDTO, UpdateSolicitudRequest } from "../../models/from-tables/solicitudes-dto";
 import { ManejadorErrores } from "@principal/commons-module/proyecto/utils/manejador-errores";
 import { CatLicenciasRepository } from "../../repository/catLicencias-repository";
 
@@ -45,16 +45,23 @@ export class SolicitudesTService {
     // Reglas aqui
     try
     {
-    const respuesta = await this.catLicenciasRepository.isExistsCatLicencias(payload.idtipolicencia);
-    console.log('Respuesta de existencia de licencia:', respuesta);
-    if (respuesta == 0) {
+    const respuesta = await this.solicitudesRepository.isExistsSolicitudByUsuarioTipoLicencia(payload.idusuario, payload.idtipolicencia);
+    const respuesta2 = await this.catLicenciasRepository.isExistsCatLicencias(payload.idtipolicencia);
+    
+    if (respuesta !== 0) {
         
         throw new NotFoundException(
-          'el identificador del tipo de licencia no existe. ',
+          'No es posible guardar, el usuario ya existe con el tipo de licencia. ',
+        );
+      }
+    if (respuesta2 == 0) {
+        
+        throw new NotFoundException(
+          'El identificador del tipo de licencia no existe. ',
         );
       }
       await this.solicitudesRepository.saveSolicitud(payload);
-    }   
+    } 
     catch (error)
     {
         throw ManejadorErrores.getValidacionNoSatisfactoria(
@@ -66,18 +73,32 @@ export class SolicitudesTService {
   }
   
   
-  public async updateSolicitud(id: number, payload: Partial<SolicitudesDTO>): Promise<void> {
-    // Reglas aqui
+  public async updateSolicitud(payload: UpdateSolicitudRequest): Promise<void> {
+    
     {
-      const respuesta = await this.solicitudesRepository.isExistsSolicitud(id);
-      if (!respuesta || respuesta === 0) {
-        throw ManejadorErrores.getValidacionNoSatisfactoria(
-          'el identificador no existe',
-          'TYPE-B-2a0630a2-e82a-40c0-abeb-bc8b78002bfc',
-        );
+      const request: getSolicitudByIdReq = {id: payload.idsolicitud};
+      const respuesta = await this.getSolicitudById(request);
+      if (!respuesta.existe) {
+          throw new NotFoundException(
+            'La solicitud no existe. ',
+          );
       }
+
+      const solicitudToUpdate: SolicitudesDTO = {
+        id:respuesta.solicitudData.id,
+        idusuario: respuesta.solicitudData.idusuario,
+        creacion: respuesta.solicitudData.creacion,
+        modificacion: respuesta.solicitudData.modificacion,
+        idtipolicencia: respuesta.solicitudData.idtipolicencia,
+        numerolicencia: respuesta.solicitudData.numerolicencia,
+        expedicion: respuesta.solicitudData.expedicion,
+        vigencia: respuesta.solicitudData.vigencia,
+        idestatus: payload.idestatus,
+        idmetodopago: respuesta.solicitudData.idmetodopago,
+      };
+      await this.solicitudesRepository.updateSolicitud(payload.idsolicitud, solicitudToUpdate);
     }
-    //await this.solicitudesRepository.updateSolicitud(id, payload);
+    
   }
 
   
