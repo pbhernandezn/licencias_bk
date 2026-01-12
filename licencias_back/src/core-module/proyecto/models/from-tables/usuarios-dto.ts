@@ -179,8 +179,8 @@ export class updateUsuarioReq {
   domicilio?: string;
   @ApiProperty({ description: 'Colonia del usuario', example: 'Colonia 123' })
   colonia?: string;
-  @ApiProperty({ description: 'CP del usuario', example: '12345' })
-  cp?: string;
+  @ApiProperty({ description: 'id del CP del usuario', example: 1 })
+  cp?: number;
   @ApiProperty({ description: 'Municipio del usuario', example: 'Municipio 1' })
   municipio?: string;
   @ApiProperty({ description: 'Localidad del usuario', example: 'Localidad 1' })
@@ -209,8 +209,8 @@ export class updateUsuarioReq {
   conocidoApellidoMaterno?: string;
   @ApiProperty({ description: 'Domicilio del conocido del usuario', example: 'Calle 5432' })
   conocidoDomicilio: string;
-  @ApiProperty({ description: 'CP del conocido del usuario', example: '09876' })
-  conocidoCp?: string;
+  @ApiProperty({ description: 'Id del CP del conocido del usuario', example: 1 })
+  conocidoCp?: number;
   @ApiProperty({ description: 'Colonia del conocido del usuario', example: 'Colonia 2' })
   conocidoColonia?: string;
   @ApiProperty({ description: 'Municipio del conocido del usuario', example: 'Municipio 2' })
