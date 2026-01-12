@@ -31,6 +31,7 @@ export class UsuariosController {
   @ApiBody({ type: updateUsuarioReq })
   @ApiResponse({ status: 200, description: 'Usuario encontrado', type: BaseResponse<updateUsuarioDTO> })
   async updateUsuario(@Body() request: updateUsuarioReq): Promise<BaseResponse<updateUsuarioDTO>> {
+    console.log("Request recibido en controller: " + JSON.stringify(request));
     const respuesta = await this.usuariosExpose.updateUsuario(request);
     return respuesta;
   }

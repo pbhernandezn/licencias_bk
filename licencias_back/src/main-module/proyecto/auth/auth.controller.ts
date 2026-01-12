@@ -1,9 +1,10 @@
-import { Controller, Post, Body, HttpException, HttpStatus, Headers, Get, Param } from '@nestjs/common';
+import { Controller, Post, Body, HttpException, HttpStatus, Headers, Get, Param, Req } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ApiBody, ApiOperation, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { IsString } from 'class-validator';
 import { LoginReq } from '@principal/core-module/proyecto/models/from-tables/auth-dto';
 import { CommonService } from '@principal/core-module/proyecto/utils/common';
+import { Request } from 'express';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -17,8 +18,11 @@ export class AuthController {
   @ApiOperation({ summary: 'Login endpoint', description: 'Iniciar sesión con usuario y contraseña' })
   @ApiBody({ type: LoginReq, description: 'Credenciales de inicio de sesión' })
   @Post('login')
-  async login(@Body() request: LoginReq) {
-    const login = await this.authService.validateUser(request);
+  async login(@Body() request: LoginReq, @Req() req: Request) {
+    const ipAddress = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'IP no disponible';
+    console.log(`IP Address: ${ipAddress}`);
+
+    const login = await this.authService.validateUser(request, ipAddress.toString());
     return login;
   }
 

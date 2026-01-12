@@ -11,9 +11,9 @@ export class AuthService {
     private usuariosRepository: UsuariosRepository,
   ) {}
 
-  async validateUser(request: LoginReq) {
+  async validateUser(request: LoginReq, ipAddress: string): Promise<any> {
     if (isValidEmail(request.username.trim())) {
-      const user = await this.usuariosRepository.validateUserCredentials(request);
+      const user = await this.usuariosRepository.validateUserCredentials(request, ipAddress);
       return user;
     }
     return null;
@@ -27,6 +27,9 @@ export class AuthService {
     const token = authorizationHeader.split(' ')[1];
     try {
       const payload = this.jwtService.verify(token);
+
+      
+
       return !!payload;
     } catch (error) {
       console.error('Token inválido:', error);

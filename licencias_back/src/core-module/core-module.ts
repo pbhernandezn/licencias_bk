@@ -50,6 +50,7 @@ import { DocumentosExpose } from './proyecto/expose/from-front/documentos-expose
 import { DocumentosController } from '@principal/main-module/proyecto/triggers/documentos-controller';
 import { AzureBlobService } from './proyecto/services/from-tables/azure-blob-service';
 import { CommonModule } from './proyecto/utils/common.module';
+import { DetalleSesionEntity } from './proyecto/models/entities/detalleSesion-entity';
 
 @Module({
   imports: [
@@ -66,7 +67,9 @@ import { CommonModule } from './proyecto/utils/common.module';
     CatPruebasEntity,
     CatVigenciaEntity,
     SolicitudesEntity,
-    DocumentosEntity]),
+    DocumentosEntity,
+    DetalleSesionEntity
+  ]),
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'CHANGE_ME',
       signOptions: { expiresIn: '1h' },

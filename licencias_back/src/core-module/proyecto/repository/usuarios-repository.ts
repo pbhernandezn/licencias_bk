@@ -18,6 +18,9 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { LoginReq } from '../models/from-tables/auth-dto';
 import { CommonService, passwordEncrypt } from '../utils/common';
+import { DetalleSesionEntity } from '../models/entities/detalleSesion-entity';
+import { last } from 'rxjs';
+import { parse } from 'path';
 
 
 @Injectable()
@@ -32,7 +35,9 @@ export class UsuariosRepository {
         @InjectRepository(CatUsuarioEntity)
         private readonly catUsuarioRepository: Repository<CatUsuarioEntity>,
         private readonly jwtService: JwtService,
-        private commonService: CommonService
+        private commonService: CommonService,
+        @InjectRepository(DetalleSesionEntity)
+        private readonly detalleSesionRepository: Repository<DetalleSesionEntity>,
     ) { }
 
     public async getUsuarioById(
@@ -243,7 +248,7 @@ export class UsuariosRepository {
         return cpRecord ? cpRecord.id : 0;
     }
 
-    public async validateUserCredentials(request: LoginReq): Promise<{ status: string; token?: string }> {
+    public async validateUserCredentials(request: LoginReq, ipAddress: string): Promise<{ status: string; token?: string }> {
         try {
             const user = await this.usuariosRepository
                 .createQueryBuilder('usuarios')
@@ -270,6 +275,21 @@ export class UsuariosRepository {
                 return { status: 'Contraseña incorrecta' };
             }
 
+            const recientes = await this.getSesionesRecientes(user.id);
+
+            const exitosos = recientes.filter(s => s.exitoso === true);
+            const lastSuccess = exitosos.length > 0 ? exitosos[0] : null;
+            var fallidos = recientes.filter(s => s.exitoso === false);
+            
+            if (lastSuccess) {
+                fallidos = fallidos.filter(s => s.fecha_inicio > lastSuccess.fecha_inicio);
+            }
+            const maxFails = parseInt(await this.commonService.getParametro("MAX_LOGIN_RETRIES"));
+
+            if (fallidos.length >= maxFails) {
+                return { status: 'Bloqueado por reintentos.' };
+            }
+
             const payload = {
                 username: user.username,
                 rol: user.rol,
@@ -279,11 +299,59 @@ export class UsuariosRepository {
             const sessionTime = parseInt(await this.commonService.getParametro("SESSION_TIME"));
             const token = this.jwtService.sign(payload, { expiresIn: sessionTime });
 
+            if(lastSuccess && lastSuccess.estatus === 'Abierta'){
+                var thisLastSession = await this.detalleSesionRepository.findOne({ where: { id: lastSuccess.detalle_sesion_id } });
+                thisLastSession.comentarios = 'Sesión cerrada por nuevo inicio de sesión - ' + token;
+                thisLastSession.fechaFin = new Date();
+                thisLastSession.idEstatus = (await this.catEstatusRepository.findOne({ where: { tabla: 'detalle_sesion', estatus: 'Cerrada' } }))?.id || null;
+                await this.detalleSesionRepository.save(thisLastSession);
+            }
+            
+
+            const newSession = this.detalleSesionRepository.create({
+                idUsuario: user.id,
+                fechaInicio: new Date(),
+                fechaFin: null,
+                ip: ipAddress,
+                exitoso: true,
+                token: token,               
+                idEstatus: (await this.catEstatusRepository.findOne({ where: { tabla: 'detalle_sesion', estatus: 'Abierta' } }))?.id || null
+            });
+            await this.detalleSesionRepository.save(newSession);
+
             return { status: user.estatus, token };
         } catch (error) {
             throw ManejadorErrores.getFallaBaseDatos(
                 error.message,
                 'TYPE-A-validateUserCredentials',
+            );
+        }
+    }
+
+    public async getSesionesRecientes(userId: number): Promise<any[]> {
+        try {
+            const now = new Date();
+            const fifteenMinutesAgo = new Date(now.getTime() - 15 * 60 * 1000);
+
+            const sessions = await this.detalleSesionRepository
+                .createQueryBuilder('detalle_sesion')
+                .leftJoinAndSelect('cat_estatus', 'estatus', 'detalle_sesion.id_estatus = estatus.id')
+                .select('detalle_sesion.id')
+                .addSelect('detalle_sesion.fecha_inicio', 'fecha_inicio')
+                .addSelect('detalle_sesion.fecha_fin', 'fecha_fin')
+                .addSelect('estatus.estatus', 'estatus')
+                .addSelect('detalle_sesion.exitoso', 'exitoso')
+                .where('detalle_sesion.id_usuario = :userId', { userId })
+                .andWhere('detalle_sesion.fecha_inicio >= :fifteenMinutesAgo', { fifteenMinutesAgo })
+                //.orWhere('detalle_sesion.fecha_fin >= :fifteenMinutesAgo', { fifteenMinutesAgo })
+                .orderBy('detalle_sesion.fecha_inicio', 'DESC')
+                .getRawMany();
+                
+            return sessions;
+        } catch (error) {
+            throw ManejadorErrores.getFallaBaseDatos(
+                error.message,
+                'TYPE-A-getRecentSessions',
             );
         }
     }

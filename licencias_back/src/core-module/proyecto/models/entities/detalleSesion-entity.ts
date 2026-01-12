@@ -36,6 +36,15 @@ export class DetalleSesionEntity {
   @Column("character varying", { name: "comentarios", nullable: true })
   comentarios: string | null;
 
+  
+
+  @Column("integer", { name: "id_estatus", nullable: true })
+  idEstatus: number | null;
+  
+
+  @Column("integer", { name: "id_usuario", nullable: true })
+  idUsuario: number | null;
+
   // @ManyToOne(() => CatEstatusEntity, (catEstatus) => catEstatus.detalleSesions)
   // @JoinColumn([{ name: "id_estatus", referencedColumnName: "id" }])
   // idEstatus: CatEstatusEntity;
