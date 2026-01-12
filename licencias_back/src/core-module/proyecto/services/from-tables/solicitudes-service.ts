@@ -4,6 +4,8 @@ import { QueryParams } from "@principal/commons-module/proyecto/utils/query-para
 import { CreateSolicitudRequest, getSolicitudByIdDTO, getSolicitudByIdEstatusReq, getSolicitudByIdReq, getSolicitudByIdTipoLicenciaReq, getSolicitudByIdUsuarioReq, getSolicitudesDTO, SolicitudesDTO, UpdateSolicitudRequest } from "../../models/from-tables/solicitudes-dto";
 import { ManejadorErrores } from "@principal/commons-module/proyecto/utils/manejador-errores";
 import { CatLicenciasRepository } from "../../repository/catLicencias-repository";
+import { randomUUID } from "crypto";
+import { getCatLicenciaByIdReq } from "../../models/from-tables/catLicencias-dto";
 
 @Injectable()
 export class SolicitudesTService {
@@ -84,6 +86,22 @@ export class SolicitudesTService {
           );
       }
 
+      //Si la revisión de la solicitud es aceptada
+      //El estatus de la solicitud se cambiara a aceptada
+      if(payload.idestatus==22) {//Este número 22 corresponde al identificador de la tabla de cat_estatus
+        const requestLicencia: getCatLicenciaByIdReq = {id: respuesta.solicitudData.idtipolicencia};
+        const consultaLicencia = await this.catLicenciasRepository.getCatLicenciasById(requestLicencia);
+
+        const numLicencia=this.generarNumeroLicencia();
+        const fechaExpedicion=this.fechaExpedicionActual();
+        const fechaVigencia=this.calcularVigencia(fechaExpedicion,consultaLicencia.catLicencia.anios);
+
+        respuesta.solicitudData.numerolicencia = numLicencia;
+        respuesta.solicitudData.expedicion = fechaExpedicion.toDateString(),
+        respuesta.solicitudData.vigencia = fechaVigencia.toDateString();
+      }
+      
+
       const solicitudToUpdate: SolicitudesDTO = {
         id:respuesta.solicitudData.id,
         idusuario: respuesta.solicitudData.idusuario,
@@ -101,5 +119,23 @@ export class SolicitudesTService {
     
   }
 
+  private generarNumeroLicencia(): string {
+    // Ejemplo: LIC-2026-A3F9C2
+    const uuid = randomUUID().split('-')[0].toUpperCase();
+    const year = new Date().getFullYear();
+
+    return `LIC-${year}-${uuid}`;
+  }
+
+  private fechaExpedicionActual(): Date {
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0); // evita problemas de hora
+    return hoy;
+  }
   
+  private calcularVigencia(expedicion: Date, aniosVigencia: number): Date {
+    const vigencia = new Date(expedicion);
+    vigencia.setFullYear(vigencia.getFullYear() + aniosVigencia);
+    return vigencia;
+  }
 }
