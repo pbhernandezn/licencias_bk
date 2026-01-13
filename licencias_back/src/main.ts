@@ -69,10 +69,29 @@ async function bootstrap() {
 
     const configBuilder = new DocumentBuilder()
       .setTitle('Licencias - Backend')
+      .setDescription('API del sistema de licencias de conducir')
+      .setVersion('1.8')
+      .addBearerAuth(
+        {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+          name: 'JWT',
+          description: 'Ingrese su token JWT',
+          in: 'header',
+        },
+        'JWT-auth'
+      )
+      .addTag('Documentos', 'Endpoints para gestión de documentos')
+      .addTag('Revisiones de Documentos', 'Endpoints para revisión de documentos')
       .build();
     app.useGlobalFilters(new CustomExceptionFilter());
     const document = SwaggerModule.createDocument(app, configBuilder);
-    SwaggerModule.setup('api/docs', app, document, {});
+    SwaggerModule.setup('api/docs', app, document, {
+      swaggerOptions: {
+        persistAuthorization: true,
+      },
+    });
     console.log('✅ Swagger documentation configured at /api/docs');
 
     app.useGlobalFilters(new CustomExceptionFilter());
