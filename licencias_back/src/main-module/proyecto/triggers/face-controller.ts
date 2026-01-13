@@ -1,11 +1,14 @@
-import { Body, Controller, Post } from '@nestjs/common';
-import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Post, UseGuards, Request } from '@nestjs/common';
+import { ApiBody, ApiResponse, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { BaseResponse } from '@principal/commons-module/proyecto/models/base-response';
 import { UsuariosExpose } from '@principal/core-module/proyecto/expose/from-front/usuarios-expose';
 import { createUsuarioDTO, createUsuarioReq, getUsuarioByIdDTO, getUsuarioByIdReq, updateUsuarioDTO, updateUsuarioReq } from '@principal/core-module/proyecto/models/from-tables/usuarios-dto';
 import axios from 'axios';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @ApiTags('Face')
+@ApiBearerAuth('JWT-auth')
+@UseGuards(JwtAuthGuard)
 @Controller('/api/face')
 export class FaceController {
     constructor(
@@ -13,7 +16,9 @@ export class FaceController {
     ) { }
 
     @Post('/session')
-    async getUsuarioById(): Promise<BaseResponse<any>> {
+    @ApiResponse({ status: 200, description: 'Sesión de liveness creada' })
+    @ApiResponse({ status: 401, description: 'No autorizado' })
+    async getUsuarioById(@Request() req): Promise<BaseResponse<any>> {
 
 
         var res: any;

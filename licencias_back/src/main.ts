@@ -69,10 +69,35 @@ async function bootstrap() {
 
     const configBuilder = new DocumentBuilder()
       .setTitle('Licencias - Backend')
+      .setDescription('API del sistema de licencias de conducir - v1.9 con autenticación JWT')
+      .setVersion('1.9')
+      .addBearerAuth(
+        {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+          name: 'JWT',
+          description: 'Ingrese su token JWT',
+          in: 'header',
+        },
+        'JWT-auth'
+      )
+      .addTag('auth', '🔐 Autenticación - Endpoints públicos para login')
+      .addTag('Catalogos', '📋 Catálogos - Endpoints públicos para datos de referencia')
+      .addTag('Usuarios', '👤 Usuarios - Protegido con JWT (excepto crear usuario)')
+      .addTag('Solicitudes', '📄 Solicitudes - Protegido con JWT')
+      .addTag('Revisiones', '📝 Revisiones - Protegido con JWT')
+      .addTag('Documentos', '📎 Documentos - Protegido con JWT')
+      .addTag('Revisiones de Documentos', '🔍 Revisión de Documentos - Protegido con JWT')
+      .addTag('Face', '👁️ Face Liveness - Protegido con JWT')
       .build();
     app.useGlobalFilters(new CustomExceptionFilter());
     const document = SwaggerModule.createDocument(app, configBuilder);
-    SwaggerModule.setup('api/docs', app, document, {});
+    SwaggerModule.setup('api/docs', app, document, {
+      swaggerOptions: {
+        persistAuthorization: true,
+      },
+    });
     console.log('✅ Swagger documentation configured at /api/docs');
 
     app.useGlobalFilters(new CustomExceptionFilter());
