@@ -21,52 +21,99 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  try {
+    console.log('🚀 Starting NestJS application...');
+    console.log('📊 Environment variables loaded:');
+    console.log(`   - NODE_ENV: ${process.env.NODE_ENV || 'not set'}`);
+    console.log(`   - UNIT_PORT: ${process.env.UNIT_PORT || '3001'}`);
+    console.log(`   - UNIT_DB_HOST: ${process.env.UNIT_DB_HOST || 'not set'}`);
+    console.log(`   - CORS: ${process.env.CORS || 'not set'}`);
+    console.log(`   - AZURE_STORAGE_CONNECTION_STRING: ${process.env.AZURE_STORAGE_CONNECTION_STRING ? 'set' : 'not set'}`);
 
-  {
-    //CORS_ACEPTADOS es con ruta completa del dominio que incluye el protocolo
-    let allowedOrigins = [];
-    if (process.env.CORS_ACCEPTED) {
-      allowedOrigins = process.env.CORS_ACEPTADOS.split(',');
+    const app = await NestFactory.create<NestExpressApplication>(AppModule);
+    console.log('✅ NestJS application created successfully');
+
+    {
+      //CORS_ACEPTADOS es con ruta completa del dominio que incluye el protocolo
+      let allowedOrigins = [];
+      if (process.env.CORS_ACEPTADOS) {
+        allowedOrigins = process.env.CORS_ACEPTADOS.split(',');
+      }
+
+      if (process.env.CORS === 'true') {
+        const corsOptions: CorsOptions = {
+          origin: (origin, callback) => {
+            if (allowedOrigins.includes(origin) || !origin) {
+              callback(null, true);
+            } else {
+              callback(new Error('Not allowed by CORS'));
+            }
+          },
+          methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+          credentials: true,
+        };
+
+        app.enableCors(corsOptions);
+        console.log('✅ CORS enabled with specific origins');
+      } else {
+        const optionsCors = {
+          methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+          preflightContinue: false,
+          optionsSuccessStatus: 204,
+          credentials: true,
+        };
+        app.enableCors(optionsCors);
+        console.log('✅ CORS enabled for all origins');
+      }
     }
 
-    if (process.env.CORS === 'true') {
-      const corsOptions: CorsOptions = {
-        origin: (origin, callback) => {
-          if (allowedOrigins.includes(origin) || !origin) {
-            callback(null, true);
-          } else {
-            callback(new Error('Not allowed by CORS'));
-          }
+    const configBuilder = new DocumentBuilder()
+      .setTitle('Licencias - Backend')
+      .setDescription('API del sistema de licencias de conducir - v1.9 con autenticación JWT')
+      .setVersion('1.9')
+      .addBearerAuth(
+        {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+          name: 'JWT',
+          description: 'Ingrese su token JWT',
+          in: 'header',
         },
-        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-        credentials: true,
-      };
+        'JWT-auth'
+      )
+      .addTag('auth', '🔐 Autenticación - Endpoints públicos para login')
+      .addTag('Catalogos', '📋 Catálogos - Endpoints públicos para datos de referencia')
+      .addTag('Usuarios', '👤 Usuarios - Protegido con JWT (excepto crear usuario)')
+      .addTag('Solicitudes', '📄 Solicitudes - Protegido con JWT')
+      .addTag('Revisiones', '📝 Revisiones - Protegido con JWT')
+      .addTag('Documentos', '📎 Documentos - Protegido con JWT')
+      .addTag('Revisiones de Documentos', '🔍 Revisión de Documentos - Protegido con JWT')
+      .addTag('Face', '👁️ Face Liveness - Protegido con JWT')
+      .build();
+    app.useGlobalFilters(new CustomExceptionFilter());
+    const document = SwaggerModule.createDocument(app, configBuilder);
+    SwaggerModule.setup('api/docs', app, document, {
+      swaggerOptions: {
+        persistAuthorization: true,
+      },
+    });
+    console.log('✅ Swagger documentation configured at /api/docs');
 
-      app.enableCors(corsOptions);
-    } else {
-      const optionsCors = {
-        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-        preflightContinue: false,
-        optionsSuccessStatus: 204,
-        credentials: true,
-      };
-      app.enableCors(optionsCors);
-    }
+    app.useGlobalFilters(new CustomExceptionFilter());
+
+    const shutdownService = app.get(ShutdownExpose);
+    shutdownService.setApp(app);
+
+    const port = process.env.UNIT_PORT ?? 3001;
+    await app.listen(port);
+    console.log(`🎉 Application is running on: http://localhost:${port}`);
+    console.log(`📚 Swagger: http://localhost:${port}/api/docs`);
+    console.log(`❤️  Health: http://localhost:${port}/health`);
+  } catch (error) {
+    console.error('❌ Error starting application:', error);
+    console.error('Stack trace:', error.stack);
+    process.exit(1);
   }
-
-  const configBuilder = new DocumentBuilder()
-    .setTitle('Licencias - Backend')
-    .build();
-  app.useGlobalFilters(new CustomExceptionFilter());
-  const document = SwaggerModule.createDocument(app, configBuilder);
-  SwaggerModule.setup('api/docs', app, document, {});
-
-  app.useGlobalFilters(new CustomExceptionFilter());
-
-  const shutdownService = app.get(ShutdownExpose);
-  shutdownService.setApp(app);
-
-  await app.listen(process.env.UNIT_PORT ?? 3001);
 }
 bootstrap();

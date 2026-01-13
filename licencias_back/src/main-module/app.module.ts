@@ -17,19 +17,29 @@ import { CoreModule } from '@principal/core-module/core-module';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        type: 'postgres',
-        host: configService.get<string>('UNIT_DB_HOST', 'localhost'),
-        port: configService.get<number>('UNIT_DB_PORT', 5432),
-        username: configService.get<string>('UNIT_DB_USER', 'postgres'),
-        password: configService.get<string>('UNIT_DB_PASS', 'postgres'),
-        database: configService.get<string>('UNIT_DB_NAME', 'postgres'),
-        autoLoadEntities: true,
-        synchronize: configService.get<boolean>('DB_SYNCHRONIZE', false),
-        logging: configService.get<boolean>('DB_LOGGING', true),
-        //ssl: configService.get<boolean>('UNIT_DB_SSL', false),
-        ssl:{ rejectUnauthorized: false  },
-      }),
+      useFactory: (configService: ConfigService) => {
+        console.log('🔧 Configuring PostgreSQL connection...');
+        const dbConfig = {
+          type: 'postgres' as const,
+          host: configService.get<string>('UNIT_DB_HOST', 'localhost'),
+          port: configService.get<number>('UNIT_DB_PORT', 5432),
+          username: configService.get<string>('UNIT_DB_USER', 'postgres'),
+          password: configService.get<string>('UNIT_DB_PASS', 'postgres'),
+          database: configService.get<string>('UNIT_DB_NAME', 'postgres'),
+          autoLoadEntities: true,
+          synchronize: configService.get<boolean>('DB_SYNCHRONIZE', false),
+          logging: configService.get<boolean>('DB_LOGGING', false),
+          ssl: { rejectUnauthorized: false },
+          connectTimeoutMS: 10000,
+          maxQueryExecutionTime: 5000,
+        };
+        console.log(`   - Host: ${dbConfig.host}`);
+        console.log(`   - Port: ${dbConfig.port}`);
+        console.log(`   - Database: ${dbConfig.database}`);
+        console.log(`   - Username: ${dbConfig.username}`);
+        console.log(`   - SSL: enabled`);
+        return dbConfig;
+      },
     }),
     HealthCheckModule,
     ShutdownModule,
