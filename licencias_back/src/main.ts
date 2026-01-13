@@ -69,7 +69,7 @@ async function bootstrap() {
 
     const configBuilder = new DocumentBuilder()
       .setTitle('Licencias - Backend')
-      .setDescription('API del sistema de licencias de conducir')
+      .setDescription('API del sistema de licencias de conducir - v1.9 con autenticación JWT')
       .setVersion('1.9')
       .addBearerAuth(
         {
@@ -82,8 +82,14 @@ async function bootstrap() {
         },
         'JWT-auth'
       )
-      .addTag('Documentos', 'Endpoints para gestión de documentos')
-      .addTag('Revisiones de Documentos', 'Endpoints para revisión de documentos')
+      .addTag('auth', '🔐 Autenticación - Endpoints públicos para login')
+      .addTag('Catalogos', '📋 Catálogos - Endpoints públicos para datos de referencia')
+      .addTag('Usuarios', '👤 Usuarios - Protegido con JWT (excepto crear usuario)')
+      .addTag('Solicitudes', '📄 Solicitudes - Protegido con JWT')
+      .addTag('Revisiones', '📝 Revisiones - Protegido con JWT')
+      .addTag('Documentos', '📎 Documentos - Protegido con JWT')
+      .addTag('Revisiones de Documentos', '🔍 Revisión de Documentos - Protegido con JWT')
+      .addTag('Face', '👁️ Face Liveness - Protegido con JWT')
       .build();
     app.useGlobalFilters(new CustomExceptionFilter());
     const document = SwaggerModule.createDocument(app, configBuilder);

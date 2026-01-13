@@ -2,6 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 import { UsuariosRepository } from '@principal/core-module/proyecto/repository/usuarios-repository';
 
 @Injectable()
@@ -9,11 +10,21 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
     private usuariosRepository: UsuariosRepository,
     private jwtService: JwtService,
+    private configService: ConfigService,
   ) {
+    const secret = configService.get<string>('JWT_SECRET');
+    
+    if (!secret) {
+      console.error('❌ JWT_SECRET no está configurado en JwtStrategy');
+      throw new Error('JWT_SECRET es requerido');
+    }
+    
+    console.log('✅ JwtStrategy configurado con secret desde .env');
+    
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: process.env.JWT_SECRET || 'LaLluviaÁcidaCubríaMadrid',
+      secretOrKey: secret,
       passReqToCallback: true,
     });
   }
