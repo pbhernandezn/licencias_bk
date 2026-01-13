@@ -70,7 +70,7 @@ async function bootstrap() {
     const configBuilder = new DocumentBuilder()
       .setTitle('Licencias - Backend')
       .setDescription('API del sistema de licencias de conducir')
-      .setVersion('1.8')
+      .setVersion('1.9')
       .addBearerAuth(
         {
           type: 'http',
