@@ -51,6 +51,18 @@ import { DocumentosController } from '@principal/main-module/proyecto/triggers/d
 import { AzureBlobService } from './proyecto/services/from-tables/azure-blob-service';
 import { CommonModule } from './proyecto/utils/common.module';
 import { DetalleSesionEntity } from './proyecto/models/entities/detalleSesion-entity';
+import { RevisionesEntity } from './proyecto/models/entities/revisiones-entity';
+import { RevisionesRepository } from './proyecto/repository/revisiones-repository';
+import { RevisionesTService } from './proyecto/services/from-tables/revisiones-service';
+import { RevisionesService } from './proyecto/services/from-front/revisiones-service';
+import { RevisionesExpose } from './proyecto/expose/from-front/revisiones-expose';
+import { RevisionesController } from '@principal/main-module/proyecto/triggers/revisiones-controller';
+import { RevisionesDocumentosEntity } from './proyecto/models/entities/revisiones-documentos-entity';
+import { RevisionesDocumentosRepository } from './proyecto/repository/revisiones-documentos-repository';
+import { RevisionesDocumentosTService } from './proyecto/services/from-tables/revisiones-documentos-service';
+import { RevisionesDocumentosService } from './proyecto/services/from-front/revisiones-documentos-service';
+import { RevisionesDocumentosExpose } from './proyecto/expose/from-front/revisiones-documentos-expose';
+import { RevisionesDocumentosController } from '@principal/main-module/proyecto/triggers/revisiones-documentos-controller';
 
 @Module({
   imports: [
@@ -68,7 +80,9 @@ import { DetalleSesionEntity } from './proyecto/models/entities/detalleSesion-en
     CatVigenciaEntity,
     SolicitudesEntity,
     DocumentosEntity,
-    DetalleSesionEntity
+    DetalleSesionEntity,
+    RevisionesEntity,
+    RevisionesDocumentosEntity
   ]),
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'CHANGE_ME',
@@ -76,7 +90,7 @@ import { DetalleSesionEntity } from './proyecto/models/entities/detalleSesion-en
     }),
     CommonModule,
 	],
-  controllers: [CatalogoController, UsuariosController, SolicitudesController, FaceController, DocumentosController],
+  controllers: [CatalogoController, UsuariosController, SolicitudesController, FaceController, DocumentosController, RevisionesController, RevisionesDocumentosController],
   providers: [
     CatUsuarioRepository,
     CatUsuarioService,
@@ -110,6 +124,14 @@ import { DetalleSesionEntity } from './proyecto/models/entities/detalleSesion-en
     DocumentosService,
     DocumentosExpose,
     AzureBlobService,
+    RevisionesRepository,
+    RevisionesTService,
+    RevisionesService,
+    RevisionesExpose,
+    RevisionesDocumentosRepository,
+    RevisionesDocumentosTService,
+    RevisionesDocumentosService,
+    RevisionesDocumentosExpose,
   ],
   exports: [
     CatalogoExpose,
@@ -140,6 +162,14 @@ import { DetalleSesionEntity } from './proyecto/models/entities/detalleSesion-en
     DocumentosService,
     DocumentosExpose,
     AzureBlobService,
+    RevisionesRepository,
+    RevisionesTService,
+    RevisionesService,
+    RevisionesExpose,
+    RevisionesDocumentosRepository,
+    RevisionesDocumentosTService,
+    RevisionesDocumentosService,
+    RevisionesDocumentosExpose,
   ],
 })
 export class CoreModule {}
