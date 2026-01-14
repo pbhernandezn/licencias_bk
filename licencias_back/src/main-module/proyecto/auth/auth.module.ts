@@ -14,6 +14,7 @@ import { CatUsuarioEntity } from '@principal/core-module/proyecto/models/entitie
 import { CommonService } from '@principal/core-module/proyecto/utils/common';
 import { ParametrosModule } from '@principal/core-module/proyecto/repository/parametros.module';
 import { DetalleSesionEntity } from '@principal/core-module/proyecto/models/entities/detalleSesion-entity';
+import { SesionesRepository } from '@principal/core-module/proyecto/repository/sesiones-repository';
 
 @Module({
   imports: [
@@ -46,7 +47,7 @@ import { DetalleSesionEntity } from '@principal/core-module/proyecto/models/enti
     ParametrosModule,
     
   ],
-  providers: [AuthService, JwtStrategy, UsuariosRepository, CommonService],
+  providers: [AuthService, CommonService, JwtStrategy, UsuariosRepository, CommonService, SesionesRepository],
   controllers: [AuthController],
   exports: [AuthService, JwtStrategy, PassportModule],
 })
