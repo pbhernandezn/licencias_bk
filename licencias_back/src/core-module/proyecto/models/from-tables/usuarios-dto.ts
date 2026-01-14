@@ -43,6 +43,7 @@ export class UsuariosDTO {
 export class getUsuarioByIdDTO {
   existe: boolean;
   usuario?: UsuariosDataDTO;
+  perfil?: string;
 }
 
 export class UsuariosDataDTO {
