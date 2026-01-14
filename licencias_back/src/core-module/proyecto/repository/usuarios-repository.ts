@@ -270,12 +270,12 @@ export class UsuariosRepository {
                 return { status: 'Usuario no encontrado' };
             } else {
                 if (
-                    user.nombres && 
-                    user.apellidopaterno && 
-                    user.email && 
+                    user.nombres &&
+                    user.apellidopaterno &&
+                    user.email &&
                     user.curp &&
                     user.rfc &&
-                    user.domicilio && 
+                    user.domicilio &&
                     user.colonia &&
                     user.cp &&
                     user.municipio &&
@@ -292,7 +292,7 @@ export class UsuariosRepository {
                     user.conodico_telefono &&
                     user.conodico_municipio &&
                     user.conodico_localidad &&
-                    user.conodico_domicilio 
+                    user.conodico_domicilio
                 ) {
                     perfil = 'Completo';
                 }
@@ -365,7 +365,8 @@ export class UsuariosRepository {
     public async getSesionesRecientes(userId: number): Promise<any[]> {
         try {
             const now = new Date();
-            const fifteenMinutesAgo = new Date(now.getTime() - 15 * 60 * 1000);
+            const fifteenMinutesAgo = new Date(now.getTime() - (15 * 60 * 1000) - (6 * 60 * 60 * 1000)); // 15 minutos atrás, considerando que la BD está en UTC
+            console.log('Fifteen minutes ago:', fifteenMinutesAgo);
 
             const sessions = await this.detalleSesionRepository
                 .createQueryBuilder('detalle_sesion')
@@ -375,6 +376,7 @@ export class UsuariosRepository {
                 .addSelect('detalle_sesion.fecha_fin', 'fecha_fin')
                 .addSelect('estatus.estatus', 'estatus')
                 .addSelect('detalle_sesion.exitoso', 'exitoso')
+                .addSelect('detalle_sesion.token', 'token')
                 .where('detalle_sesion.id_usuario = :userId', { userId })
                 .andWhere('detalle_sesion.fecha_inicio >= :fifteenMinutesAgo', { fifteenMinutesAgo })
                 //.orWhere('detalle_sesion.fecha_fin >= :fifteenMinutesAgo', { fifteenMinutesAgo })
@@ -389,4 +391,115 @@ export class UsuariosRepository {
             );
         }
     }
+
+
+    public async getSesionByToken(token: string): Promise<any> {
+        try {
+
+            const sessions = await this.detalleSesionRepository
+                .createQueryBuilder('detalle_sesion')
+                .leftJoinAndSelect('cat_estatus', 'estatus', 'detalle_sesion.id_estatus = estatus.id')
+                .select('detalle_sesion.id')
+                .addSelect('detalle_sesion.id_usuario', 'id_usuario')
+                .addSelect('detalle_sesion.fecha_fin', 'fecha_fin')
+                .addSelect('estatus.estatus', 'estatus')
+                .addSelect('detalle_sesion.exitoso', 'exitoso')
+                .addSelect('detalle_sesion.token', 'token')
+                .where('detalle_sesion.token = :token', { token })
+                .getOne();
+
+            return sessions;
+        } catch (error) {
+            throw ManejadorErrores.getFallaBaseDatos(
+                error.message,
+                'TYPE-A-getRecentSessions',
+            );
+        }
+    }
+
+
+
+    public async buildUserPayload(request: LoginReq, renew: boolean = false): Promise<{ payload?: any; error?: string; user?: any }> {
+        const user = await this.usuariosRepository
+            .createQueryBuilder('usuarios')
+            .leftJoin('cat_estatus', 'estatus', 'usuarios.idestatus = estatus.id')
+            .leftJoin('cat_usuarios', 'tipoUsuario', 'usuarios.idtipousuario = tipoUsuario.id')
+            .select('usuarios.*')
+            .addSelect('estatus.estatus', 'estatus')
+            .addSelect('tipoUsuario.usuario', 'rol')
+            .where('usuarios.username = :username', { username: request.username })
+            .getRawOne();
+
+        var perfil = 'Incompleto';
+
+        if (!user) {
+            return { error: 'Usuario no encontrado' };
+        } else {
+            if (
+                user.nombres &&
+                user.apellidopaterno &&
+                user.email &&
+                user.curp &&
+                user.rfc &&
+                user.domicilio &&
+                user.colonia &&
+                user.cp &&
+                user.municipio &&
+                user.localidad &&
+                user.entidad &&
+                user.nacionalidad &&
+                user.sexo &&
+                user.tiposangre &&
+                user.lugartrabajo &&
+                user.conodico_telefono &&
+                user.conocido_nombres &&
+                user.conocido_apellidopaterno &&
+                user.conodico_cp &&
+                user.conodico_telefono &&
+                user.conodico_municipio &&
+                user.conodico_localidad &&
+                user.conodico_domicilio
+            ) {
+                perfil = 'Completo';
+            }
+        }
+
+        if (user.estatus !== 'Activo') {
+            return { error: user.estatus, user };
+        }
+
+        if (!renew) {
+            const buffer = Buffer.from(request.password, 'utf-8');
+            const b64 = buffer.toString('base64');
+            if (bcrypt.compareSync(b64, user.password) === false) {
+                return { error: 'Contraseña incorrecta', user };
+            }
+        }
+
+        const recientes = await this.getSesionesRecientes(user.id);
+
+        const exitosos = recientes.filter(s => s.exitoso === true);
+        const lastSuccess = exitosos.length > 0 ? exitosos[0] : null;
+        var fallidos = recientes.filter(s => s.exitoso === false);
+
+        if (lastSuccess) {
+            fallidos = fallidos.filter(s => s.fecha_inicio > lastSuccess.fecha_inicio);
+        }
+        const maxFails = parseInt(await this.commonService.getParametro("MAX_LOGIN_RETRIES"));
+
+        if (fallidos.length >= maxFails) {
+            return { error: 'Bloqueado por reintentos.', user };
+        }
+
+        const payload = {
+            username: user.username,
+            //rol: user.rol,
+            rol: user.idtipousuario,
+            aData: user.id,
+            perfil: perfil,
+        };
+
+        return { payload, user };
+    }
+
 }
