@@ -28,7 +28,7 @@ import { CoreModule } from '@principal/core-module/core-module';
           database: configService.get<string>('UNIT_DB_NAME', 'postgres'),
           autoLoadEntities: true,
           synchronize: configService.get<boolean>('DB_SYNCHRONIZE', false),
-          logging: configService.get<boolean>('DB_LOGGING', false),
+          logging: configService.get<boolean>('DB_LOGGING', true),
           ssl: { rejectUnauthorized: false },
           connectTimeoutMS: 10000,
           maxQueryExecutionTime: 5000,

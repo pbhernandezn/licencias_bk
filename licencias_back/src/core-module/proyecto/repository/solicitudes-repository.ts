@@ -440,7 +440,8 @@ export class SolicitudesRepository {
       const query = this.SolicitudesRepository
         .createQueryBuilder()
         .select('count(*)', 'cuenta')
-        .where('idusuario = :idUsuario AND idtipolicencia = :idTipoLicencia', { idUsuario, idTipoLicencia });
+        .where('idusuario = :idUsuario AND idtipolicencia = :idTipoLicencia AND idestatus != :estatusRechazada', 
+          { idUsuario, idTipoLicencia, estatusRechazada: 25 });
       const unit: any = await query.getRawMany();
       if (!unit) return null;
       return unit[0].cuenta;

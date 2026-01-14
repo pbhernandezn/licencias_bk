@@ -50,10 +50,10 @@ export class SolicitudesTService {
     const respuesta = await this.solicitudesRepository.isExistsSolicitudByUsuarioTipoLicencia(payload.idusuario, payload.idtipolicencia);
     const respuesta2 = await this.catLicenciasRepository.isExistsCatLicencias(payload.idtipolicencia);
     
-    if (!respuesta ) {
+    if (respuesta > 0) {
         
         throw new NotFoundException(
-          'No es posible guardar, el usuario ya existe con el tipo de licencia. ',
+          'No es posible guardar, el usuario ya tiene una solicitud activa con este tipo de licencia. ',
         );
       }
     if (respuesta2 == 0) {
