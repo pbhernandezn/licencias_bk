@@ -437,14 +437,23 @@ export class SolicitudesRepository {
 
   public async isExistsSolicitudByUsuarioTipoLicencia(idUsuario: number,idTipoLicencia: number): Promise<number> {
     try {
+      console.log(`🔍 Verificando solicitudes para usuario ${idUsuario}, tipo licencia ${idTipoLicencia}`);
       const query = this.SolicitudesRepository
         .createQueryBuilder()
         .select('count(*)', 'cuenta')
         .where('idusuario = :idUsuario AND idtipolicencia = :idTipoLicencia AND idestatus != :estatusRechazada', 
           { idUsuario, idTipoLicencia, estatusRechazada: 25 });
+      
+      console.log(`📝 SQL Query: ${query.getSql()}`);
+      console.log(`📝 Parameters: ${JSON.stringify({ idUsuario, idTipoLicencia, estatusRechazada: 25 })}`);
+      
       const unit: any = await query.getRawMany();
+      console.log(`📊 Resultado de la consulta: ${JSON.stringify(unit)}`);
+      
       if (!unit) return null;
-      return unit[0].cuenta;
+      const count = unit[0].cuenta;
+      console.log(`✅ Solicitudes activas encontradas: ${count}`);
+      return count;
     } catch (error) {
       throw ManejadorErrores.getFallaBaseDatos(
         error.message,
