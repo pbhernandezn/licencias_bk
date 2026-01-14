@@ -386,6 +386,11 @@ export class UsuariosRepository {
             .where('usuarios.username = :username', { username: request.username })
             .getRawOne();
 
+            
+        if (!user) {
+            return { error: 'Usuario no encontrado' };
+        }
+
         if (user.estatus !== 'Activo') {
             return { error: user.estatus, user };
         }
