@@ -53,35 +53,60 @@ export class UsuariosRepository {
                     'estatus.tabla = :tabla AND usuarios.idestatus = estatus.id',
                     { tabla: 'usuarios' },
                 )
-                .select([
-                    'usuarios.nombres',
-                    'usuarios.apellidopaterno',
-                    'usuarios.apellidomaterno',
-                    'usuarios.rfc',
-                    'usuarios.curp',
-                    'usuarios.email',
-                    'usuarios.sexo',
-                    'usuarios.conodico_telefono',
-                    'estatus.estatus AS estatus_estatus',
-                ])
+                .select('usuarios.*')
+                .addSelect('estatus.estatus', 'estatus_estatus')
                 .where('usuarios.id = :id', { id: request.id })
                 .getRawOne();
+
+            console.log('Usuario encontrado:', JSON.stringify(result));
+
+            var perfil: string = 'Incompleto';
+
+            if (result) {
+                if (
+                    result.nombres &&
+                    result.apellidopaterno &&
+                    result.email &&
+                    result.curp &&
+                    result.rfc &&
+                    result.domicilio &&
+                    result.colonia &&
+                    result.cp &&
+                    result.municipio &&
+                    result.localidad &&
+                    result.entidad &&
+                    result.nacionalidad &&
+                    result.sexo &&
+                    result.tiposangre &&
+                    result.lugartrabajo &&
+                    result.conodico_telefono &&
+                    result.conocido_nombres &&
+                    result.conocido_apellidopaterno &&
+                    result.conodico_cp &&
+                    result.conodico_telefono &&
+                    result.conodico_municipio &&
+                    result.conodico_localidad
+                ) {
+                    perfil = 'Completo';
+                }
+            }
 
             const usuarioDTO: getUsuarioByIdDTO = {
                 existe: !!result,
                 usuario: result
                     ? {
-                        nombres: result['usuarios_nombres'],
-                        apellidopaterno: result['usuarios_apellidopaterno'],
-                        apellidomaterno: result['usuarios_apellidomaterno'],
-                        rfc: result['usuarios_rfc'],
-                        curp: result['usuarios_curp'],
-                        email: result['usuarios_email'],
-                        sexo: result['usuarios_sexo'],
-                        telefono: result['usuarios_conodico_telefono'],
-                        estatus: result['estatus_estatus'],
+                        nombres: result.nombres,
+                        apellidopaterno: result.apellidopaterno,
+                        apellidomaterno: result.apellidomaterno,
+                        rfc: result.rfc,
+                        curp: result.curp,
+                        email: result.email,
+                        sexo: result.sexo,
+                        telefono: result.conodico_telefono,
+                        estatus: result.estatus_estatus,
                     }
                     : undefined,
+                perfil: perfil,
             };
 
             //return new Wrapper(queryParams, 1, [usuarioDTO], true, 'Usuario encontrado', null);
@@ -254,87 +279,18 @@ export class UsuariosRepository {
 
     public async validateUserCredentials(request: LoginReq, ipAddress: string): Promise<{ status: string; token?: string }> {
         try {
-            const user = await this.usuariosRepository
-                .createQueryBuilder('usuarios')
-                .leftJoin('cat_estatus', 'estatus', 'usuarios.idestatus = estatus.id')
-                .leftJoin('cat_usuarios', 'tipoUsuario', 'usuarios.idtipousuario = tipoUsuario.id')
-                .select('usuarios.*')
-                .addSelect('estatus.estatus', 'estatus')
-                .addSelect('tipoUsuario.usuario', 'rol')
-                .where('usuarios.username = :username', { username: request.username })
-                .getRawOne();
 
-            var perfil = 'Incompleto';
+            const payload = await this.buildUserPayload(request);
 
-            if (!user) {
-                return { status: 'Usuario no encontrado' };
-            } else {
-                if (
-                    user.nombres &&
-                    user.apellidopaterno &&
-                    user.email &&
-                    user.curp &&
-                    user.rfc &&
-                    user.domicilio &&
-                    user.colonia &&
-                    user.cp &&
-                    user.municipio &&
-                    user.localidad &&
-                    user.entidad &&
-                    user.nacionalidad &&
-                    user.sexo &&
-                    user.tiposangre &&
-                    user.lugartrabajo &&
-                    user.conodico_telefono &&
-                    user.conocido_nombres &&
-                    user.conocido_apellidopaterno &&
-                    user.conodico_cp &&
-                    user.conodico_telefono &&
-                    user.conodico_municipio &&
-                    user.conodico_localidad &&
-                    user.conodico_domicilio
-                ) {
-                    perfil = 'Completo';
-                }
+            if (payload.error) {
+                return { status: payload.error };
             }
-
-            if (user.estatus !== 'Activo') {
-                return { status: user.estatus };
-            }
-
-            const buffer = Buffer.from(request.password, 'utf-8');
-            const b64 = buffer.toString('base64');
-            if (bcrypt.compareSync(b64, user.password) === false) {
-                return { status: 'Contraseña incorrecta' };
-            }
-
-            const recientes = await this.getSesionesRecientes(user.id);
-
-            const exitosos = recientes.filter(s => s.exitoso === true);
-            const lastSuccess = exitosos.length > 0 ? exitosos[0] : null;
-            var fallidos = recientes.filter(s => s.exitoso === false);
-
-            if (lastSuccess) {
-                fallidos = fallidos.filter(s => s.fecha_inicio > lastSuccess.fecha_inicio);
-            }
-            const maxFails = parseInt(await this.commonService.getParametro("MAX_LOGIN_RETRIES"));
-
-            if (fallidos.length >= maxFails) {
-                return { status: 'Bloqueado por reintentos.' };
-            }
-
-            const payload = {
-                username: user.username,
-                rol: user.rol,
-                aData: user.id,
-                perfil: perfil
-            };
 
             const sessionTime = parseInt(await this.commonService.getParametro("SESSION_TIME"));
-            const token = this.jwtService.sign(payload, { expiresIn: sessionTime });
+            const token = this.jwtService.sign(payload.payload, { expiresIn: sessionTime });
 
-            if (lastSuccess && lastSuccess.estatus === 'Abierta') {
-                var thisLastSession = await this.detalleSesionRepository.findOne({ where: { id: lastSuccess.detalle_sesion_id } });
+            if (payload.lastSuccess && payload.lastSuccess.estatus === 'Abierta') {
+                var thisLastSession = await this.detalleSesionRepository.findOne({ where: { id: payload.lastSuccess.detalle_sesion_id } });
                 thisLastSession.comentarios = 'Sesión cerrada por nuevo inicio de sesión - ' + token;
                 thisLastSession.fechaFin = new Date();
                 thisLastSession.idEstatus = (await this.catEstatusRepository.findOne({ where: { tabla: 'detalle_sesion', estatus: 'Cerrada' } }))?.id || null;
@@ -343,7 +299,7 @@ export class UsuariosRepository {
 
 
             const newSession = this.detalleSesionRepository.create({
-                idUsuario: user.id,
+                idUsuario: payload.user.id,
                 fechaInicio: new Date(),
                 fechaFin: null,
                 ip: ipAddress,
@@ -353,7 +309,7 @@ export class UsuariosRepository {
             });
             await this.detalleSesionRepository.save(newSession);
 
-            return { status: user.estatus, token };
+            return { status: payload.user.estatus, token };
         } catch (error) {
             throw ManejadorErrores.getFallaBaseDatos(
                 error.message,
@@ -419,7 +375,7 @@ export class UsuariosRepository {
 
 
 
-    public async buildUserPayload(request: LoginReq, renew: boolean = false): Promise<{ payload?: any; error?: string; user?: any }> {
+    public async buildUserPayload(request: LoginReq, renew: boolean = false): Promise<{ payload?: any; error?: string; user?: any; lastSuccess?: any }> {
         const user = await this.usuariosRepository
             .createQueryBuilder('usuarios')
             .leftJoin('cat_estatus', 'estatus', 'usuarios.idestatus = estatus.id')
@@ -429,40 +385,6 @@ export class UsuariosRepository {
             .addSelect('tipoUsuario.usuario', 'rol')
             .where('usuarios.username = :username', { username: request.username })
             .getRawOne();
-
-        var perfil = 'Incompleto';
-
-        if (!user) {
-            return { error: 'Usuario no encontrado' };
-        } else {
-            if (
-                user.nombres &&
-                user.apellidopaterno &&
-                user.email &&
-                user.curp &&
-                user.rfc &&
-                user.domicilio &&
-                user.colonia &&
-                user.cp &&
-                user.municipio &&
-                user.localidad &&
-                user.entidad &&
-                user.nacionalidad &&
-                user.sexo &&
-                user.tiposangre &&
-                user.lugartrabajo &&
-                user.conodico_telefono &&
-                user.conocido_nombres &&
-                user.conocido_apellidopaterno &&
-                user.conodico_cp &&
-                user.conodico_telefono &&
-                user.conodico_municipio &&
-                user.conodico_localidad &&
-                user.conodico_domicilio
-            ) {
-                perfil = 'Completo';
-            }
-        }
 
         if (user.estatus !== 'Activo') {
             return { error: user.estatus, user };
@@ -496,10 +418,9 @@ export class UsuariosRepository {
             //rol: user.rol,
             rol: user.idtipousuario,
             aData: user.id,
-            perfil: perfil,
         };
 
-        return { payload, user };
+        return { payload, user, lastSuccess };
     }
 
 }
