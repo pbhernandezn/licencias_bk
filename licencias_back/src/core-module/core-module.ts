@@ -63,6 +63,15 @@ import { RevisionesDocumentosTService } from './proyecto/services/from-tables/re
 import { RevisionesDocumentosService } from './proyecto/services/from-front/revisiones-documentos-service';
 import { RevisionesDocumentosExpose } from './proyecto/expose/from-front/revisiones-documentos-expose';
 import { RevisionesDocumentosController } from '@principal/main-module/proyecto/triggers/revisiones-documentos-controller';
+import { PreguntasExamenEntity } from './proyecto/models/entities/preguntas-examen-entity';
+import { IntentosExamenEntity } from './proyecto/models/entities/intentos-examen-entity';
+import { RespuestasUsuarioEntity } from './proyecto/models/entities/respuestas-usuario-entity';
+import { ExamenesRepository } from './proyecto/repository/examenes-repository';
+import { PruebasRepository } from './proyecto/repository/pruebas-repository';
+import { ExamenesService } from './proyecto/services/from-tables/examenes-service';
+import { PruebasFisicasService } from './proyecto/services/from-tables/pruebas-fisicas-service';
+import { PruebasController } from './proyecto/expose/from-front/pruebas-controller';
+import { PruebasEntity } from './proyecto/models/entities/pruebas-entity';
 
 @Module({
   imports: [
@@ -82,7 +91,11 @@ import { RevisionesDocumentosController } from '@principal/main-module/proyecto/
     DocumentosEntity,
     DetalleSesionEntity,
     RevisionesEntity,
-    RevisionesDocumentosEntity
+    RevisionesDocumentosEntity,
+    PreguntasExamenEntity,
+    IntentosExamenEntity,
+    RespuestasUsuarioEntity,
+    PruebasEntity
   ]),
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'CHANGE_ME',
@@ -90,7 +103,7 @@ import { RevisionesDocumentosController } from '@principal/main-module/proyecto/
     }),
     CommonModule,
 	],
-  controllers: [CatalogoController, UsuariosController, SolicitudesController, FaceController, DocumentosController, RevisionesController, RevisionesDocumentosController],
+  controllers: [CatalogoController, UsuariosController, SolicitudesController, FaceController, DocumentosController, RevisionesController, RevisionesDocumentosController, PruebasController],
   providers: [
     CatUsuarioRepository,
     CatUsuarioService,
@@ -132,6 +145,10 @@ import { RevisionesDocumentosController } from '@principal/main-module/proyecto/
     RevisionesDocumentosTService,
     RevisionesDocumentosService,
     RevisionesDocumentosExpose,
+    ExamenesRepository,
+    PruebasRepository,
+    ExamenesService,
+    PruebasFisicasService,
   ],
   exports: [
     CatalogoExpose,
