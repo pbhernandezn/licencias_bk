@@ -78,6 +78,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       
       const sesionActiva = sesiones.find(
         s => s.exitoso === true && s.estatus === 'Abierta'
+          && s.token === token
       );
 
       if (!sesionActiva) {

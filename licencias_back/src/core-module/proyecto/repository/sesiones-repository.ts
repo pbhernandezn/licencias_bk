@@ -18,87 +18,48 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { LoginReq } from '../models/from-tables/auth-dto';
 import { passwordEncrypt } from '../utils/common';
+import { DetalleSesionEntity } from '../models/entities/detalleSesion-entity';
 
 
 @Injectable()
-export class UsuariosRepository {
+export class SesionesRepository {
     constructor(
-        @InjectRepository(UsuariosEntity)
-        private readonly usuariosRepository: Repository<UsuariosEntity>,
-        @InjectRepository(CatEstatusEntity)
-        private readonly catEstatusRepository: Repository<CatEstatusEntity>,
-        @InjectRepository(CatCPEntity)
-        private readonly catCPRepository: Repository<CatCPEntity>,
-        @InjectRepository(CatUsuarioEntity)
-        private readonly catUsuarioRepository: Repository<CatUsuarioEntity>,
-        private readonly jwtService: JwtService,
+        @InjectRepository(DetalleSesionEntity)
+        private readonly detalleSesionRepository: Repository<DetalleSesionEntity>,
     ) { }
 
-    public async createUsuario(
-        request: createUsuarioReq
-    ): Promise<createUsuarioDTO> {
+    public async isTokenInBD(
+        token: string
+    ): Promise<boolean> {
         try {
 
-            const tipoUsuarioExists = await this.catUsuarioRepository
-                .createQueryBuilder('cat_tipoUsuario')
-                .select('1')
-                .where('cat_tipoUsuario.id = :tipoUsuario', { tipoUsuario: request.tipoUsuario })
-                .getRawOne();
+            const session = await this.detalleSesionRepository.createQueryBuilder('detalle_sesion')
+                .leftJoin('cat_estatus', 'estatus', 'detalle_sesion.id_estatus = estatus.id')
+                .where('detalle_sesion.token = :token', { token })
+                .andWhere('estatus.estatus = :estatus', { estatus: 'Abierta' })
+                .getOne();
+            return session ? true : false;
 
-            const emailOrCurpExists = await this.usuariosRepository
-                .createQueryBuilder('usuarios')
-                .select('1')
-                .where('usuarios.email = :email', { email: request.email })
-                .orWhere('usuarios.curp = :curp', { curp: request.curp })
-                .getRawOne();
-
-            var res: createUsuarioDTO = {
-                creado: true,
-                errores: {
-                    nombres: null,
-                    apellidopaterno: null,
-                    apellidomaterno: null,
-                    curp: null,
-                    email: null,
-                    password: null,
-                    fechanacimiento: null,
-                    necesarios: null
-                },
-            };
-
-            if (!tipoUsuarioExists) {
-                res.creado = false;
-                res.errores.necesarios = 'El tipo de usuario no es válido.';
-            } else if (emailOrCurpExists) {
-                res.creado = false;
-                res.errores.necesarios = 'El usuario ya ha sido dado de alta.';
-            } else {
-
-                const newUsuario = this.usuariosRepository.create({
-                    idtipousuario: request.tipoUsuario,
-                    nombres: request.nombres,
-                    apellidopaterno: request.apellidopaterno,
-                    apellidomaterno: request.apellidomaterno,
-                    curp: request.curp,
-                    email: request.email,
-                    password: passwordEncrypt(request.password),
-                    username: request.email,
-                    logintype: 'all',
-                    idestatus: 1,
-                    // Not implemented
-                    //fecha: request.fechanacimiento,
-                });
-
-                var nvoUsr = await this.usuariosRepository.save(newUsuario);
-                res.creado = nvoUsr ? true : false;
-            }
-
-            return res;
         } catch (error) {
-            throw ManejadorErrores.getFallaBaseDatos(
-                error.message,
-                'TYPE-A-c6eed039-90ad-40a7-9316-381f5c55cafc',
-            );
+            return false;
+        }
+    }
+
+    public async updateSesionToken(oldToken: string, newToken: string): Promise<void> {
+        try {
+            const comment = `Token renovado en ${new Date().toISOString()} | `;
+            await this.detalleSesionRepository.createQueryBuilder()
+                .update(DetalleSesionEntity)
+                .set({
+                    token: newToken,
+                    comentarios: comment
+                })
+                .where("token = :oldToken", { oldToken })
+                .execute();
+                console.log('Session token updated successfully');
+        } catch (error) {
+            console.error('Error updating session token:', error);
+            throw error;
         }
     }
 

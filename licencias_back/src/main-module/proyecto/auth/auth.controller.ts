@@ -1,4 +1,4 @@
-import { Controller, Post, Body, HttpException, HttpStatus, Headers, Get, Param, Req } from '@nestjs/common';
+import { Controller, Post, Body, HttpException, HttpStatus, Headers, Get, Param, Req, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ApiBody, ApiOperation, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { IsString } from 'class-validator';
@@ -6,14 +6,15 @@ import { LoginReq } from '@principal/core-module/proyecto/models/from-tables/aut
 import { CommonService } from '@principal/core-module/proyecto/utils/common';
 import { Request } from 'express';
 import { BaseResponse } from '@principal/commons-module/proyecto/models/base-response';
+import { JwtAuthGuard } from './jwt-auth.guard';
+import { json } from 'stream/consumers';
 
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(
     private authService: AuthService,
-    private commonService: CommonService
-  ) {}
+  ) { }
 
 
   @ApiOperation({ summary: 'Login endpoint', description: 'Iniciar sesión con usuario y contraseña' })
@@ -34,27 +35,41 @@ export class AuthController {
   }
 
 
-  
+
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Validar Token', description: 'Valida un Bearer Token' })
+  @ApiBearerAuth('JWT-auth')
+  @UseGuards(JwtAuthGuard)
   @Get('isValidToken')
-  async isValidToken(@Headers('authorization') authorizationHeader: string) {
+  async isValidToken(@Headers() headers: any) {
+  const authorizationHeader = headers['authorization'];
     if (!authorizationHeader) {
       throw new HttpException('Authorization header is required', HttpStatus.BAD_REQUEST);
-    }else{
+    } else {
       const isValid = await this.authService.validateToken(authorizationHeader);
       return isValid;
     }
   }
 
-  @ApiOperation({ summary: 'Obtener parámetro', description: 'Obtiene el valor de un parámetro dado' })
-  @Get('parametro/:parametro')
-  async obtenerParametro(@Param('parametro') parametro: string) {
-    try {
-      const valor = await this.commonService.getParametro(parametro);
-      return { parametro, valor };
-    } catch (error) {
-      throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Renueva Token', description: 'Renueva un Bearer Token' })
+  @ApiBearerAuth('JWT-auth')
+  @UseGuards(JwtAuthGuard)
+  @Get('renewToken')
+  async renewToken(@Headers() headers: any): Promise<BaseResponse<any>> {
+      const authorizationHeader = headers['authorization'];
+      var res = new BaseResponse<any>();
+
+    if (!authorizationHeader) {
+      throw new HttpException('Authorization header is required', HttpStatus.BAD_REQUEST);
+    } else {
+      const renewed = await this.authService.renewToken(authorizationHeader);
+      console.log('Renewed token response:', JSON.stringify(renewed));
+      res.code = renewed.code;
+      res.message = renewed.message;
+      res.data = renewed;
+      return res;
     }
   }
 }
