@@ -53,7 +53,7 @@ export class SolicitudesTService {
     if (respuesta > 0) {
         
         throw new NotFoundException(
-          'No es posible guardar, el usuario ya existe con el tipo de licencia. ',
+          'No es posible guardar, el usuario ya tiene una solicitud activa con este tipo de licencia. ',
         );
       }
     if (respuesta2 == 0) {
