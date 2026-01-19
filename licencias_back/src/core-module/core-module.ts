@@ -63,6 +63,9 @@ import { RevisionesDocumentosTService } from './proyecto/services/from-tables/re
 import { RevisionesDocumentosService } from './proyecto/services/from-front/revisiones-documentos-service';
 import { RevisionesDocumentosExpose } from './proyecto/expose/from-front/revisiones-documentos-expose';
 import { RevisionesDocumentosController } from '@principal/main-module/proyecto/triggers/revisiones-documentos-controller';
+import { DashboardController } from '@principal/main-module/proyecto/triggers/dashboard-controller';
+import { DashboardService } from './proyecto/services/from-front/dashboard-service';
+import { DashboardExpose } from './proyecto/expose/from-front/dashboard-expose';
 
 @Module({
   imports: [
@@ -90,7 +93,7 @@ import { RevisionesDocumentosController } from '@principal/main-module/proyecto/
     }),
     CommonModule,
 	],
-  controllers: [CatalogoController, UsuariosController, SolicitudesController, FaceController, DocumentosController, RevisionesController, RevisionesDocumentosController],
+  controllers: [CatalogoController, UsuariosController, SolicitudesController, FaceController, DocumentosController, RevisionesController, RevisionesDocumentosController, DashboardController],
   providers: [
     CatUsuarioRepository,
     CatUsuarioService,
@@ -132,6 +135,8 @@ import { RevisionesDocumentosController } from '@principal/main-module/proyecto/
     RevisionesDocumentosTService,
     RevisionesDocumentosService,
     RevisionesDocumentosExpose,
+    DashboardService,
+    DashboardExpose,
   ],
   exports: [
     CatalogoExpose,
@@ -170,6 +175,8 @@ import { RevisionesDocumentosController } from '@principal/main-module/proyecto/
     RevisionesDocumentosTService,
     RevisionesDocumentosService,
     RevisionesDocumentosExpose,
+    DashboardService,
+    DashboardExpose,
   ],
 })
 export class CoreModule {}
