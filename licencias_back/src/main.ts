@@ -84,6 +84,7 @@ async function bootstrap() {
       )
       .addTag('auth', '🔐 Autenticación - Endpoints públicos para login')
       .addTag('Catalogos', '📋 Catálogos - Endpoints públicos para datos de referencia')
+      .addTag('Dashboard', '📊 Dashboard - Protegido con JWT')
       .addTag('Usuarios', '👤 Usuarios - Protegido con JWT (excepto crear usuario)')
       .addTag('Solicitudes', '📄 Solicitudes - Protegido con JWT')
       .addTag('Revisiones', '📝 Revisiones - Protegido con JWT')

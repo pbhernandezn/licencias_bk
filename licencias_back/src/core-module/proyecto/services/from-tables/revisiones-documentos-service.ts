@@ -42,6 +42,7 @@ export class RevisionesDocumentosTService {
     const entities: RevisionesDocumentosEntity[] = request.documentos.map(doc => 
       RevisionesDocumentosMapping.createRequestToEntity(request.idrevision, doc)
     );
+    console.log("Aaaaaaaaaah!!!"+entities);
     await this.revisionesDocumentosRepository.saveRevisionDocumentos(entities);
   }
 

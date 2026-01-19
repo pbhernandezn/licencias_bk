@@ -103,7 +103,7 @@ import { PruebasEntity } from './proyecto/models/entities/pruebas-entity';
     }),
     CommonModule,
 	],
-  controllers: [CatalogoController, UsuariosController, SolicitudesController, FaceController, DocumentosController, RevisionesController, RevisionesDocumentosController, PruebasController],
+  controllers: [CatalogoController, UsuariosController, SolicitudesController, FaceController, DocumentosController, RevisionesController, RevisionesDocumentosController, PruebasController.DashboardController],
   providers: [
     CatUsuarioRepository,
     CatUsuarioService,
@@ -149,6 +149,8 @@ import { PruebasEntity } from './proyecto/models/entities/pruebas-entity';
     PruebasRepository,
     ExamenesService,
     PruebasFisicasService,
+	DashboardService,
+    DashboardExpose,
   ],
   exports: [
     CatalogoExpose,
@@ -187,6 +189,8 @@ import { PruebasEntity } from './proyecto/models/entities/pruebas-entity';
     RevisionesDocumentosTService,
     RevisionesDocumentosService,
     RevisionesDocumentosExpose,
+    DashboardService,
+    DashboardExpose,
   ],
 })
 export class CoreModule {}
