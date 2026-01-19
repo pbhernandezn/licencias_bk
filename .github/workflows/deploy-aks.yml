@@ -1,0 +1,171 @@
+name: Deploy to AKS
+
+on:
+  push:
+    branches: 
+      - main
+      - branch_LCR
+    paths:
+      - 'licencias_back/**'
+      - '.github/workflows/deploy-aks.yml'
+  workflow_dispatch:
+    inputs:
+      version_tag:
+        description: 'Version tag (e.g., v1.23)'
+        required: false
+        type: string
+
+env:
+  AZURE_CONTAINER_REGISTRY: dgolicenciasacr
+  ACR_REGISTRY: dgolicenciasacr.azurecr.io
+  IMAGE_NAME: licencias-backend
+  AKS_CLUSTER_NAME: licencias-aks
+  AKS_RESOURCE_GROUP: dgolicencias
+  NAMESPACE: licencias
+  DEPLOYMENT_NAME: licencias-backend
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Generate version tag
+      id: version
+      run: |
+        if [ -n "${{ inputs.version_tag }}" ]; then
+          VERSION="${{ inputs.version_tag }}"
+        else
+          # Generar versión automática basada en el último tag + commit count
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.22")
+          COMMIT_COUNT=$(git rev-list --count HEAD ^${LAST_TAG} 2>/dev/null || echo "1")
+          BASE_VERSION=$(echo $LAST_TAG | sed 's/v//')
+          NEW_VERSION="v${BASE_VERSION%.*}.$((${BASE_VERSION##*.} + ${COMMIT_COUNT}))"
+          VERSION=$NEW_VERSION
+        fi
+        echo "version=${VERSION}" >> $GITHUB_OUTPUT
+        echo "📦 Version to deploy: ${VERSION}"
+    
+    - name: Login to Azure
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    
+    - name: Login to Azure Container Registry
+      run: |
+        az acr login --name ${{ env.AZURE_CONTAINER_REGISTRY }}
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Build and push Docker image
+      working-directory: ./licencias_back
+      run: |
+        FULL_IMAGE="${{ env.ACR_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}"
+        LATEST_IMAGE="${{ env.ACR_REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
+        
+        echo "🏗️ Building image: ${FULL_IMAGE}"
+        
+        docker buildx build \
+          --platform linux/amd64 \
+          -t ${FULL_IMAGE} \
+          -t ${LATEST_IMAGE} \
+          --push \
+          .
+        
+        echo "✅ Image built and pushed successfully"
+    
+    - name: Set up kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'latest'
+    
+    - name: Get AKS credentials
+      run: |
+        az aks get-credentials \
+          --resource-group ${{ env.AKS_RESOURCE_GROUP }} \
+          --name ${{ env.AKS_CLUSTER_NAME }} \
+          --overwrite-existing
+    
+    - name: Deploy to AKS
+      run: |
+        FULL_IMAGE="${{ env.ACR_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}"
+        
+        echo "🚀 Deploying to AKS..."
+        echo "Image: ${FULL_IMAGE}"
+        
+        kubectl set image deployment/${{ env.DEPLOYMENT_NAME }} \
+          ${{ env.DEPLOYMENT_NAME }}=${FULL_IMAGE} \
+          -n ${{ env.NAMESPACE }}
+        
+        echo "⏳ Waiting for rollout to complete..."
+        kubectl rollout status deployment/${{ env.DEPLOYMENT_NAME }} \
+          -n ${{ env.NAMESPACE }} \
+          --timeout=5m
+        
+        echo "✅ Deployment completed successfully"
+    
+    - name: Verify deployment
+      id: verify
+      run: |
+        echo "🔍 Verifying deployment..."
+        
+        # Obtener pods
+        echo "Pods in namespace ${{ env.NAMESPACE }}:"
+        kubectl get pods -n ${{ env.NAMESPACE }}
+        
+        # Verificar health check
+        HEALTH_URL="http://172.174.80.112/health"
+        echo "Checking health endpoint: ${HEALTH_URL}"
+        
+        sleep 10  # Esperar a que el servicio esté completamente disponible
+        
+        HEALTH_STATUS=$(curl -s ${HEALTH_URL} | jq -r '.status' 2>/dev/null || echo "error")
+        
+        if [ "$HEALTH_STATUS" == "ok" ]; then
+          echo "✅ Health check: OK"
+          echo "health_status=ok" >> $GITHUB_OUTPUT
+        else
+          echo "⚠️ Health check: $HEALTH_STATUS"
+          echo "health_status=warning" >> $GITHUB_OUTPUT
+        fi
+    
+    - name: Create deployment summary
+      run: |
+        echo "## 🚀 AKS Deployment Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "✅ **Status**: Deployed successfully" >> $GITHUB_STEP_SUMMARY
+        echo "📦 **Version**: ${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+        echo "🖼️ **Image**: ${{ env.ACR_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+        echo "☸️ **Cluster**: ${{ env.AKS_CLUSTER_NAME }}" >> $GITHUB_STEP_SUMMARY
+        echo "📂 **Namespace**: ${{ env.NAMESPACE }}" >> $GITHUB_STEP_SUMMARY
+        echo "🔧 **Deployment**: ${{ env.DEPLOYMENT_NAME }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 🔗 Endpoints" >> $GITHUB_STEP_SUMMARY
+        echo "- **Health Check**: http://172.174.80.112/health" >> $GITHUB_STEP_SUMMARY
+        echo "- **API Base**: http://172.174.80.112/api" >> $GITHUB_STEP_SUMMARY
+        echo "- **Swagger UI**: http://172.174.80.112/api/docs" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 📊 Health Status" >> $GITHUB_STEP_SUMMARY
+        if [ "${{ steps.verify.outputs.health_status }}" == "ok" ]; then
+          echo "✅ Service is healthy and responding" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "⚠️ Health check returned: ${{ steps.verify.outputs.health_status }}" >> $GITHUB_STEP_SUMMARY
+        fi
+    
+    - name: Notify on failure
+      if: failure()
+      run: |
+        echo "## ❌ Deployment Failed" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "The deployment to AKS has failed. Please check the logs above for details." >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 🔍 Debugging steps:" >> $GITHUB_STEP_SUMMARY
+        echo "1. Check the build logs for compilation errors" >> $GITHUB_STEP_SUMMARY
+        echo "2. Verify Azure credentials and permissions" >> $GITHUB_STEP_SUMMARY
+        echo "3. Check AKS cluster status" >> $GITHUB_STEP_SUMMARY
+        echo "4. Review kubectl rollout status" >> $GITHUB_STEP_SUMMARY
