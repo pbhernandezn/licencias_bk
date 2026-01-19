@@ -33,6 +33,7 @@ export class RevisionesDocumentosRepository {
         .leftJoin('cat_documentos', 'cat_doc', 'doc.idtipodocumento = cat_doc.id')
         .leftJoin('cat_estatus', 'estatus_doc', 'estatus_doc.tabla = :tabla AND rd.idestatus = estatus_doc.id',
           { tabla: 'revisiones_documentos' })
+        .where('rd.activo = :activo', { activo: true })
         .select([
           'rd.id',
           'rd.idrevision',
@@ -110,6 +111,7 @@ export class RevisionesDocumentosRepository {
           'rd.modificacion',
         ])
         .where('rd.id = :id', { id: request.id })
+        .andWhere('rd.activo = :activo', { activo: true })
         .getRawOne();
 
       const revisionDocumentoDTO: getRevisionDocumentoByIdDTO = {
@@ -154,6 +156,7 @@ export class RevisionesDocumentosRepository {
         .leftJoin('cat_estatus', 'estatus_doc', 'estatus_doc.tabla = :tabla AND rd.idestatus = estatus_doc.id',
           { tabla: 'revisiones_documentos' })
         .where('rd.idrevision = :idrevision', { idrevision: request.idrevision })
+        .andWhere('rd.activo = :activo', { activo: true })
         .select([
           'rd.id',
           'rd.idrevision',
@@ -215,6 +218,7 @@ export class RevisionesDocumentosRepository {
         .leftJoin('cat_estatus', 'estatus_doc', 'estatus_doc.tabla = :tabla AND rd.idestatus = estatus_doc.id',
           { tabla: 'revisiones_documentos' })
         .where('rd.iddocumento = :iddocumento', { iddocumento: request.iddocumento })
+        .andWhere('rd.activo = :activo', { activo: true })
         .select([
           'rd.id',
           'rd.idrevision',
@@ -288,7 +292,7 @@ export class RevisionesDocumentosRepository {
 
   public async deleteRevisionDocumento(id: number): Promise<void> {
     try {
-      await this.revisionesDocumentosRepository.delete(id);
+      await this.revisionesDocumentosRepository.update(id, { activo: false });
     } catch (error) {
       throw ManejadorErrores.getFallaBaseDatos(
         error.message,
@@ -302,7 +306,8 @@ export class RevisionesDocumentosRepository {
       const query = this.revisionesDocumentosRepository
         .createQueryBuilder()
         .select('count(*)', 'cuenta')
-        .where('id = :id', { id });
+        .where('id = :id', { id })
+        .andWhere('activo = :activo', { activo: true });
       const result: any = await query.getRawMany();
       if (!result) return 0;
       return result[0].cuenta;
@@ -328,6 +333,7 @@ export class RevisionesDocumentosRepository {
         .leftJoin('cat_estatus', 'estatus_doc', 'estatus_doc.tabla = :tablaDoc AND rd.idestatus = estatus_doc.id',
           { tablaDoc: 'revisiones_documentos' })
         .where('rd.idrevision = :idrevision', { idrevision })
+        .andWhere('rd.activo = :activo', { activo: true })
         .select([
           'rev.id AS idrevision',
           'sol.numerolicencia',
@@ -373,6 +379,22 @@ export class RevisionesDocumentosRepository {
       throw ManejadorErrores.getFallaBaseDatos(
         error.message,
         'TYPE-A-revisiones-documentos-010',
+      );
+    }
+  }
+
+  public async deactivateRevisionesByDocumento(iddocumento: number): Promise<void> {
+    try {
+      await this.revisionesDocumentosRepository
+        .createQueryBuilder()
+        .update(RevisionesDocumentosEntity)
+        .set({ activo: false })
+        .where('iddocumento = :iddocumento', { iddocumento })
+        .execute();
+    } catch (error) {
+      throw ManejadorErrores.getFallaBaseDatos(
+        error.message,
+        'TYPE-U-revisiones-documentos-011',
       );
     }
   }
