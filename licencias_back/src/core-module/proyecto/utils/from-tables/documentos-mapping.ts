@@ -16,9 +16,6 @@ export class DocumentosMapping {
     entity.tamanio = payload.tamanio;
     entity.urlarchivo = urlarchivo;
     entity.nombreblob = nombreblob;
-    entity.idestatus = 1; // Estado inicial
-    entity.validacion = 'pendiente';
-    entity.validacioncomentarios = '';
     
     return entity;
   }
@@ -35,11 +32,6 @@ export class DocumentosMapping {
     entity.tamanio = payload.tamanio;
     entity.urlarchivo = payload.urlarchivo;
     entity.nombreblob = payload.nombreblob;
-    entity.validacionfecha = payload.validacionfecha;
-    entity.validacionusuario = payload.validacionusuario;
-    entity.validacioncomentarios = payload.validacioncomentarios;
-    entity.validacion = payload.validacion;
-    entity.idestatus = payload.idestatus;
     
     return entity;
   }

@@ -12,11 +12,11 @@ export class CatLugaresEntity {
   direccion: string;
 
   @Column('character varying', { name: 'horario' })
-  horario: number;
+  horario: string;
   
   @Column('character varying', { name: 'telefono' })
-  telefono: number;
+  telefono: string;
 	
   @Column({ type: 'integer', name: 'idestatus' })
-  idestatus: string;
+  idestatus: number;
 }

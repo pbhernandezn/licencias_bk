@@ -4,9 +4,9 @@ export class CatLugaresDTO {
   id: number;
   lugar: string;
   direccion: string;
-  horario: number;
-  telefono: number;
-  idestatus: string;
+  horario: string;
+  telefono: string;
+  idestatus: number;
 }
 
 export class getCatLugaresByIdDTO {
@@ -18,9 +18,9 @@ export class CatLugaresDataDTO {
   id: number;
   lugar: string;
   direccion: string;
-  horario: number;
-  telefono: number;
-  idestatus: string;
+  horario: string;
+  telefono: string;
+  idestatus: number;
   estatus: string;
 }
 

@@ -22,4 +22,7 @@ export class RevisionesDocumentosEntity {
   
   @Column('timestamp', { name: 'modificacion', default: () => 'CURRENT_TIMESTAMP' })
   modificacion: Date;
+  
+  @Column('boolean', { name: 'activo', default: true })
+  activo: boolean;
 }
