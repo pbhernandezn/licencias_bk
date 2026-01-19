@@ -47,11 +47,12 @@ export class ExamenesRepository {
   /**
    * Crear un nuevo intento de examen
    */
-  async crearIntentoExamen(idsolicitud: number): Promise<IntentosExamenEntity> {
+  async crearIntentoExamen(idsolicitud: number, idprueba: number): Promise<IntentosExamenEntity> {
     try {
       const intento = this.intentosRepository.create({
         idsolicitud,
-        idestatus: 20, // En progreso
+        idprueba,
+        idestatus: 39, // Agendada
         fechaInicio: new Date(),
       });
 
@@ -60,6 +61,50 @@ export class ExamenesRepository {
       throw ManejadorErrores.getFallaBaseDatos(
         error.message,
         'TYPE-C-examenes-002'
+      );
+    }
+  }
+
+  /**
+   * Verificar si tiene un examen teórico aprobado con detalles
+   * Consulta intentos donde la prueba asociada tenga idestatus=26 y idtipoprueba=3
+   */
+  async obtenerExamenAprobado(idsolicitud: number): Promise<IntentosExamenEntity | null> {
+    try {
+      const intentoAprobado = await this.intentosRepository
+        .createQueryBuilder('i')
+        .innerJoin('pruebas', 'p', 'p.id = i.idprueba')
+        .where('i.idsolicitud = :idsolicitud', { idsolicitud })
+        .andWhere('p.idtipoprueba = :tipo', { tipo: 3 }) // Solo teóricos
+        .andWhere('p.idestatus = :aprobada', { aprobada: 26 }) // Estatus Aprobada
+        .andWhere('i.aprobado = :aprobado', { aprobado: true })
+        .orderBy('i.creacion', 'DESC')
+        .getOne();
+
+      return intentoAprobado;
+    } catch (error) {
+      throw ManejadorErrores.getFallaBaseDatos(
+        error.message,
+        'TYPE-C-examenes-aprobado'
+      );
+    }
+  }
+
+  /**
+   * Obtener intento de examen por idprueba
+   */
+  async obtenerIntentoPorIdPrueba(idprueba: number): Promise<IntentosExamenEntity | null> {
+    try {
+      const intento = await this.intentosRepository.findOne({
+        where: { idprueba },
+        order: { creacion: 'DESC' },
+      });
+
+      return intento;
+    } catch (error) {
+      throw ManejadorErrores.getFallaBaseDatos(
+        error.message,
+        'TYPE-C-examenes-by-prueba'
       );
     }
   }
@@ -109,16 +154,16 @@ export class ExamenesRepository {
       // Crear las respuestas del usuario
       const respuestasEntities = respuestas.map(r => {
         const respuestaCorrecta = respuestasCorrectas.get(r.idpregunta);
-        return this.respuestasRepository.create({
+        return {
           idintento,
           idpregunta: r.idpregunta,
           respuestaUsuario: r.respuesta,
           esCorrecta: r.respuesta === respuestaCorrecta,
           tiempoRespuesta: r.tiempoRespuesta || null,
-        });
+        };
       });
 
-      await this.respuestasRepository.save(respuestasEntities);
+      await this.respuestasRepository.insert(respuestasEntities);
     } catch (error) {
       throw ManejadorErrores.getFallaBaseDatos(
         error.message,
@@ -136,10 +181,9 @@ export class ExamenesRepository {
     detalles: any[];
   }> {
     try {
-      // Obtener todas las respuestas del intento con las preguntas
+      // Obtener todas las respuestas del intento
       const respuestas = await this.respuestasRepository
         .createQueryBuilder('r')
-        .leftJoinAndSelect('r.idpregunta', 'p')
         .where('r.idintento = :idintento', { idintento })
         .getMany();
 
@@ -194,14 +238,19 @@ export class ExamenesRepository {
   }
 
   /**
-   * Verificar si una solicitud ya tiene un intento aprobado
+   * Verificar si una solicitud ya tiene un examen teórico aprobado
+   * Consulta la tabla pruebas con estatus 26 (Aprobada) y tipo 3 (Teórico)
    */
   async tieneExamenAprobado(idsolicitud: number): Promise<boolean> {
     try {
+      // Nota: Este método necesita PruebasRepository inyectado
+      // Por ahora, verificamos directamente en intentos con join a pruebas
       const count = await this.intentosRepository
         .createQueryBuilder('i')
+        .innerJoin('pruebas', 'p', 'p.id = i.idprueba')
         .where('i.idsolicitud = :idsolicitud', { idsolicitud })
-        .andWhere('i.aprobado = :aprobado', { aprobado: true })
+        .andWhere('p.idtipoprueba = :tipo', { tipo: 3 }) // Solo exámenes teóricos
+        .andWhere('p.idestatus = :aprobada', { aprobada: 26 }) // Estatus Aprobada
         .getCount();
 
       return count > 0;

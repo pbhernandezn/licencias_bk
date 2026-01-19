@@ -1,24 +1,55 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { ExamenesRepository } from '@principal/core-module/proyecto/repository/examenes-repository';
+import { PruebasRepository } from '@principal/core-module/proyecto/repository/pruebas-repository';
 import {
   ObtenerPreguntasExamenReq,
   ObtenerPreguntasExamenRes,
   EnviarRespuestasExamenReq,
   ResultadoExamenDTO,
   VerificarResultadoExamenReq,
+  VerificarAprobacionExamenReq,
+  VerificarAprobacionExamenRes,
   PreguntaExamenDTO,
 } from '@principal/core-module/proyecto/models/from-tables/pruebas-dto';
 
 @Injectable()
 export class ExamenesService {
-  constructor(private examenesRepository: ExamenesRepository) {}
+  constructor(
+    private examenesRepository: ExamenesRepository,
+    private pruebasRepository: PruebasRepository
+  ) {}
+
+  /**
+   * Verificar si una solicitud tiene examen teórico aprobado
+   */
+  async verificarAprobacionExamen(request: VerificarAprobacionExamenReq): Promise<VerificarAprobacionExamenRes> {
+    try {
+      const intentoAprobado = await this.examenesRepository.obtenerExamenAprobado(request.idsolicitud);
+
+      if (intentoAprobado) {
+        return {
+          aprobo: true,
+          mensaje: 'El examen teórico ha sido aprobado exitosamente',
+          calificacion: intentoAprobado.calificacion,
+          fechaExamen: intentoAprobado.creacion,
+        };
+      }
+
+      return {
+        aprobo: false,
+        mensaje: 'El examen teórico aún no ha sido aprobado',
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
 
   /**
    * Obtener 10 preguntas aleatorias para iniciar el examen
    */
   async obtenerPreguntasExamen(request: ObtenerPreguntasExamenReq): Promise<ObtenerPreguntasExamenRes> {
     try {
-      // Verificar que la solicitud no tenga ya un examen aprobado
+      // Verificar que la prueba no tenga ya un examen aprobado
       const tieneAprobado = await this.examenesRepository.tieneExamenAprobado(request.idsolicitud);
       
       if (tieneAprobado) {
@@ -27,8 +58,16 @@ export class ExamenesService {
         );
       }
 
-      // Crear un nuevo intento
-      const intento = await this.examenesRepository.crearIntentoExamen(request.idsolicitud);
+      // Buscar o crear prueba de examen teórico
+      let prueba = await this.pruebasRepository.obtenerPruebaExamenTeorico(request.idsolicitud);
+      
+      if (!prueba) {
+        // Si no existe, crear automáticamente el registro de prueba teórica
+        prueba = await this.pruebasRepository.crearPruebaExamenTeorico(request.idsolicitud);
+      }
+
+      // Crear un nuevo intento con el idprueba
+      const intento = await this.examenesRepository.crearIntentoExamen(request.idsolicitud, prueba.id);
 
       // Obtener 10 preguntas aleatorias
       const preguntasCompletas = await this.examenesRepository.obtenerPreguntasAleatorias();
@@ -62,16 +101,25 @@ export class ExamenesService {
    */
   async enviarRespuestasExamen(request: EnviarRespuestasExamenReq): Promise<ResultadoExamenDTO> {
     try {
+      console.log('=== DEBUG enviarRespuestasExamen ===');
+      console.log('Request completo:', JSON.stringify(request, null, 2));
+      console.log('Tipo de respuestas:', typeof request.respuestas);
+      console.log('Es array:', Array.isArray(request.respuestas));
+      console.log('Longitud:', request.respuestas?.length);
+      
       // Verificar que el intento existe
       const intento = await this.examenesRepository.obtenerIntentoPorId(request.idintento);
 
-      if (intento.idestatus === 24) {
+      // Verificar si ya está completado (26=Aprobada o 27=Reprobada)
+      if (intento.idestatus === 26 || intento.idestatus === 27) {
         throw new BadRequestException('Este examen ya fue completado');
       }
 
       // Verificar que se enviaron exactamente 10 respuestas
-      if (request.respuestas.length !== 10) {
-        throw new BadRequestException('Debe enviar exactamente 10 respuestas');
+      if (!request.respuestas || !Array.isArray(request.respuestas) || request.respuestas.length !== 10) {
+        throw new BadRequestException(
+          `Debe enviar exactamente 10 respuestas. Recibidas: ${request.respuestas ? request.respuestas.length : 0}`
+        );
       }
 
       // Validar formato de respuestas
@@ -97,6 +145,12 @@ export class ExamenesService {
 
       // Calificar examen
       const resultado = await this.examenesRepository.calificarExamen(request.idintento);
+
+      // Actualizar estatus de la prueba (26=Aprobada, 27=Reprobada)
+      if (intento.idprueba) {
+        const estatusPrueba = resultado.aprobado ? 26 : 27;
+        await this.pruebasRepository.actualizarEstatusPrueba(intento.idprueba, estatusPrueba);
+      }
 
       // Obtener intento actualizado
       const intentoActualizado = await this.examenesRepository.obtenerIntentoPorId(request.idintento);

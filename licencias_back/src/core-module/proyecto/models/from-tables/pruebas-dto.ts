@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, IsString, IsArray, IsOptional, IsBoolean } from 'class-validator';
+import { IsInt, IsString, IsArray, IsOptional, IsBoolean, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
 
 // ==================== DTOs BÁSICOS ====================
 
@@ -32,6 +33,26 @@ export class ObtenerPreguntasExamenReq {
   @ApiProperty({ description: 'ID de la solicitud', example: 1 })
   @IsInt()
   idsolicitud: number;
+}
+
+export class VerificarAprobacionExamenReq {
+  @ApiProperty({ description: 'ID de la solicitud', example: 1 })
+  @IsInt()
+  idsolicitud: number;
+}
+
+export class VerificarAprobacionExamenRes {
+  @ApiProperty({ description: 'Indica si aprobó el examen teórico', example: true })
+  aprobo: boolean;
+
+  @ApiProperty({ description: 'Mensaje descriptivo', example: 'El examen teórico ha sido aprobado' })
+  mensaje: string;
+
+  @ApiProperty({ description: 'Calificación obtenida (si aprobó)', example: 8, required: false })
+  calificacion?: number;
+
+  @ApiProperty({ description: 'Fecha del examen aprobado', required: false })
+  fechaExamen?: Date;
 }
 
 export class ObtenerPreguntasExamenRes {
@@ -74,6 +95,8 @@ export class EnviarRespuestasExamenReq {
     ]
   })
   @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => RespuestaUsuarioItem)
   respuestas: RespuestaUsuarioItem[];
 }
 

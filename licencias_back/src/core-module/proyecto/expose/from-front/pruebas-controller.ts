@@ -10,6 +10,8 @@ import {
   EnviarRespuestasExamenReq,
   ResultadoExamenDTO,
   VerificarResultadoExamenReq,
+  VerificarAprobacionExamenReq,
+  VerificarAprobacionExamenRes,
   ObtenerHorariosDisponiblesReq,
   ObtenerHorariosDisponiblesRes,
   AgendarPruebaFisicaReq,
@@ -89,6 +91,27 @@ export class PruebasController {
       code: '200',
       internalCode: '',
       message: 'Resultado obtenido correctamente',
+      correlationId: '',
+      data: resultado,
+    };
+  }
+
+  @ApiOperation({
+    summary: 'Verificar si Aprobó Examen Teórico',
+    description: 'Verifica si una solicitud tiene un examen teórico aprobado. Devuelve true/false con detalles.',
+  })
+  @ApiBody({ type: VerificarAprobacionExamenReq })
+  @Post('examen-teorico/verificar-aprobacion')
+  async verificarAprobacionExamen(
+    @Body() request: VerificarAprobacionExamenReq,
+    @Request() req: any,
+  ): Promise<BaseResponse<VerificarAprobacionExamenRes>> {
+    const resultado = await this.examenesService.verificarAprobacionExamen(request);
+    
+    return {
+      code: resultado.aprobo ? '200' : '204',
+      internalCode: '',
+      message: resultado.mensaje,
       correlationId: '',
       data: resultado,
     };

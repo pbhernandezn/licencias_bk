@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { DocumentosRepository } from "../../repository/documentos-repository";
+import { RevisionesDocumentosRepository } from "../../repository/revisiones-documentos-repository";
 import { QueryParams } from "@principal/commons-module/proyecto/utils/query-params";
 import { 
   CreateDocumentoRequest, 
@@ -19,6 +20,7 @@ import { ManejadorErrores } from "@principal/commons-module/proyecto/utils/manej
 export class DocumentosTService {
   constructor(
     private readonly documentosRepository: DocumentosRepository,
+    private readonly revisionesDocumentosRepository: RevisionesDocumentosRepository,
     private readonly azureBlobService: AzureBlobService
   ) {}
 
@@ -169,17 +171,11 @@ export class DocumentosTService {
         if (request.tamanio) updateData.tamanio = request.tamanio;
       }
 
-      // Actualizar campos de metadata si se proporcionan
-      if (request.validacion) updateData.validacion = request.validacion;
-      if (request.validacioncomentarios) updateData.validacioncomentarios = request.validacioncomentarios;
-      if (request.validacionusuario) {
-        updateData.validacionusuario = request.validacionusuario;
-        updateData.validacionfecha = new Date().toISOString().split('T')[0];
-      }
-      if (request.idestatus) updateData.idestatus = request.idestatus;
-
       // Actualizar en base de datos
       await this.documentosRepository.updateDocumento(request.id, updateData);
+
+      // Desactivar todas las revisiones asociadas a este documento
+      await this.revisionesDocumentosRepository.deactivateRevisionesByDocumento(request.id);
     } catch (error) {
       throw ManejadorErrores.getFallaBaseDatos(
         `Error al actualizar documento: ${error.message}`,

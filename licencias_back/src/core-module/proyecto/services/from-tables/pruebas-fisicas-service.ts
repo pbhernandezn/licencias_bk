@@ -1,5 +1,6 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { PruebasRepository } from '@principal/core-module/proyecto/repository/pruebas-repository';
+import { ExamenesRepository } from '@principal/core-module/proyecto/repository/examenes-repository';
 import {
   ObtenerHorariosDisponiblesReq,
   ObtenerHorariosDisponiblesRes,
@@ -13,7 +14,10 @@ import {
 
 @Injectable()
 export class PruebasFisicasService {
-  constructor(private pruebasRepository: PruebasRepository) {}
+  constructor(
+    private pruebasRepository: PruebasRepository,
+    private examenesRepository: ExamenesRepository,
+  ) {}
 
   // Configuración de horarios y capacidad
   private readonly HORARIOS_DISPONIBLES = [
@@ -161,21 +165,75 @@ export class PruebasFisicasService {
     try {
       const pruebas = await this.pruebasRepository.obtenerPruebasPorSolicitud(request.idsolicitud);
 
-      // Aquí deberías hacer joins con las tablas cat_pruebas, cat_lugares, cat_estatus
-      // Por ahora, retorno un formato básico
-      const pruebasDTO = pruebas.map(p => ({
-        id: p.id,
-        idsolicitud: p.idsolicitud,
-        tipoPrueba: 'Prueba Física', // Obtener de cat_pruebas
-        presencial: true,
-        lugar: 'Lugar', // Obtener de cat_lugares
-        fecha: p.fecha,
-        hora: p.hora,
-        estatus: 'Agendada', // Obtener de cat_estatus
-        calificacion: 0,
-        aprobado: false,
-        creacion: new Date(p.creacion),
-      }));
+      const pruebasDTO = pruebas.map(p => {
+        // Determinar tipo de prueba basado en idtipoprueba
+        let tipoPrueba = '';
+        let presencial = false;
+        
+        switch (p.idtipoprueba) {
+          case 1:
+            tipoPrueba = 'Prueba Práctica (Automóvil)';
+            presencial = true;
+            break;
+          case 2:
+            tipoPrueba = 'Prueba Práctica (Motocicleta)';
+            presencial = true;
+            break;
+          case 3:
+            tipoPrueba = 'Prueba Escrita (Teórico)';
+            presencial = false;
+            break;
+          default:
+            tipoPrueba = 'Tipo desconocido';
+            presencial = false;
+        }
+
+        // Determinar estatus y aprobación según idestatus de la prueba
+        let estatus = '';
+        let aprobado = false;
+        let calificacion = 0;
+
+        switch (p.idestatus) {
+          case 26: // Aprobada
+            estatus = 'Aprobada';
+            aprobado = true;
+            calificacion = 10;
+            break;
+          case 27: // Reprobada
+            estatus = 'Reprobada';
+            aprobado = false;
+            calificacion = 0;
+            break;
+          case 39: // Agendada
+            estatus = 'Agendada';
+            aprobado = false;
+            calificacion = 0;
+            break;
+          case 40: // Cancelada
+            estatus = 'Cancelada';
+            aprobado = false;
+            calificacion = 0;
+            break;
+          default:
+            estatus = 'Desconocido';
+            aprobado = false;
+            calificacion = 0;
+        }
+
+        return {
+          id: p.id,
+          idsolicitud: p.idsolicitud,
+          tipoPrueba,
+          presencial,
+          lugar: p.idlugar ? 'Lugar' : 'En línea',
+          fecha: p.fecha,
+          hora: p.hora,
+          estatus,
+          calificacion,
+          aprobado,
+          creacion: new Date(p.creacion),
+        };
+      });
 
       return { pruebas: pruebasDTO };
     } catch (error) {

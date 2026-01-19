@@ -29,8 +29,6 @@ export class DocumentosRepository {
         .leftJoin('usuarios', 'usuarios', 'documentos.idusuario = usuarios.id')
         .leftJoin('solicitudes', 'solicitudes', 'documentos.idsolicitud = solicitudes.id')
         .leftJoin('cat_documentos', 'cat_documentos', 'documentos.idtipodocumento = cat_documentos.id')
-        .leftJoin('cat_estatus', 'estatus', 'estatus.tabla = :tabla AND documentos.idestatus = estatus.id', 
-          { tabla: 'documentos' })
         .select([
           'documentos.id',
           'documentos.idusuario',
@@ -43,12 +41,8 @@ export class DocumentosRepository {
           'documentos.formato',
           'documentos.nombreoriginal',
           'documentos.tamanio',
-          'documentos.validacionfecha',
-          'documentos.validacionusuario',
-          'documentos.validacioncomentarios',
-          'documentos.validacion',
-          'documentos.idestatus',
-          'estatus.estatus AS estatus_estatus',
+          'documentos.urlarchivo',
+          'documentos.nombreblob',
         ])
         .getRawMany();
 
@@ -70,12 +64,6 @@ export class DocumentosRepository {
         tamanio: r['documentos_tamanio'],
         urlarchivo: r['documentos_urlarchivo'],
         nombreblob: r['documentos_nombreblob'],
-        validacionfecha: r['documentos_validacionfecha'],
-        validacionusuario: r['documentos_validacionusuario'],
-        validacioncomentarios: r['documentos_validacioncomentarios'],
-        validacion: r['documentos_validacion'],
-        idestatus: r['documentos_idestatus'],
-        estatus: r['estatus_estatus'],
       }));
 
       return { existe: true, documentosData };
@@ -94,8 +82,6 @@ export class DocumentosRepository {
         .leftJoin('usuarios', 'usuarios', 'documentos.idusuario = usuarios.id')
         .leftJoin('solicitudes', 'solicitudes', 'documentos.idsolicitud = solicitudes.id')
         .leftJoin('cat_documentos', 'cat_documentos', 'documentos.idtipodocumento = cat_documentos.id')
-        .leftJoin('cat_estatus', 'estatus', 'estatus.tabla = :tabla AND documentos.idestatus = estatus.id',
-          { tabla: 'documentos' })
         .select([
           'documentos.id',
           'documentos.idusuario',
@@ -110,12 +96,6 @@ export class DocumentosRepository {
           'documentos.tamanio',
           'documentos.urlarchivo',
           'documentos.nombreblob',
-          'documentos.validacionfecha',
-          'documentos.validacionusuario',
-          'documentos.validacioncomentarios',
-          'documentos.validacion',
-          'documentos.idestatus',
-          'estatus.estatus AS estatus_estatus',
         ])
         .where('documentos.id = :id', { id: request.id })
         .getRawOne();
@@ -136,12 +116,6 @@ export class DocumentosRepository {
           tamanio: result['documentos_tamanio'],
           urlarchivo: result['documentos_urlarchivo'],
           nombreblob: result['documentos_nombreblob'],
-          validacionfecha: result['documentos_validacionfecha'],
-          validacionusuario: result['documentos_validacionusuario'],
-          validacioncomentarios: result['documentos_validacioncomentarios'],
-          validacion: result['documentos_validacion'],
-          idestatus: result['documentos_idestatus'],
-          estatus: result['estatus_estatus'],
         } : undefined,
       };
 
@@ -161,8 +135,6 @@ export class DocumentosRepository {
         .leftJoin('usuarios', 'usuarios', 'documentos.idusuario = usuarios.id')
         .leftJoin('solicitudes', 'solicitudes', 'documentos.idsolicitud = solicitudes.id')
         .leftJoin('cat_documentos', 'cat_documentos', 'documentos.idtipodocumento = cat_documentos.id')
-        .leftJoin('cat_estatus', 'estatus', 'estatus.tabla = :tabla AND documentos.idestatus = estatus.id',
-          { tabla: 'documentos' })
         .where('documentos.idusuario = :idusuario', { idusuario: request.idusuario })
         .select([
           'documentos.id',
@@ -178,12 +150,6 @@ export class DocumentosRepository {
           'documentos.tamanio',
           'documentos.urlarchivo',
           'documentos.nombreblob',
-          'documentos.validacionfecha',
-          'documentos.validacionusuario',
-          'documentos.validacioncomentarios',
-          'documentos.validacion',
-          'documentos.idestatus',
-          'estatus.estatus AS estatus_estatus',
         ])
         .getRawMany();
 
@@ -205,12 +171,6 @@ export class DocumentosRepository {
         tamanio: r['documentos_tamanio'],
         urlarchivo: r['documentos_urlarchivo'],
         nombreblob: r['documentos_nombreblob'],
-        validacionfecha: r['documentos_validacionfecha'],
-        validacionusuario: r['documentos_validacionusuario'],
-        validacioncomentarios: r['documentos_validacioncomentarios'],
-        validacion: r['documentos_validacion'],
-        idestatus: r['documentos_idestatus'],
-        estatus: r['estatus_estatus'],
       }));
 
       return { existe: true, documentosData };
@@ -229,8 +189,6 @@ export class DocumentosRepository {
         .leftJoin('usuarios', 'usuarios', 'documentos.idusuario = usuarios.id')
         .leftJoin('solicitudes', 'solicitudes', 'documentos.idsolicitud = solicitudes.id')
         .leftJoin('cat_documentos', 'cat_documentos', 'documentos.idtipodocumento = cat_documentos.id')
-        .leftJoin('cat_estatus', 'estatus', 'estatus.tabla = :tabla AND documentos.idestatus = estatus.id',
-          { tabla: 'documentos' })
         .where('documentos.idsolicitud = :idsolicitud', { idsolicitud: request.idsolicitud })
         .select([
           'documentos.id',
@@ -246,12 +204,6 @@ export class DocumentosRepository {
           'documentos.tamanio',
           'documentos.urlarchivo',
           'documentos.nombreblob',
-          'documentos.validacionfecha',
-          'documentos.validacionusuario',
-          'documentos.validacioncomentarios',
-          'documentos.validacion',
-          'documentos.idestatus',
-          'estatus.estatus AS estatus_estatus',
         ])
         .getRawMany();
 
@@ -273,12 +225,6 @@ export class DocumentosRepository {
         tamanio: r['documentos_tamanio'],
         urlarchivo: r['documentos_urlarchivo'],
         nombreblob: r['documentos_nombreblob'],
-        validacionfecha: r['documentos_validacionfecha'],
-        validacionusuario: r['documentos_validacionusuario'],
-        validacioncomentarios: r['documentos_validacioncomentarios'],
-        validacion: r['documentos_validacion'],
-        idestatus: r['documentos_idestatus'],
-        estatus: r['estatus_estatus'],
       }));
 
       return { existe: true, documentosData };

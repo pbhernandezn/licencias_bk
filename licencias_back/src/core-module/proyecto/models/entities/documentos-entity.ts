@@ -31,20 +31,5 @@ export class DocumentosEntity {
 
    @Column('character varying', { name: 'nombreblob', nullable: true })
    nombreblob: string | null;
-   
-   @Column('date', {name: 'validacionfecha', nullable: true})
-   validacionfecha: string | null;
-   
-   @Column({ type: 'integer', name: 'validacionusuario', nullable: true })
-   validacionusuario: number | null;
-   
-   @Column('character varying', { name: 'validacioncomentarios' })
-   validacioncomentarios: string;
-   
-   @Column('character varying', { name: 'validacion' })
-   validacion: string;
-
-  @Column({ type: 'integer', name: 'idestatus' })
-  idestatus: number;
 
 }

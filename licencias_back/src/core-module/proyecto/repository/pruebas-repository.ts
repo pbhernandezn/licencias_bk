@@ -67,7 +67,7 @@ export class PruebasRepository {
         .where('p.idlugar = :idlugar', { idlugar })
         .andWhere('p.fecha = :fecha', { fecha })
         .andWhere('p.hora = :hora', { hora })
-        .andWhere('p.idestatus != :cancelado', { cancelado: 25 }) // Excluir canceladas
+        .andWhere('p.idestatus != :cancelado', { cancelado: 40 }) // Excluir canceladas (40)
         .getCount();
 
       return count;
@@ -90,8 +90,8 @@ export class PruebasRepository {
     hora: string;
   }): Promise<PruebasEntity> {
     try {
-      // Obtener el idestatus para registro activo desde cat_estatus
-      const idestatus = await this.obtenerIdEstatusPrueba('Activa');
+      // Estatus 39 = Agendada
+      const idestatus = 39;
 
       const prueba = this.pruebasRepository.create({
         idsolicitud: data.idsolicitud,
@@ -139,7 +139,7 @@ export class PruebasRepository {
   async cancelarPrueba(idprueba: number): Promise<void> {
     try {
       await this.pruebasRepository.update(idprueba, {
-        idestatus: 25, // Cancelada
+        idestatus: 40, // Cancelada
         modificacion: new Date().toISOString().split('T')[0],
       });
     } catch (error) {
@@ -151,15 +151,15 @@ export class PruebasRepository {
   }
 
   /**
-   * Verificar si una solicitud ya tiene prueba física aprobada
+   * Verificar si tiene una prueba física aprobada
    */
   async tienePruebaFisicaAprobada(idsolicitud: number): Promise<boolean> {
     try {
       const count = await this.pruebasRepository
         .createQueryBuilder('p')
         .where('p.idsolicitud = :idsolicitud', { idsolicitud })
-        .andWhere('p.idtipoprueba = :idtipo', { idtipo: 2 }) // Prueba física
-        .andWhere('p.idestatus = :aprobada', { aprobada: 24 }) // Aprobada
+        .andWhere('p.idtipoprueba IN (:...tipos)', { tipos: [1, 2] }) // 1 = Automóvil, 2 = Motocicleta
+        .andWhere('p.idestatus = :aprobada', { aprobada: 26 }) // Aprobada
         .getCount();
 
       return count > 0;
@@ -184,6 +184,55 @@ export class PruebasRepository {
       throw ManejadorErrores.getFallaBaseDatos(
         error.message,
         'TYPE-C-pruebas-007'
+      );
+    }
+  }
+
+  /**
+   * Verificar si existe una prueba de examen teórico agendada para una solicitud
+   */
+  async obtenerPruebaExamenTeorico(idsolicitud: number): Promise<PruebasEntity | null> {
+    try {
+      const prueba = await this.pruebasRepository
+        .createQueryBuilder('p')
+        .where('p.idsolicitud = :idsolicitud', { idsolicitud })
+        .andWhere('p.idtipoprueba = :idtipo', { idtipo: 3 }) // 3 = Examen teórico
+        .orderBy('p.creacion', 'DESC')
+        .getOne();
+
+      return prueba;
+    } catch (error) {
+      throw ManejadorErrores.getFallaBaseDatos(
+        error.message,
+        'TYPE-C-pruebas-008'
+      );
+    }
+  }
+
+  /**
+   * Crear registro de prueba teórica (sin lugar, fecha, hora)
+   */
+  async crearPruebaExamenTeorico(idsolicitud: number): Promise<PruebasEntity> {
+    try {
+      // Estatus 39 = Agendada
+      const idestatus = 39;
+
+      const prueba = this.pruebasRepository.create({
+        idsolicitud,
+        idtipoprueba: 3, // 3 = Examen teórico
+        idlugar: null, // Sin lugar físico
+        fecha: new Date().toISOString().split('T')[0], // Fecha actual
+        hora: '00:00:00', // Sin hora específica
+        idestatus: idestatus,
+        creacion: new Date().toISOString().split('T')[0],
+        modificacion: new Date().toISOString().split('T')[0],
+      });
+
+      return await this.pruebasRepository.save(prueba);
+    } catch (error) {
+      throw ManejadorErrores.getFallaBaseDatos(
+        error.message,
+        'TYPE-C-pruebas-009'
       );
     }
   }

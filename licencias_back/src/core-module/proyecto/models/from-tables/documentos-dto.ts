@@ -12,21 +12,16 @@ export class DocumentosDTO {
   tamanio: number;
   urlarchivo: string;
   nombreblob: string;
-  validacionfecha: string;
-  validacionusuario: number;
-  validacioncomentarios: string;
-  validacion: string;
-  idestatus: number;
-}
-
-export class getDocumentoByIdDTO {
-  existe: boolean;
-  documentoData?: DocumentosDataDTO;
 }
 
 export class getDocumentosDTO {
   existe: boolean;
   documentosData: Array<DocumentosDataDTO>;
+}
+
+export class getDocumentoByIdDTO {
+  existe: boolean;
+  documentoData?: DocumentosDataDTO;
 }
 
 export class DocumentosDataDTO {
@@ -43,12 +38,6 @@ export class DocumentosDataDTO {
   tamanio: number;
   urlarchivo: string;
   nombreblob: string;
-  validacionfecha: string;
-  validacionusuario: number;
-  validacioncomentarios: string;
-  validacion: string;
-  idestatus: number;
-  estatus: string;
 }
 
 export class getDocumentoByIdReq {
@@ -128,20 +117,4 @@ export class UpdateDocumentoRequest {
   @ApiProperty({ description: 'Archivo en base64 (nuevo archivo)', example: 'JVBERi0xLjQKJeLjz9MKMy...', required: false })
   @IsString()
   archivoBase64?: string;
-
-  @ApiProperty({ description: 'Estado de validación', example: 'aprobado', required: false })
-  @IsString()
-  validacion?: string;
-
-  @ApiProperty({ description: 'Comentarios de validación', example: 'Documento verificado correctamente', required: false })
-  @IsString()
-  validacioncomentarios?: string;
-
-  @ApiProperty({ description: 'ID del usuario que valida', example: 2, required: false })
-  @IsInt()
-  validacionusuario?: number;
-
-  @ApiProperty({ description: 'ID del estatus', example: 2, required: false })
-  @IsInt()
-  idestatus?: number;
 }

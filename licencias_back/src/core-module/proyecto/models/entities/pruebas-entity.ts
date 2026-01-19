@@ -17,8 +17,8 @@ export class PruebasEntity {
   @Column({ type: 'integer', name: 'idtipoprueba' })
   idtipoprueba: number;
   
-  @Column({ type: 'integer', name: 'idlugar' })
-   idlugar: number;
+  @Column({ type: 'integer', name: 'idlugar', nullable: true })
+   idlugar: number | null;
     
    @Column('date', {name: 'fecha'})
    fecha: string;
