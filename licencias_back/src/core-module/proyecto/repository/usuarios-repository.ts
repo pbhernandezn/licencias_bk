@@ -78,7 +78,6 @@ export class UsuariosRepository {
                     result.nacionalidad &&
                     result.sexo &&
                     result.tiposangre &&
-                    result.lugartrabajo &&
                     result.conodico_telefono &&
                     result.conocido_nombres &&
                     result.conocido_apellidopaterno &&
