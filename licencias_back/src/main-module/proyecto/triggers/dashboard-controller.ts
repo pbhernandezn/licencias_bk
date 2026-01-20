@@ -27,9 +27,9 @@ export class DashboardController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiBody({ type: getDashboardRevisorReq })
-  @ApiResponse({ status: 200, description: 'Estadísticas del revisor obtenidas', type: BaseResponse<getDashboardRevisorDTO> })
+  @ApiResponse({ status: 200, description: 'Estadísticas del revisor obtenidas', type: BaseResponse<getDashboardRevisorDTO[]> })
   @ApiResponse({ status: 401, description: 'No autorizado' })
-  async getDashboardRevisor(@Body() request: getDashboardRevisorReq, @Request() req): Promise<BaseResponse<getDashboardRevisorDTO>> {
+  async getDashboardRevisor(@Body() request: getDashboardRevisorReq, @Request() req): Promise<BaseResponse<getDashboardRevisorDTO[]>> {
     const respuesta = await this.dashboardExpose.getDashboardRevisor(request);
     return respuesta;
   }

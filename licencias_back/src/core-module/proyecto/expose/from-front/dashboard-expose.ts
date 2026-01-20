@@ -32,9 +32,9 @@ export class DashboardExpose {
     return resultado;
   }
 
-  async getDashboardRevisor(request: getDashboardRevisorReq): Promise<BaseResponse<getDashboardRevisorDTO>> {
+  async getDashboardRevisor(request: getDashboardRevisorReq): Promise<BaseResponse<getDashboardRevisorDTO[]>> {
     const respuesta = await this.dashboardService.getDashboardRevisor(request);
-    const resultado = new BaseResponse<getDashboardRevisorDTO>();
+    const resultado = new BaseResponse<getDashboardRevisorDTO[]>();
     resultado.code = RESPONSE_CODES.SUCCESFULL;
     resultado.internalCode = INTERNAL_CODES.SUCCESFULL;
     resultado.message = INTERNAL_MESSAGES.SUCCESFULL;
