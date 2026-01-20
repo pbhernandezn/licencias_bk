@@ -3,7 +3,6 @@ import { AppModule } from './main-module/app.module';
 import { config } from 'dotenv';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
-import { ShutdownExpose } from './commons-module/shutdown-module/expose/shutdown-expose';
 import { CustomExceptionFilter } from './commons-module/proyecto/utils/custom-exception.filter';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
@@ -83,7 +82,6 @@ async function bootstrap() {
         'JWT-auth'
       )
       .addTag('auth', '🔐 Autenticación - Endpoints públicos para login')
-      .addTag('Catalogos', '📋 Catálogos - Endpoints públicos para datos de referencia')
       .addTag('Dashboard', '📊 Dashboard - Protegido con JWT')
       .addTag('Usuarios', '👤 Usuarios - Protegido con JWT (excepto crear usuario)')
       .addTag('Solicitudes', '📄 Solicitudes - Protegido con JWT')
@@ -103,8 +101,6 @@ async function bootstrap() {
 
     app.useGlobalFilters(new CustomExceptionFilter());
 
-    const shutdownService = app.get(ShutdownExpose);
-    shutdownService.setApp(app);
 
     const port = process.env.UNIT_PORT ?? 3001;
     await app.listen(port);
