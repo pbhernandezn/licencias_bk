@@ -42,8 +42,6 @@ export class getDashboardTramiteDTO {
 }
 
 export class getDashboardRevisorReq {
-  @ApiProperty({ example: 7, description: 'ID del usuario revisor' })
-  id: number;
 
   @ApiProperty({ example: '2026-01-01', description: 'Fecha de inicio (aaaa-mm-dd)' })
   FechaInicio: string;

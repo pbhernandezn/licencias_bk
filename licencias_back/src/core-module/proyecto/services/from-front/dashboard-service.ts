@@ -122,7 +122,7 @@ export class DashboardService {
         .createQueryBuilder('u')
         .innerJoin('cat_usuarios', 'cu', 'u.idtipousuario = cu.id')
         .innerJoin('cat_estatus', 'ce', 'u.idestatus = ce.id')
-        .where('u.id = :id', { id: request.id })
+        //.where('u.id = :id', { id: request.id })
         .select([
           'u.id as id',
           'u.nombres as nombres',
@@ -153,7 +153,7 @@ export class DashboardService {
       const revisiones = await this.revisionesRepository
         .createQueryBuilder('r')
         .innerJoin('cat_estatus', 'ce', 'r.idestatus = ce.id')
-        .where('r.idrevisor = :idrevisor', { idrevisor: request.id })
+        //.where('r.idrevisor = :idrevisor', { idrevisor: request.id })
         .andWhere('r.creacion BETWEEN :fechaInicio AND :fechaFin', {
           fechaInicio: request.FechaInicio,
           fechaFin: request.FechaFin,
