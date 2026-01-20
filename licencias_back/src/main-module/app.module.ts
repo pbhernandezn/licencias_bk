@@ -4,7 +4,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppService } from './proyecto/services/app.service';
 import { AppController } from './proyecto/triggers/app.controller';
 import { HealthCheckModule } from '@principal/commons-module/health-check-module/health-check-module';
-import { ShutdownModule } from '@principal/commons-module/shutdown-module/shutdown-module';
 import { AuthModule } from './proyecto/auth/auth.module';
 import { CoreModule } from '@principal/core-module/core-module';
 
@@ -42,7 +41,6 @@ import { CoreModule } from '@principal/core-module/core-module';
       },
     }),
     HealthCheckModule,
-    ShutdownModule,
     AuthModule,
     CoreModule,
   ],

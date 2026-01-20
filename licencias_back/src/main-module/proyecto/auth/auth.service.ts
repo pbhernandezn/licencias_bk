@@ -84,4 +84,46 @@ export class AuthService {
 
   }
 
+  async logout(authorizationHeader: string): Promise<BaseResponse<string>> {
+    var res = new BaseResponse<string>();
+    const token = authorizationHeader.split(' ')[1];
+    
+    try {
+      // Verificar que el token sea válido
+      const payload = this.jwtService.verify(token);
+      
+      if (!payload) {
+        res.code = '401';
+        res.message = 'Token inválido';
+        res.data = null;
+        return res;
+      }
+
+      // Verificar que el token esté en la BD
+      const isInBD = await this.sesionesRepository.isTokenInBD(token);
+
+      if (!isInBD) {
+        res.code = '305';
+        res.message = 'Sesión no encontrada o ya cerrada';
+        res.data = null;
+        return res;
+      }
+
+      // Cerrar la sesión actualizando el estatus y el detalle
+      await this.sesionesRepository.closeSesion(token);
+
+      res.code = '200';
+      res.message = 'Sesión cerrada exitosamente';
+      res.data = 'Logout exitoso';
+      return res;
+
+    } catch (error) {
+      console.error('Error en logout:', error);
+      res.code = '500';
+      res.message = 'Error al cerrar sesión';
+      res.data = null;
+      return res;
+    }
+  }
+
 }

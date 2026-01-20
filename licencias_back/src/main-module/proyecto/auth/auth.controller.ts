@@ -72,4 +72,24 @@ export class AuthController {
       return res;
     }
   }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Logout', description: 'Cierra la sesión del usuario' })
+  @ApiBearerAuth('JWT-auth')
+  @UseGuards(JwtAuthGuard)
+  @Post('logout')
+  async logout(@Headers() headers: any): Promise<BaseResponse<any>> {
+    const authorizationHeader = headers['authorization'];
+    var res = new BaseResponse<any>();
+
+    if (!authorizationHeader) {
+      throw new HttpException('Authorization header is required', HttpStatus.BAD_REQUEST);
+    } else {
+      const logoutResult = await this.authService.logout(authorizationHeader);
+      res.code = logoutResult.code;
+      res.message = logoutResult.message;
+      res.data = logoutResult.data;
+      return res;
+    }
+  }
 }
