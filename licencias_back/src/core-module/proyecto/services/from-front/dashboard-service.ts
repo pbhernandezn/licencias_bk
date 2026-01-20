@@ -6,7 +6,6 @@ import { SolicitudesEntity } from '../../models/entities/solicitudes-entity';
 import { UsuariosEntity } from '../../models/entities/usuarios-entity';
 import { RevisionesEntity } from '../../models/entities/revisiones-entity';
 import { getDashboardTramiteDTO, getDashboardTramiteReq, getDashboardRevisorDTO, getDashboardRevisorReq } from '../../models/from-tables/dashboard-dto';
-import { AccesoNoAutorizado } from '@principal/commons-module/proyecto/utils/errores/acceso-no-autorizado';
 
 @Injectable()
 export class DashboardService {
@@ -115,14 +114,14 @@ export class DashboardService {
     }
   }
 
-  public async getDashboardRevisor(request: getDashboardRevisorReq): Promise<getDashboardRevisorDTO> {
+  public async getDashboardRevisor(request: getDashboardRevisorReq): Promise<getDashboardRevisorDTO[]> {
     try {
-      // Verificar si el usuario existe y obtener su información
-      const usuario = await this.usuariosRepository
+      // Obtener todos los usuarios de tipo Revisor
+      const usuarios = await this.usuariosRepository
         .createQueryBuilder('u')
         .innerJoin('cat_usuarios', 'cu', 'u.idtipousuario = cu.id')
         .innerJoin('cat_estatus', 'ce', 'u.idestatus = ce.id')
-        //.where('u.id = :id', { id: request.id })
+        .where('cu.usuario = :tipoUsuario', { tipoUsuario: 'Revisor' })
         .select([
           'u.id as id',
           'u.nombres as nombres',
@@ -130,65 +129,54 @@ export class DashboardService {
           'u.apellidomaterno as apellidomaterno',
           'u.email as email',
           'u.idestatus as idestatus',
-          'cu.usuario as tipousuario',
           'ce.estatus as estatus',
         ])
-        .getRawOne();
-
-      if (!usuario) {
-        throw ManejadorErrores.getDatosVitalesNoCargados(
-          'Usuario no encontrado',
-          'dashboard-003',
-        );
-      }
-
-      // Verificar si es Revisor
-      if (usuario.tipousuario !== 'Revisor') {
-        throw new AccesoNoAutorizado(
-          'El usuario no es un revisor',
-        );
-      }
-
-      // Obtener las revisiones del revisor en el rango de fechas
-      const revisiones = await this.revisionesRepository
-        .createQueryBuilder('r')
-        .innerJoin('cat_estatus', 'ce', 'r.idestatus = ce.id')
-        //.where('r.idrevisor = :idrevisor', { idrevisor: request.id })
-        .andWhere('r.creacion BETWEEN :fechaInicio AND :fechaFin', {
-          fechaInicio: request.FechaInicio,
-          fechaFin: request.FechaFin,
-        })
-        .select([
-          'ce.estatus as estatus',
-          'COUNT(*) as cantidad',
-        ])
-        .groupBy('ce.estatus')
         .getRawMany();
 
-      // Construir el objeto de solicitudes agrupadas por estatus
-      const solicitudes: any = {};
-      for (const row of revisiones) {
-        solicitudes[row.estatus] = parseInt(row.cantidad);
+      // Array para almacenar los resultados de cada revisor
+      const revisores = [];
+
+      // Para cada revisor, obtener sus revisiones
+      for (const usuario of usuarios) {
+        // Obtener las revisiones del revisor en el rango de fechas
+        const revisiones = await this.revisionesRepository
+          .createQueryBuilder('r')
+          .innerJoin('cat_estatus', 'ce', 'r.idestatus = ce.id')
+          .where('r.idrevisor = :idrevisor', { idrevisor: usuario.id })
+          .andWhere('r.creacion BETWEEN :fechaInicio AND :fechaFin', {
+            fechaInicio: request.FechaInicio,
+            fechaFin: request.FechaFin,
+          })
+          .select([
+            'ce.estatus as estatus',
+            'COUNT(*) as cantidad',
+          ])
+          .groupBy('ce.estatus')
+          .getRawMany();
+
+        // Construir el objeto de solicitudes agrupadas por estatus
+        const solicitudes: any = {};
+        for (const row of revisiones) {
+          solicitudes[row.estatus] = parseInt(row.cantidad);
+        }
+
+        // Construir nombre completo
+        const nombreCompleto = `${usuario.nombres} ${usuario.apellidopaterno}${usuario.apellidomaterno ? ' ' + usuario.apellidomaterno : ''}`.trim();
+
+        revisores.push({
+          Nombre: nombreCompleto,
+          Correo: usuario.email || '',
+          solicitudes: solicitudes,
+          idEstatus: usuario.idestatus,
+          estatus: usuario.estatus,
+        });
       }
 
-      // Construir nombre completo
-      const nombreCompleto = `${usuario.nombres} ${usuario.apellidopaterno}${usuario.apellidomaterno ? ' ' + usuario.apellidomaterno : ''}`.trim();
-
-      return {
-        Nombre: nombreCompleto,
-        Correo: usuario.email || '',
-        solicitudes: solicitudes,
-        idEstatus: usuario.idestatus,
-        estatus: usuario.estatus,
-      };
+      return revisores;
     } catch (error) {
       console.error('Error en getDashboardRevisor:', error);
-      // Si es un error de AccesoNoAutorizado, re-lanzarlo
-      if (error instanceof AccesoNoAutorizado) {
-        throw error;
-      }
       throw ManejadorErrores.getDatosVitalesNoCargados(
-        'Error al obtener estadísticas del revisor',
+        'Error al obtener estadísticas de los revisores',
         'dashboard-005',
       );
     }

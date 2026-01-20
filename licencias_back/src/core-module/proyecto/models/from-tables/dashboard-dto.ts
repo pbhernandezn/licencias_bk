@@ -63,7 +63,7 @@ export class SolicitudesRevisor {
   [key: string]: number | undefined;
 }
 
-export class getDashboardRevisorDTO {
+export class RevisorInfo {
   @ApiProperty({ description: 'Nombre completo del revisor' })
   Nombre: string;
 
@@ -78,4 +78,9 @@ export class getDashboardRevisorDTO {
 
   @ApiProperty({ description: 'Descripción del estatus del revisor' })
   estatus: string;
+}
+
+export class getDashboardRevisorDTO {
+  @ApiProperty({ description: 'Lista de revisores con sus estadísticas', type: [RevisorInfo] })
+  revisores: RevisorInfo[];
 }
