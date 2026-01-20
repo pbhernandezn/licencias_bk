@@ -164,6 +164,7 @@ export class DashboardService {
         const nombreCompleto = `${usuario.nombres} ${usuario.apellidopaterno}${usuario.apellidomaterno ? ' ' + usuario.apellidomaterno : ''}`.trim();
 
         revisores.push({
+          Id: usuario.id,
           Nombre: nombreCompleto,
           Correo: usuario.email || '',
           solicitudes: solicitudes,
