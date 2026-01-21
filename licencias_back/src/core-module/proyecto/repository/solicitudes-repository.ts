@@ -468,7 +468,7 @@ export class SolicitudesRepository {
         idusuario: request.idusuario,
         idtipolicencia: request.idtipolicencia,
         idmetodopago: request.idmetodopago,
-        idestatus: 22,
+        idestatus: 20,
       });
 
       await this.SolicitudesRepository.save(unit);

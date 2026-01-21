@@ -75,6 +75,12 @@ import { PruebasEntity } from './proyecto/models/entities/pruebas-entity';
 import { DashboardService } from './proyecto/services/from-front/dashboard-service';
 import { DashboardExpose } from './proyecto/expose/from-front/dashboard-expose';
 import { DashboardController } from '@principal/main-module/proyecto/triggers/dashboard-controller';
+import { FotosRostroEntity } from './proyecto/models/entities/fotos-rostro-entity';
+import { FotosRostroRepository } from './proyecto/repository/fotos-rostro-repository';
+import { FotosRostroTService } from './proyecto/services/from-tables/fotos-rostro-service';
+import { FotosRostroService } from './proyecto/services/from-front/fotos-rostro-service';
+import { FotosRostroExpose } from './proyecto/expose/from-front/fotos-rostro-expose';
+import { FotosRostroController } from '@principal/main-module/proyecto/triggers/fotos-rostro-controller';
 
 @Module({
   imports: [
@@ -98,7 +104,8 @@ import { DashboardController } from '@principal/main-module/proyecto/triggers/da
     PreguntasExamenEntity,
     IntentosExamenEntity,
     RespuestasUsuarioEntity,
-    PruebasEntity
+    PruebasEntity,
+    FotosRostroEntity
   ]),
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'CHANGE_ME',
@@ -106,7 +113,7 @@ import { DashboardController } from '@principal/main-module/proyecto/triggers/da
     }),
     CommonModule,
   ],
-  controllers: [CatalogoController, UsuariosController, SolicitudesController, FaceController, DocumentosController, RevisionesController, RevisionesDocumentosController, PruebasController, DashboardController],
+  controllers: [CatalogoController, UsuariosController, SolicitudesController, FaceController, DocumentosController, RevisionesController, RevisionesDocumentosController, PruebasController, DashboardController, FotosRostroController],
   providers: [
     CatUsuarioRepository,
     CatUsuarioService,
@@ -154,6 +161,10 @@ import { DashboardController } from '@principal/main-module/proyecto/triggers/da
     PruebasFisicasService,
     DashboardService,
     DashboardExpose,
+    FotosRostroRepository,
+    FotosRostroTService,
+    FotosRostroService,
+    FotosRostroExpose,
   ],
   exports: [
     CatalogoExpose,
@@ -194,6 +205,8 @@ import { DashboardController } from '@principal/main-module/proyecto/triggers/da
     RevisionesDocumentosExpose,
     DashboardService,
     DashboardExpose,
+    FotosRostroService,
+    FotosRostroExpose,
   ],
 })
 export class CoreModule {}
