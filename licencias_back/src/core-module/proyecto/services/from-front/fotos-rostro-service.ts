@@ -21,7 +21,9 @@ export class FotosRostroService {
    */
   async subirFotoRostro(
     idsolicitud: number,
-    archivo: any,
+    archivoBase64: string,
+    nombreoriginal: string,
+    formato: string,
   ): Promise<FotoRostroDto> {
     // Validar que la solicitud existe
     const solicitud = await this.solicitudesTService.getSolicitudById({ id: idsolicitud });
@@ -29,8 +31,11 @@ export class FotosRostroService {
       throw new NotFoundException(`Solicitud con id ${idsolicitud} no encontrada`);
     }
 
+    // Convertir base64 a buffer
+    const buffer = Buffer.from(archivoBase64, 'base64');
+
     // Validar archivo
-    this.validarArchivo(archivo);
+    this.validarArchivo(buffer, formato);
 
     // Verificar si ya existe una foto para esta solicitud
     const fotoExistente = await this.fotosRostroTService.obtenerFotoPorSolicitud(idsolicitud);
@@ -42,14 +47,17 @@ export class FotosRostroService {
     }
 
     // Generar nombre único para el archivo
-    const extension = this.obtenerExtension(archivo.originalname);
+    const extension = `.${formato.toLowerCase()}`;
     const nombreArchivo = `solicitud_${idsolicitud}_${Date.now()}${extension}`;
+
+    // Determinar mimetype
+    const mimetype = formato.toLowerCase() === 'png' ? 'image/png' : 'image/jpeg';
 
     // Subir a Azure Blob Storage
     const urlFoto = await this.azureBlobService.uploadFile(
-      archivo.buffer,
+      buffer,
       nombreArchivo,
-      archivo.mimetype,
+      mimetype,
       this.contenedor,
     );
 
@@ -98,10 +106,15 @@ export class FotosRostroService {
    */
   async modificarFotoRostro(
     idsolicitud: number,
-    archivo: any,
+    archivoBase64: string,
+    nombreoriginal: string,
+    formato: string,
   ): Promise<FotoRostroDto> {
+    // Convertir base64 a buffer
+    const buffer = Buffer.from(archivoBase64, 'base64');
+
     // Validar archivo
-    this.validarArchivo(archivo);
+    this.validarArchivo(buffer, formato);
 
     // Verificar que existe una foto previa
     const fotoExistente = await this.fotosRostroTService.obtenerFotoPorSolicitud(idsolicitud);
@@ -113,14 +126,17 @@ export class FotosRostroService {
     await this.azureBlobService.deleteFile(fotoExistente.nombreArchivo, this.contenedor);
 
     // Generar nuevo nombre para el archivo
-    const extension = this.obtenerExtension(archivo.originalname);
+    const extension = `.${formato.toLowerCase()}`;
     const nombreArchivo = `solicitud_${idsolicitud}_${Date.now()}${extension}`;
+
+    // Determinar mimetype
+    const mimetype = formato.toLowerCase() === 'png' ? 'image/png' : 'image/jpeg';
 
     // Subir nueva foto a Azure
     const urlFoto = await this.azureBlobService.uploadFile(
-      archivo.buffer,
+      buffer,
       nombreArchivo,
-      archivo.mimetype,
+      mimetype,
       this.contenedor,
     );
 
@@ -156,36 +172,23 @@ export class FotosRostroService {
 
   // Métodos auxiliares privados
 
-  private validarArchivo(archivo: any): void {
-    if (!archivo) {
+  private validarArchivo(buffer: Buffer, formato: string): void {
+    if (!buffer || buffer.length === 0) {
       throw new BadRequestException('No se proporcionó ningún archivo');
     }
 
     // Validar tamaño
-    if (archivo.size > this.tamanoMaximo) {
+    if (buffer.length > this.tamanoMaximo) {
       throw new BadRequestException(
         `El archivo excede el tamaño máximo permitido de ${this.tamanoMaximo / (1024 * 1024)}MB`,
       );
     }
 
-    // Validar extensión
-    const extension = this.obtenerExtension(archivo.originalname);
-    if (!this.extensionesPermitidas.includes(extension.toLowerCase())) {
-      throw new BadRequestException(
-        `Extensión de archivo no permitida. Solo se permiten: ${this.extensionesPermitidas.join(', ')}`,
-      );
+    // Validar formato
+    const formatoLower = formato.toLowerCase();
+    if (!['jpg', 'jpeg', 'png'].includes(formatoLower)) {
+      throw new BadRequestException('El archivo debe ser JPG o PNG');
     }
-
-    // Validar tipo MIME
-    const tiposPermitidos = ['image/jpeg', 'image/jpg', 'image/png'];
-    if (!tiposPermitidos.includes(archivo.mimetype)) {
-      throw new BadRequestException('El archivo debe ser una imagen JPG o PNG');
-    }
-  }
-
-  private obtenerExtension(nombreArchivo: string): string {
-    const partes = nombreArchivo.split('.');
-    return partes.length > 1 ? `.${partes[partes.length - 1]}` : '';
   }
 
   private mapearADto(entidad: any): FotoRostroDto {
