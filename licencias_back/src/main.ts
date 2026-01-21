@@ -32,6 +32,11 @@ async function bootstrap() {
     const app = await NestFactory.create<NestExpressApplication>(AppModule);
     console.log('✅ NestJS application created successfully');
 
+    // Aumentar límite del tamaño del body para archivos base64
+    app.use(require('express').json({ limit: '10mb' }));
+    app.use(require('express').urlencoded({ limit: '10mb', extended: true }));
+    console.log('✅ Body size limit increased to 10MB');
+
     {
       //CORS_ACEPTADOS es con ruta completa del dominio que incluye el protocolo
       let allowedOrigins = [];
