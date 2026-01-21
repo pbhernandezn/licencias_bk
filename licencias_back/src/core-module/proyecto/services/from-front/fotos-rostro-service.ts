@@ -46,9 +46,12 @@ export class FotosRostroService {
       await this.fotosRostroTService.eliminarFoto(fotoExistente.id);
     }
 
-    // Generar nombre único para el archivo
-    const extension = `.${formato.toLowerCase()}`;
-    const nombreArchivo = `solicitud_${idsolicitud}_${Date.now()}${extension}`;
+    // Generar nombre único para el archivo con estructura de carpetas
+    const nombreArchivo = this.azureBlobService.generateBlobName(
+      solicitud.solicitudData.idusuario,
+      idsolicitud,
+      nombreoriginal,
+    );
 
     // Determinar mimetype
     const mimetype = formato.toLowerCase() === 'png' ? 'image/png' : 'image/jpeg';
@@ -125,9 +128,18 @@ export class FotosRostroService {
     // Eliminar la foto anterior de Azure
     await this.azureBlobService.deleteFile(fotoExistente.nombreArchivo, this.contenedor);
 
-    // Generar nuevo nombre para el archivo
-    const extension = `.${formato.toLowerCase()}`;
-    const nombreArchivo = `solicitud_${idsolicitud}_${Date.now()}${extension}`;
+    // Obtener la solicitud para generar el nombre con estructura de carpetas
+    const solicitud = await this.solicitudesTService.getSolicitudById({ id: idsolicitud });
+    if (!solicitud) {
+      throw new NotFoundException(`Solicitud con id ${idsolicitud} no encontrada`);
+    }
+
+    // Generar nuevo nombre para el archivo con estructura de carpetas
+    const nombreArchivo = this.azureBlobService.generateBlobName(
+      solicitud.solicitudData.idusuario,
+      idsolicitud,
+      nombreoriginal,
+    );
 
     // Determinar mimetype
     const mimetype = formato.toLowerCase() === 'png' ? 'image/png' : 'image/jpeg';

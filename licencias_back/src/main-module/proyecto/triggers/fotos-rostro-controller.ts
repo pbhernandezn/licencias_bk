@@ -10,6 +10,7 @@ import {
   Res,
   HttpStatus,
   UseGuards,
+  StreamableFile,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBody, ApiParam, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { Response } from 'express';
@@ -49,13 +50,16 @@ export class FotosRostroController {
   @ApiResponse({ status: 401, description: 'No autorizado' })
   async descargarFotoRostro(
     @Param('idsolicitud', ParseIntPipe) idsolicitud: number,
-    @Res() res: Response,
-  ) {
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<StreamableFile> {
     const buffer = await this.fotosRostroExpose.descargarFotoRostro(idsolicitud);
     
-    res.setHeader('Content-Type', 'image/jpeg');
-    res.setHeader('Content-Disposition', `inline; filename="foto_rostro_${idsolicitud}.jpg"`);
-    res.send(buffer);
+    res.set({
+      'Content-Type': 'image/jpeg',
+      'Content-Disposition': `attachment; filename="foto_rostro_${idsolicitud}.jpg"`,
+    });
+
+    return new StreamableFile(buffer);
   }
 
   @Get('url/:idsolicitud')
