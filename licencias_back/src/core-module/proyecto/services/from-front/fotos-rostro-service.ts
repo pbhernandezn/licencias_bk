@@ -36,7 +36,7 @@ export class FotosRostroService {
     const fotoExistente = await this.fotosRostroTService.obtenerFotoPorSolicitud(idsolicitud);
     if (fotoExistente) {
       // Eliminar la foto anterior de Azure
-      await this.azureBlobService.deleteFile(fotoExistente.nombreArchivo);
+      await this.azureBlobService.deleteFile(fotoExistente.nombreArchivo, this.contenedor);
       // Eliminar registro de BD
       await this.fotosRostroTService.eliminarFoto(fotoExistente.id);
     }
@@ -50,6 +50,7 @@ export class FotosRostroService {
       archivo.buffer,
       nombreArchivo,
       archivo.mimetype,
+      this.contenedor,
     );
 
     // Guardar en base de datos
@@ -74,7 +75,7 @@ export class FotosRostroService {
     }
 
     // Descargar desde Azure Blob Storage
-    const buffer = await this.azureBlobService.downloadFile(foto.nombreArchivo);
+    const buffer = await this.azureBlobService.downloadFile(foto.nombreArchivo, this.contenedor);
 
     return buffer;
   }
@@ -109,7 +110,7 @@ export class FotosRostroService {
     }
 
     // Eliminar la foto anterior de Azure
-    await this.azureBlobService.deleteFile(fotoExistente.nombreArchivo);
+    await this.azureBlobService.deleteFile(fotoExistente.nombreArchivo, this.contenedor);
 
     // Generar nuevo nombre para el archivo
     const extension = this.obtenerExtension(archivo.originalname);
@@ -120,6 +121,7 @@ export class FotosRostroService {
       archivo.buffer,
       nombreArchivo,
       archivo.mimetype,
+      this.contenedor,
     );
 
     // Actualizar en base de datos
@@ -146,7 +148,7 @@ export class FotosRostroService {
     }
 
     // Eliminar de Azure
-    await this.azureBlobService.deleteFile(foto.nombreArchivo);
+    await this.azureBlobService.deleteFile(foto.nombreArchivo, this.contenedor);
 
     // Eliminar de BD (soft delete)
     await this.fotosRostroTService.eliminarFoto(foto.id);
