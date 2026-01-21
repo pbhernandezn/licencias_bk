@@ -63,4 +63,37 @@ export class SesionesRepository {
         }
     }
 
+    public async closeSesion(token: string): Promise<void> {
+        try {
+            // Obtener la sesión actual para preservar el comentario existente
+            const sesion = await this.detalleSesionRepository.findOne({
+                where: { token }
+            });
+
+            if (!sesion) {
+                throw new Error('Sesión no encontrada');
+            }
+
+            // Agregar el nuevo comentario sin borrar el existente
+            const nuevoDetalle = sesion.comentarios 
+                ? `${sesion.comentarios} | Sesión cerrada manualmente en ${new Date().toISOString()}`
+                : `Sesión cerrada manualmente en ${new Date().toISOString()}`;
+
+            await this.detalleSesionRepository.createQueryBuilder()
+                .update(DetalleSesionEntity)
+                .set({
+                    idEstatus: 37,
+                    comentarios: nuevoDetalle,
+                    fechaFin: new Date()
+                })
+                .where("token = :token", { token })
+                .execute();
+                
+            console.log('Session closed successfully');
+        } catch (error) {
+            console.error('Error closing session:', error);
+            throw error;
+        }
+    }
+
 }

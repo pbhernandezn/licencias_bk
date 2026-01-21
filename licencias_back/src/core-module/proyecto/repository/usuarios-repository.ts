@@ -78,7 +78,6 @@ export class UsuariosRepository {
                     result.nacionalidad &&
                     result.sexo &&
                     result.tiposangre &&
-                    result.lugartrabajo &&
                     result.conodico_telefono &&
                     result.conocido_nombres &&
                     result.conocido_apellidopaterno &&
@@ -385,6 +384,11 @@ export class UsuariosRepository {
             .addSelect('tipoUsuario.usuario', 'rol')
             .where('usuarios.username = :username', { username: request.username })
             .getRawOne();
+
+            
+        if (!user) {
+            return { error: 'Usuario no encontrado' };
+        }
 
         if (user.estatus !== 'Activo') {
             return { error: user.estatus, user };

@@ -72,6 +72,9 @@ import { ExamenesService } from './proyecto/services/from-tables/examenes-servic
 import { PruebasFisicasService } from './proyecto/services/from-tables/pruebas-fisicas-service';
 import { PruebasController } from './proyecto/expose/from-front/pruebas-controller';
 import { PruebasEntity } from './proyecto/models/entities/pruebas-entity';
+import { DashboardService } from './proyecto/services/from-front/dashboard-service';
+import { DashboardExpose } from './proyecto/expose/from-front/dashboard-expose';
+import { DashboardController } from '@principal/main-module/proyecto/triggers/dashboard-controller';
 
 @Module({
   imports: [
@@ -103,7 +106,11 @@ import { PruebasEntity } from './proyecto/models/entities/pruebas-entity';
     }),
     CommonModule,
 	],
+<<<<<<< HEAD
   controllers: [CatalogoController, UsuariosController, SolicitudesController, FaceController, DocumentosController, RevisionesController, RevisionesDocumentosController, PruebasController],
+=======
+  controllers: [CatalogoController, UsuariosController, SolicitudesController, FaceController, DocumentosController, RevisionesController, RevisionesDocumentosController, PruebasController, DashboardController],
+>>>>>>> bc4f960b14aa21a4f6648b1bdcac6ff4ff52c5ee
   providers: [
     CatUsuarioRepository,
     CatUsuarioService,
@@ -149,6 +156,8 @@ import { PruebasEntity } from './proyecto/models/entities/pruebas-entity';
     PruebasRepository,
     ExamenesService,
     PruebasFisicasService,
+    DashboardService,
+    DashboardExpose,
   ],
   exports: [
     CatalogoExpose,
@@ -187,6 +196,8 @@ import { PruebasEntity } from './proyecto/models/entities/pruebas-entity';
     RevisionesDocumentosTService,
     RevisionesDocumentosService,
     RevisionesDocumentosExpose,
+    DashboardService,
+    DashboardExpose,
   ],
 })
 export class CoreModule {}
