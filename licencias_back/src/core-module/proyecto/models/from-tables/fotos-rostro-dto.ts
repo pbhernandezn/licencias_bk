@@ -1,19 +1,23 @@
 export class FotoRostroDto {
-  id?: number;
+  id: number;
   idsolicitud: number;
   urlFoto: string;
   nombreArchivo: string;
   contenedor: string;
-  fechaSubida?: Date;
-  activo?: boolean;
+  fechaSubida: Date;
+  activo: boolean;
 }
 
 export class SubirFotoRostroRequest {
   idsolicitud: number;
-  archivo: any;
+  archivoBase64: string;
+  nombreoriginal: string;
+  formato: string;
 }
 
 export class ActualizarFotoRostroRequest {
-  id: number;
-  archivo: any;
+  idsolicitud: number;
+  archivoBase64: string;
+  nombreoriginal: string;
+  formato: string;
 }
