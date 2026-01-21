@@ -105,8 +105,7 @@ import { DashboardController } from '@principal/main-module/proyecto/triggers/da
       signOptions: { expiresIn: '1h' },
     }),
     CommonModule,
-	],
-
+  ],
   controllers: [CatalogoController, UsuariosController, SolicitudesController, FaceController, DocumentosController, RevisionesController, RevisionesDocumentosController, PruebasController, DashboardController],
   providers: [
     CatUsuarioRepository,
