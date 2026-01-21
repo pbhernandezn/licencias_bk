@@ -48,7 +48,7 @@ export class FotosRostroService {
 
     // Generar nombre único para el archivo con estructura de carpetas
     const nombreArchivo = this.azureBlobService.generateBlobName(
-      solicitud.idusuario,
+      solicitud.solicitudData.idusuario,
       idsolicitud,
       nombreoriginal,
     );
@@ -136,7 +136,7 @@ export class FotosRostroService {
 
     // Generar nuevo nombre para el archivo con estructura de carpetas
     const nombreArchivo = this.azureBlobService.generateBlobName(
-      solicitud.idusuario,
+      solicitud.solicitudData.idusuario,
       idsolicitud,
       nombreoriginal,
     );
