@@ -106,7 +106,11 @@ import { DashboardController } from '@principal/main-module/proyecto/triggers/da
     }),
     CommonModule,
 	],
+<<<<<<< HEAD
+  controllers: [CatalogoController, UsuariosController, SolicitudesController, FaceController, DocumentosController, RevisionesController, RevisionesDocumentosController, PruebasController],
+=======
   controllers: [CatalogoController, UsuariosController, SolicitudesController, FaceController, DocumentosController, RevisionesController, RevisionesDocumentosController, PruebasController, DashboardController],
+>>>>>>> bc4f960b14aa21a4f6648b1bdcac6ff4ff52c5ee
   providers: [
     CatUsuarioRepository,
     CatUsuarioService,
@@ -152,7 +156,7 @@ import { DashboardController } from '@principal/main-module/proyecto/triggers/da
     PruebasRepository,
     ExamenesService,
     PruebasFisicasService,
-	DashboardService,
+    DashboardService,
     DashboardExpose,
   ],
   exports: [
