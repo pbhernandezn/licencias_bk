@@ -6,18 +6,32 @@ import { ManejadorErrores } from '@principal/commons-module/proyecto/utils/manej
 @Injectable()
 export class AzureBlobService {
   private containerClient: ContainerClient;
+  private blobServiceClient: BlobServiceClient;
+  private connectionString: string;
 
   constructor(private configService: ConfigService) {
-    const connectionString = this.configService.get<string>('AZURE_STORAGE_CONNECTION_STRING');
+    this.connectionString = this.configService.get<string>('AZURE_STORAGE_CONNECTION_STRING');
     const containerName = this.configService.get<string>('AZURE_STORAGE_CONTAINER_NAME', 'documentos');
 
-    if (!connectionString) {
+    if (!this.connectionString) {
       //throw new Error('AZURE_STORAGE_CONNECTION_STRING no está configurada');
     }else{
-    const blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
-    this.containerClient = blobServiceClient.getContainerClient(containerName);
+    this.blobServiceClient = BlobServiceClient.fromConnectionString(this.connectionString);
+    this.containerClient = this.blobServiceClient.getContainerClient(containerName);
     }
 
+  }
+
+  /**
+   * Obtiene un cliente de contenedor para un contenedor específico
+   * @param containerName - Nombre del contenedor
+   * @returns ContainerClient
+   */
+  private getContainerClient(containerName?: string): ContainerClient {
+    if (!containerName) {
+      return this.containerClient;
+    }
+    return this.blobServiceClient.getContainerClient(containerName);
   }
 
   /**
@@ -25,14 +39,16 @@ export class AzureBlobService {
    * @param buffer - Buffer del archivo
    * @param blobName - Nombre único del blob
    * @param contentType - Tipo de contenido del archivo
+   * @param containerName - Nombre del contenedor (opcional, usa el por defecto si no se especifica)
    * @returns URL del archivo subido (privada - solo para referencia)
    */
-  async uploadFile(buffer: Buffer, blobName: string, contentType: string): Promise<string> {
+  async uploadFile(buffer: Buffer, blobName: string, contentType: string, containerName?: string): Promise<string> {
     try {
+      const container = this.getContainerClient(containerName);
       // Crear el contenedor si no existe (privado - sin acceso público)
-      await this.containerClient.createIfNotExists();
+      await container.createIfNotExists();
 
-      const blockBlobClient: BlockBlobClient = this.containerClient.getBlockBlobClient(blobName);
+      const blockBlobClient: BlockBlobClient = container.getBlockBlobClient(blobName);
       
       await blockBlobClient.uploadData(buffer, {
         blobHTTPHeaders: {
@@ -52,11 +68,13 @@ export class AzureBlobService {
   /**
    * Descarga un archivo de Azure Blob Storage
    * @param blobName - Nombre del blob
+   * @param containerName - Nombre del contenedor (opcional, usa el por defecto si no se especifica)
    * @returns Buffer del archivo
    */
-  async downloadFile(blobName: string): Promise<Buffer> {
+  async downloadFile(blobName: string, containerName?: string): Promise<Buffer> {
     try {
-      const blockBlobClient: BlockBlobClient = this.containerClient.getBlockBlobClient(blobName);
+      const container = this.getContainerClient(containerName);
+      const blockBlobClient: BlockBlobClient = container.getBlockBlobClient(blobName);
       const downloadResponse = await blockBlobClient.download();
       
       const chunks: Buffer[] = [];
@@ -76,10 +94,12 @@ export class AzureBlobService {
   /**
    * Elimina un archivo de Azure Blob Storage
    * @param blobName - Nombre del blob
+   * @param containerName - Nombre del contenedor (opcional, usa el por defecto si no se especifica)
    */
-  async deleteFile(blobName: string): Promise<void> {
+  async deleteFile(blobName: string, containerName?: string): Promise<void> {
     try {
-      const blockBlobClient: BlockBlobClient = this.containerClient.getBlockBlobClient(blobName);
+      const container = this.getContainerClient(containerName);
+      const blockBlobClient: BlockBlobClient = container.getBlockBlobClient(blobName);
       await blockBlobClient.deleteIfExists();
     } catch (error) {
       throw ManejadorErrores.getFallaBaseDatos(
