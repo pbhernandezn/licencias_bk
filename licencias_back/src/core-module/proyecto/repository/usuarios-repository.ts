@@ -103,6 +103,10 @@ export class UsuariosRepository {
                         sexo: result.sexo,
                         telefono: result.conodico_telefono,
                         estatus: result.estatus_estatus,
+                        nacionalidad: result.nacionalidad,
+                        tiposangre: result.tiposangre,
+                        donador: result.donador,
+                        conocido_telefono: result.conodico_telefono,
                     }
                     : undefined,
                 perfil: perfil,
