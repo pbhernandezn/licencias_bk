@@ -56,6 +56,10 @@ export class UsuariosDataDTO {
   sexo: string;
   telefono: string;
   estatus: string;
+  nacionalidad: string;
+  tiposangre: string;
+  donador: string;
+  conocido_telefono: string;
 }
 
 export class getUsuarioByIdReq {
