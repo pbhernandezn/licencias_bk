@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable, NotFoundException, Logger } from "@nestjs/common";
 import { SolicitudesRepository } from "../../repository/solicitudes-repository";
 import { QueryParams } from "@principal/commons-module/proyecto/utils/query-params";
 import { CreateSolicitudRequest, getSolicitudByIdDTO, getSolicitudByIdEstatusReq, getSolicitudByIdReq, getSolicitudByIdTipoLicenciaReq, getSolicitudByIdUsuarioReq, getSolicitudesDTO, SolicitudesDTO, UpdateSolicitudRequest } from "../../models/from-tables/solicitudes-dto";
@@ -11,6 +11,8 @@ import { UsuariosTService } from "./usuarios-service";
 
 @Injectable()
 export class SolicitudesTService {
+  private readonly logger = new Logger(SolicitudesTService.name);
+
   constructor(
     private readonly solicitudesRepository: SolicitudesRepository,
     private readonly catLicenciasRepository: CatLicenciasRepository,
@@ -122,13 +124,21 @@ export class SolicitudesTService {
       await this.solicitudesRepository.updateSolicitud(payload.idsolicitud, solicitudToUpdate);
 
       // Enviar notificación por email si el estatus cambia a 22
+      this.logger.log(`updateSolicitud: Verificando si enviar email. idestatus: ${payload.idestatus}`);
+      
       if (payload.idestatus === 22) {
+        this.logger.log('updateSolicitud: idestatus es 22, intentando enviar email...');
+        
         try {
           // Obtener información del usuario
+          this.logger.log(`updateSolicitud: Obteniendo usuario con ID: ${respuesta.solicitudData.idusuario}`);
           const usuarioData = await this.usuariosTService.getUsuariosById({ id: respuesta.solicitudData.idusuario });
+          
+          this.logger.log(`updateSolicitud: Usuario obtenido. Tiene email: ${!!usuarioData?.usuario?.email}`);
           
           if (usuarioData && usuarioData.usuario && usuarioData.usuario.email) {
             // Obtener información de la licencia
+            this.logger.log(`updateSolicitud: Obteniendo licencia con ID: ${respuesta.solicitudData.idtipolicencia}`);
             const licencia = await this.catLicenciasRepository.getCatLicenciasById({ 
               id: respuesta.solicitudData.idtipolicencia 
             });
@@ -136,16 +146,22 @@ export class SolicitudesTService {
             const nombreCompleto = `${usuarioData.usuario.nombres} ${usuarioData.usuario.apellidopaterno} ${usuarioData.usuario.apellidomaterno || ''}`.trim();
             const tipoLicencia = licencia?.catLicencia?.licencia || 'Licencia';
             
+            this.logger.log(`updateSolicitud: Enviando email a ${usuarioData.usuario.email} para solicitud ${respuesta.solicitudData.id}`);
+            
             await this.emailNotificationsService.notificarSolicitudCreada(
               usuarioData.usuario.email,
               nombreCompleto,
               respuesta.solicitudData.id,
               tipoLicencia,
             );
+            
+            this.logger.log('updateSolicitud: Email enviado exitosamente');
+          } else {
+            this.logger.warn('updateSolicitud: No se encontró email del usuario o datos incompletos');
           }
         } catch (emailError) {
           // No lanzar error si falla el email, solo log
-          console.error('Error al enviar notificación de solicitud con estatus 22:', emailError);
+          this.logger.error('updateSolicitud: Error al enviar notificación de solicitud con estatus 22:', emailError);
         }
       }
     }
