@@ -6,11 +6,16 @@ import { ManejadorErrores } from "@principal/commons-module/proyecto/utils/manej
 import { CatLicenciasRepository } from "../../repository/catLicencias-repository";
 import { randomUUID } from "crypto";
 import { getCatLicenciaByIdReq } from "../../models/from-tables/catLicencias-dto";
+import { EmailNotificationsService } from "../from-front/email-notifications-service";
+import { UsuariosTService } from "./usuarios-service";
 
 @Injectable()
 export class SolicitudesTService {
-  constructor(private readonly solicitudesRepository: SolicitudesRepository,
-    private readonly catLicenciasRepository: CatLicenciasRepository
+  constructor(
+    private readonly solicitudesRepository: SolicitudesRepository,
+    private readonly catLicenciasRepository: CatLicenciasRepository,
+    private readonly emailNotificationsService: EmailNotificationsService,
+    private readonly usuariosTService: UsuariosTService,
   ) {}
 
   public async getSolicitudes(
@@ -115,6 +120,34 @@ export class SolicitudesTService {
         idmetodopago: respuesta.solicitudData.idmetodopago,
       };
       await this.solicitudesRepository.updateSolicitud(payload.idsolicitud, solicitudToUpdate);
+
+      // Enviar notificación por email si el estatus cambia a 22
+      if (payload.idestatus === 22) {
+        try {
+          // Obtener información del usuario
+          const usuarioData = await this.usuariosTService.getUsuariosById({ id: respuesta.solicitudData.idusuario });
+          
+          if (usuarioData && usuarioData.usuario && usuarioData.usuario.email) {
+            // Obtener información de la licencia
+            const licencia = await this.catLicenciasRepository.getCatLicenciasById({ 
+              id: respuesta.solicitudData.idtipolicencia 
+            });
+            
+            const nombreCompleto = `${usuarioData.usuario.nombres} ${usuarioData.usuario.apellidopaterno} ${usuarioData.usuario.apellidomaterno || ''}`.trim();
+            const tipoLicencia = licencia?.catLicencia?.licencia || 'Licencia';
+            
+            await this.emailNotificationsService.notificarSolicitudCreada(
+              usuarioData.usuario.email,
+              nombreCompleto,
+              respuesta.solicitudData.id,
+              tipoLicencia,
+            );
+          }
+        } catch (emailError) {
+          // No lanzar error si falla el email, solo log
+          console.error('Error al enviar notificación de solicitud con estatus 22:', emailError);
+        }
+      }
     }
     
   }

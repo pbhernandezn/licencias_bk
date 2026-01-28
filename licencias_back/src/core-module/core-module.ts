@@ -81,6 +81,8 @@ import { FotosRostroTService } from './proyecto/services/from-tables/fotos-rostr
 import { FotosRostroService } from './proyecto/services/from-front/fotos-rostro-service';
 import { FotosRostroExpose } from './proyecto/expose/from-front/fotos-rostro-expose';
 import { FotosRostroController } from '@principal/main-module/proyecto/triggers/fotos-rostro-controller';
+import { AzureEmailService } from './proyecto/services/from-tables/azure-email-service';
+import { EmailNotificationsService } from './proyecto/services/from-front/email-notifications-service';
 
 @Module({
   imports: [
@@ -165,6 +167,8 @@ import { FotosRostroController } from '@principal/main-module/proyecto/triggers/
     FotosRostroTService,
     FotosRostroService,
     FotosRostroExpose,
+    AzureEmailService,
+    EmailNotificationsService,
   ],
   exports: [
     CatalogoExpose,
@@ -207,6 +211,8 @@ import { FotosRostroController } from '@principal/main-module/proyecto/triggers/
     DashboardExpose,
     FotosRostroService,
     FotosRostroExpose,
+    AzureEmailService,
+    EmailNotificationsService,
   ],
 })
 export class CoreModule {}
